@@ -1,0 +1,1456 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>eptm_class module &mdash; Apposed-Cortex Model 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Apposed-Cortex Model
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">eptm_class module</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Apposed-Cortex Model</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>eptm_class module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/rst/eptm_class.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-eptm_class">
+<span id="eptm-class-module"></span><h1>eptm_class module<a class="headerlink" href="#module-eptm_class" title="Permalink to this headline">¶</a></h1>
+<p>MIT License</p>
+<p>Copyright (c) [2021] [Alexander Nestor-Bergmann]</p>
+<dl class="py class">
+<dt id="eptm_class.Epithelium">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eptm_class.</span></code><code class="sig-name descname"><span class="pre">Epithelium</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">35</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tissue_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'within_hexagon'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disordered_tissue_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">eptm_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to hold and manipulate all objects that constitute a tissue: cells, adhesion and boundaries.</p>
+<p>The adhesion objects, with their cell conection information, are stored here.  This information is passed to each
+cell as a list, rather than adhesion itself, for memory.</p>
+<dl class="py class">
+<dt id="eptm_class.Epithelium.OOMFormatter">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">OOMFormatter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fformat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%1.1f'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mathText</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.OOMFormatter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.OOMFormatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.ticker.ScalarFormatter</span></code></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.activate_fast_adhesions">
+<code class="sig-name descname"><span class="pre">activate_fast_adhesions</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_off</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.activate_fast_adhesions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.activate_fast_adhesions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn forces from fast adhesions on or off.  Even when off, fast adhesions are used to calculate active contractility.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>on_off</strong> (<em>bool</em>) – Turn forces from fast adhesions on or off.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.activate_sidekick_adhesions">
+<code class="sig-name descname"><span class="pre">activate_sidekick_adhesions</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_off</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.activate_sidekick_adhesions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.activate_sidekick_adhesions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn sdk vertex forces on or off</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>on_off</strong> (<em>bool</em>) – Activate sidekick forces or not.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.activate_slow_adhesions">
+<code class="sig-name descname"><span class="pre">activate_slow_adhesions</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_off</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.activate_slow_adhesions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.activate_slow_adhesions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn slow adhesion forces on or off</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>on_off</strong> (<em>bool</em>) – Activate slow adhesions, or not.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.adjust_intersections">
+<code class="sig-name descname"><span class="pre">adjust_intersections</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.adjust_intersections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.adjust_intersections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies a hand-of-god correction to prevent intersections of cortices.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.apply_prestretch_to_cell_identity_pairs">
+<code class="sig-name descname"><span class="pre">apply_prestretch_to_cell_identity_pairs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prestretch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_pair</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unipolar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.apply_prestretch_to_cell_identity_pairs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.apply_prestretch_to_cell_identity_pairs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add active contractility to cell_pairs that share adhesions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prestretch</strong> (<em>float</em>) – Magnitude of prestretch</p></li>
+<li><p><strong>cell_pair</strong> (<em>list</em>) – A list of two cell identites that will localise contractility on shared junctions e.g. <code class="docutils literal notranslate"><span class="pre">['A',</span> <span class="pre">'B']`</span></code>.</p></li>
+<li><p><strong>unipolar</strong> (<em>bool</em>) – (Default value = False)  Apply on only the first cell.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.apply_prestretch_to_whole_cells">
+<code class="sig-name descname"><span class="pre">apply_prestretch_to_whole_cells</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prestretch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cells</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.apply_prestretch_to_whole_cells"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.apply_prestretch_to_whole_cells" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a prestretch to the whole cortex of specified cells.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prestretch</strong> (<em>float</em>) – Magnitude of of prestretch.</p></li>
+<li><p><strong>cells</strong> (<em>list</em>) – List of cell identities that this will be applied to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.check_if_cells_share_a_vertex">
+<code class="sig-name descname"><span class="pre">check_if_cells_share_a_vertex</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c1_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c2_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c3_ref</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.check_if_cells_share_a_vertex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.check_if_cells_share_a_vertex" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if each cell shares adehsions with both other cells.  Doesn’t work for the tissue boundary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>c1_ref</strong> (<em>string</em>) – Identifier for first cell</p></li>
+<li><p><strong>c2_ref</strong> (<em>string</em>) – Identifier for second cell</p></li>
+<li><p><strong>c3_ref</strong> (<em>string</em>) – Identifier for third cell</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return vertex_check</dt>
+<dd class="field-even"><p>True if cells share a vertex</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.create_14_cell_eptm_from_fitted_single_cell">
+<code class="sig-name descname"><span class="pre">create_14_cell_eptm_from_fitted_single_cell</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.create_14_cell_eptm_from_fitted_single_cell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.create_14_cell_eptm_from_fitted_single_cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a 14-cell tissue, symmetric in x and y, from a tissue made up of a single cell in a hexagon.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.create_17_cell_eptm_from_fitted_single_cell">
+<code class="sig-name descname"><span class="pre">create_17_cell_eptm_from_fitted_single_cell</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.create_17_cell_eptm_from_fitted_single_cell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.create_17_cell_eptm_from_fitted_single_cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a tissue with 17 cells and two axes of symmetry from a tissue with a single cell in a hexagon.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.create_19_cell_eptm_from_fitted_single_cell">
+<code class="sig-name descname"><span class="pre">create_19_cell_eptm_from_fitted_single_cell</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.create_19_cell_eptm_from_fitted_single_cell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.create_19_cell_eptm_from_fitted_single_cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a tissue with 19 cells from a tissue with a single cell enclosed in a hexagon.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.create_3_cell_eptm_from_fitted_single_cell">
+<code class="sig-name descname"><span class="pre">create_3_cell_eptm_from_fitted_single_cell</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.create_3_cell_eptm_from_fitted_single_cell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.create_3_cell_eptm_from_fitted_single_cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tissue with 3 cells enclosed in a stencil.  Need to start with a single cell in a hexagon.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.create_disordered_tissue_in_ellipse">
+<code class="sig-name descname"><span class="pre">create_disordered_tissue_in_ellipse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.create_disordered_tissue_in_ellipse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.create_disordered_tissue_in_ellipse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a disordered tissue using a matern point process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>param_dict</strong> (<em>dict</em>) – (Default value = None)  kappa, omega0, delta dictionary for cells.</p></li>
+<li><p><strong>kwargs</strong> (<em>dict</em>) – Optional arguments for the tissue.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.decimate_all_cells_onto_new_grid">
+<code class="sig-name descname"><span class="pre">decimate_all_cells_onto_new_grid</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.decimate_all_cells_onto_new_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.decimate_all_cells_onto_new_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Changes ‘n’ for every cell by interpolating their variables onto a new grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>factor</strong> (<em>int</em>) – The factor which which to scale the number of cortex nodes.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.deform_elastic_boundary">
+<code class="sig-name descname"><span class="pre">deform_elastic_boundary</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stiffness_x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stiffness_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_ads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.deform_elastic_boundary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.deform_elastic_boundary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Relax tissue with an elastic BC for the boundary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stiffness_x</strong> (<em>float</em>) – (Default value = None)  Stiffness along x-axis.</p></li>
+<li><p><strong>stiffness_y</strong> (<em>float</em>) – (Default value = None)  Stiffness along y-axis.</p></li>
+<li><p><strong>update_ads</strong> (<em>bool</em>) – (Default value = False)  Whether to perform an update of the adhesions.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.double_mesh">
+<code class="sig-name descname"><span class="pre">double_mesh</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.double_mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.double_mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Puts new mesh points at mean locations of current.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.duplicate_cell">
+<code class="sig-name descname"><span class="pre">duplicate_cell</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_to_copy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_shift</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_shift</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roll</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'B'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.duplicate_cell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.duplicate_cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Duplicates a cell in the tissue, with a specified shift in x and y coords</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cell_to_copy</strong> (<em>string</em>) – Identity of cell that will be duplicated</p></li>
+<li><p><strong>x_shift</strong> (<em>flaot</em>) – Translation in x-direction.</p></li>
+<li><p><strong>y_shift</strong> (<em>float</em>) – Translation in y-direction.</p></li>
+<li><p><strong>roll</strong> (<em>int</em>) – (Default value = 0)  Roll the cell variables to change position of starting index.</p></li>
+<li><p><strong>theta_shift</strong> (<em>float</em>) – (Default value = 0)  Shift theta by a scale factor (multiples of 2pi).</p></li>
+<li><p><strong>identifier</strong> (<em>string</em>) – (Default value = ‘B’)  Identitfier for new cell.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.get_all_tissue_vertices">
+<code class="sig-name descname"><span class="pre">get_all_tissue_vertices</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">apply_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.get_all_tissue_vertices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.get_all_tissue_vertices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a set of all unique vertices (as lists of 3 cell identities) in the tissue</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>apply_to</strong> (<em>string</em>) – (Default value = ‘all’)  If not <code class="docutils literal notranslate"><span class="pre">'all'</span></code>, a list of cell identifiers that the function will be applied to.</p>
+</dd>
+<dt class="field-even">Return vertices</dt>
+<dd class="field-even"><p>A list of triplets of cell identities.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.get_all_vertices_for_cell">
+<code class="sig-name descname"><span class="pre">get_all_vertices_for_cell</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_ref</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.get_all_vertices_for_cell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.get_all_vertices_for_cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of identities of neighbours that a cell shares adhesions with.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cell_ref</strong> (<em>string</em>) – Identity of cell.</p>
+</dd>
+<dt class="field-even">Return vertices</dt>
+<dd class="field-even"><p>List of neighbour identities.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.get_bicellular_junctions_for_cell">
+<code class="sig-name descname"><span class="pre">get_bicellular_junctions_for_cell</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.015</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.get_bicellular_junctions_for_cell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.get_bicellular_junctions_for_cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the local indices (i,j) for the coordinates of the endpoints of bicellular junctions in a cell</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cell_ref</strong> (<em>string</em>) – identity of cell.</p></li>
+<li><p><strong>smooth</strong> (<em>bool</em>) – (Default value = True)  Whether to smooth the cortex curvature to find the straight segments.</p></li>
+<li><p><strong>d_threshold</strong> (<em>float</em>) – (Default value = 0.015)  Threshold below which cortex is classed as stright.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return bi_junctions</dt>
+<dd class="field-even"><p>(list([id1, id2],…))  A list of the paired local ids for where the bicellular junctions start and end.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.get_boundary_stress_tensor">
+<code class="sig-name descname"><span class="pre">get_boundary_stress_tensor</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.get_boundary_stress_tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.get_boundary_stress_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate stress tensor of the boundary stencil         odo needs to be upgraded with new adhesion class
+make sure factoring for spacing on both sides.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return stress</dt>
+<dd class="field-odd"><p>The boundary stress tensor.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.get_cartesian_coords_of_vertex_triangle">
+<code class="sig-name descname"><span class="pre">get_cartesian_coords_of_vertex_triangle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_1_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_2_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_3_ref</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.get_cartesian_coords_of_vertex_triangle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.get_cartesian_coords_of_vertex_triangle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get cartesian coords of the vertex traingle from the local idxs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cell_1_ref</strong> (<em>string</em>) – Idientifier of first cell.</p></li>
+<li><p><strong>cell_2_ref</strong> (<em>string</em>) – Idientifier of second cell.</p></li>
+<li><p><strong>cell_3_ref</strong> (<em>string</em>) – Idientifier of third cell.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return vertex</dt>
+<dd class="field-even"><p>The ((x1,y1), (x2,y2), (x3,y3)) cartesian coords of the triangle.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.get_cell_sum_stress_tensor">
+<code class="sig-name descname"><span class="pre">get_cell_sum_stress_tensor</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.get_cell_sum_stress_tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.get_cell_sum_stress_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>The sum of all cell stress tensors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return stress</dt>
+<dd class="field-odd"><p>The 2x2 tissue stress tensor.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.get_coordinates_of_junction_midpoint">
+<code class="sig-name descname"><span class="pre">get_coordinates_of_junction_midpoint</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_1_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_2_ref</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.get_coordinates_of_junction_midpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.get_coordinates_of_junction_midpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the local idx midpoint of the junction shared between two cells</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cell_1_ref</strong> (<em>string</em>) – Idientifier of first cell.</p></li>
+<li><p><strong>cell_2_ref</strong> (<em>string</em>) – Idientifier of second cell.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return midpoint</dt>
+<dd class="field-even"><p>the local indices in each cell (idx_c1, idx_c2) of the junction midpoint</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(int, int)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.get_coordinates_of_nearest_points_between_cells">
+<code class="sig-name descname"><span class="pre">get_coordinates_of_nearest_points_between_cells</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_1_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_2_ref</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.get_coordinates_of_nearest_points_between_cells"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.get_coordinates_of_nearest_points_between_cells" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the local idxs for the nearest points between two cell cortices</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cell_1_ref</strong> (<em>string</em>) – Identity of one cell.</p></li>
+<li><p><strong>cell_2_ref</strong> (<em>string</em>) – Identity of another cell.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return coords</dt>
+<dd class="field-even"><p>Local indices of cells where the distance between them is minimised.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(int, int)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.get_cortex_coord_of_vertex_triangle">
+<code class="sig-name descname"><span class="pre">get_cortex_coord_of_vertex_triangle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_1_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_2_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_3_ref</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.get_cortex_coord_of_vertex_triangle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.get_cortex_coord_of_vertex_triangle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get local index for the coords of the vertex triangle on three cells.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cell_1_ref</strong> (<em>string</em>) – Idientifier of first cell.</p></li>
+<li><p><strong>cell_2_ref</strong> (<em>string</em>) – Idientifier of second cell.</p></li>
+<li><p><strong>cell_3_ref</strong> (<em>string</em>) – Idientifier of third cell.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return vertex</dt>
+<dd class="field-even"><p>The three local indices on each cortex, where the vertex is located on each cortex.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.get_indices_of_points_within_distance">
+<code class="sig-name descname"><span class="pre">get_indices_of_points_within_distance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.get_indices_of_points_within_distance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.get_indices_of_points_within_distance" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Function to return the indices of points 1 that are within ‘cutoff’ of points 2.</dt><dd><p>odo make a sklearn tree of the wall to increase speed.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>points1</strong> (<em>list</em>) – The list of (x,y) points that will find nearest points in points2</p></li>
+<li><p><strong>points2</strong> (<em>list</em>) – The reference list of points.</p></li>
+<li><p><strong>cutoff</strong> (<em>float</em>) – Maximum search distance.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return indices</dt>
+<dd class="field-even"><p>The indices of points1 list that are within cutoff to points2.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.get_indices_to_order_anticlockwise">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_indices_to_order_anticlockwise</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centroid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.get_indices_to_order_anticlockwise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.get_indices_to_order_anticlockwise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Order a given set of points anticlockwise, centroid calculated from points if not given</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>points</strong> (<em>np.array</em>) – Input array of (x,y) coord pairs.</p></li>
+<li><p><strong>centroid</strong> (<em>tuple</em>) – (Default value = None)  Centroid of points. Can also calculate on the fly.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The indices that order the list.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.get_junction_cell_pairs">
+<code class="sig-name descname"><span class="pre">get_junction_cell_pairs</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.get_junction_cell_pairs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.get_junction_cell_pairs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a set of the pairs of cells belonging to a junction, i.e. [(c1, c2),…], for all bicellular
+junctions in the tissue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return junc_pairs</dt>
+<dd class="field-odd"><p>A list of the bicellualr junctions in the tissue.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.get_length_of_shared_junction">
+<code class="sig-name descname"><span class="pre">get_length_of_shared_junction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_1_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_2_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alternative_junc_refs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.get_length_of_shared_junction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.get_length_of_shared_junction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the length of the bijunction shared between two cells</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cell_1_ref</strong> (<em>string</em>) – Idientifier of first cell.</p></li>
+<li><p><strong>cell_2_ref</strong> (<em>string</em>) – Idientifier of second cell.</p></li>
+<li><p><strong>alternative_junc_refs</strong> (<em>list</em>) – (Default value = None)  Possible alternative junctions to try. Passed as [[‘ref_1’, ‘ref_2’],…]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return length</dt>
+<dd class="field-even"><p>The length of cortex where the two cells share adhesions.  Returns 0 if they don’t share any.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.get_locations_of_cortex_adhesion_transition">
+<code class="sig-name descname"><span class="pre">get_locations_of_cortex_adhesion_transition</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_1_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertex_neighbours</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.get_locations_of_cortex_adhesion_transition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.get_locations_of_cortex_adhesion_transition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find where cell 1 (cell_1_ref) swaps from adhering to cell 2 to cell 3.
+vertex_neighbours = (cell_2_ref, cell_3_ref)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cell_1_ref</strong> (<em>string</em>) – Identity of cell 1.</p></li>
+<li><p><strong>vertex_neighbours</strong> (<em>list</em>) – List (len=2) of neighbour identities.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return local_index</dt>
+<dd class="field-even"><p>Local idx in cell 1 where there is an adhesion transition.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.get_shortest_distance_between_two_cells">
+<code class="sig-name descname"><span class="pre">get_shortest_distance_between_two_cells</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_1_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_2_ref</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.get_shortest_distance_between_two_cells"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.get_shortest_distance_between_two_cells" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the shortest distance between two cells. This is a proxy for the length of
+the shrinking junction when cell_1_ref = “C” and cell_2_ref = “D”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cell_1_ref</strong> (<em>string</em>) – Reference of first cell id.</p></li>
+<li><p><strong>cell_2_ref</strong> (<em>string</em>) – Reference of first cell id.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return min_dist</dt>
+<dd class="field-even"><p>The distance between the cortices.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.get_stress_tensor_around_cell_cluster_depreciated">
+<code class="sig-name descname"><span class="pre">get_stress_tensor_around_cell_cluster_depreciated</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.get_stress_tensor_around_cell_cluster_depreciated"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.get_stress_tensor_around_cell_cluster_depreciated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate stress tensor of all the internal cells.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.get_tissue_pressure">
+<code class="sig-name descname"><span class="pre">get_tissue_pressure</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.get_tissue_pressure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.get_tissue_pressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Isotropic part of tissue-level stress</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return stress</dt>
+<dd class="field-odd"><p>Isotropic componenet of stress tensor.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.get_tissue_width_and_height">
+<code class="sig-name descname"><span class="pre">get_tissue_width_and_height</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.get_tissue_width_and_height"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.get_tissue_width_and_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Top and bottom (delta x,delta y) of max/min of boundary stencil</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return width_height</dt>
+<dd class="field-odd"><p>The (width, height) of the boundary stencil.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.get_unbalanced_force_residual">
+<code class="sig-name descname"><span class="pre">get_unbalanced_force_residual</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L2'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.get_unbalanced_force_residual"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.get_unbalanced_force_residual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the unbalanced force at centre of every bicellular junction.
+Can take L1 or L2 norm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>norm</strong> (<em>string</em>) – (Default value = ‘L2’)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.get_vertex_circumcircle">
+<code class="sig-name descname"><span class="pre">get_vertex_circumcircle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_1_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_2_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_3_ref</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.get_vertex_circumcircle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.get_vertex_circumcircle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get centroid and radius of circumcircleinsribed at vertices</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cell_1_ref</strong> (<em>string</em>) – Idientifier of first cell.</p></li>
+<li><p><strong>cell_2_ref</strong> – Idientifier of second cell.</p></li>
+<li><p><strong>cell_3_ref</strong> (<em>string</em>) – Idientifier of third cell.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return circle_props</dt>
+<dd class="field-even"><p>The (x,y) centre and radius of the circumcircle.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.get_xy_segment_lengths">
+<code class="sig-name descname"><span class="pre">get_xy_segment_lengths</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.get_xy_segment_lengths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.get_xy_segment_lengths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the spacing between nodes on a curve specified by (array(x), array(y))</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.array</em>) – The x-coords of the nodes</p></li>
+<li><p><strong>y</strong> (<em>np.array</em>) – The y-coords of the nodes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return spacing</dt>
+<dd class="field-even"><p>The spacing.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.hand_of_god_distances_to_delta">
+<code class="sig-name descname"><span class="pre">hand_of_god_distances_to_delta</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_adhesion_update</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.hand_of_god_distances_to_delta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.hand_of_god_distances_to_delta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves any cortices closer than delta away from each other</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>initial_adhesion_update</strong> (<em>bool</em>) – (Default value = True) Whether to re-calculate the adhesions for all cells</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.impose_pcp">
+<code class="sig-name descname"><span class="pre">impose_pcp</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prestretch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.impose_pcp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.impose_pcp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies prestrain to all vertical junctions.  Works only in the 14-cell tissue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prestretch</strong> (<em>float</em>) – The magnitude of prestretch.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.pickle_self">
+<code class="sig-name descname"><span class="pre">pickle_self</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">SAVE_DIR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prune_adhesions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.pickle_self"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.pickle_self" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pickles and saves an instance of this class in its current state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>SAVE_DIR</strong> (<em>string</em>) – (Default value = None)  Save location.</p></li>
+<li><p><strong>name</strong> (<em>string</em>) – (Default value = None)  Filename</p></li>
+<li><p><strong>prune_adhesions</strong> – (Default value = True)  Remove fast adhesions and cell-stored adhesions before saving (recommended for space).</p></li>
+</ul>
+</dd>
+</dl>
+<p>:type prune_adhesions : bool</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.plot_bijunction_tension_arrows">
+<code class="sig-name descname"><span class="pre">plot_bijunction_tension_arrows</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_extra_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arrow_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'k'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arrow_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.015</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arrow_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.004</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.plot_bijunction_tension_arrows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.plot_bijunction_tension_arrows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot arrows representing magnitude of tension in cortex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cell_list</strong> (<em>list</em>) – List of cell idetifiers on which arrows will be plotted.</p></li>
+<li><p><strong>ax</strong> (<em>mpl axis</em>) – (Default value = None)  Axis on which to plot.</p></li>
+<li><p><strong>num_extra_indices</strong> (<em>int</em>) – (Default value = 2)  Average the force over a few indices.</p></li>
+<li><p><strong>arrow_scale</strong> (<em>float</em>) – (Default value = .015)  Scale the matplotlib arrow.</p></li>
+<li><p><strong>arrow_col</strong> (<em>string</em>) – (Default value = ‘k’)  Arrow colour.</p></li>
+<li><p><strong>arrow_width</strong> (<em>float</em>) – (Default value = 0.004)  Width of arrow.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.plot_xy_on_trijunction">
+<code class="sig-name descname"><span class="pre">plot_xy_on_trijunction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axEqual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plotAdhesion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_stress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_adhesion_forces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lagrangian_tracking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_tension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_boundary_movement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_cbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.plot_xy_on_trijunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.plot_xy_on_trijunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the tissue and the boundary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>mpl axis</em>) – (Default value = None)  Axis object to plot on.</p></li>
+<li><p><strong>plotAdhesion</strong> (<em>bool</em>) – (Default value = True)  Whether to plot adhesions.</p></li>
+<li><p><strong>plot_shape</strong> (<em>bool</em>) – (Default value = False)  Plot the principal axis of shape.</p></li>
+<li><p><strong>plot_boundary</strong> (<em>bool</em>) – (Default value = True)  Plot the boundary?</p></li>
+<li><p><strong>lagrangian_tracking</strong> (<em>bool</em>) – (Default value = False)  Plot Lagrange markers.</p></li>
+<li><p><strong>plot_boundary_movement</strong> (<em>bool</em>) – (Default value = True)  Plot the position of the boundary in the last step.</p></li>
+<li><p><strong>cell_kwargs</strong> (<em>dict</em>) – (Default value = {})  Optional arguments for plotting the cells.</p></li>
+<li><p><strong>axEqual</strong> (<em>bool</em>) – (Default value = True)  As in Matplotlib axis.</p></li>
+<li><p><strong>plot_stress</strong> (<em>bool</em>) – (Default value = False)  Plot the principal axis of stress.</p></li>
+<li><p><strong>plot_adhesion_forces</strong> (<em>bool</em>) – (Default value = True)  Plot arrows for the adhesion forces.</p></li>
+<li><p><strong>cell_ids</strong> (<em>list</em>) – (Default value = [])  List of cell identifiers to plot.</p></li>
+<li><p><strong>plot_tension</strong> (<em>bool</em>) – (Default value = False)  Plot the magnitude of tension in cortex with a heatmap.</p></li>
+<li><p><strong>plot_cbar</strong> (<em>bool</em>) – (Default value = True)  Plot colourbars for the cell stress and tension.</p></li>
+<li><p><strong>sim_type</strong> (<em>string</em>) – (Default value = ‘auto’)  Used to scale the stress colourmaps e.g. if there are lots of cables.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.prune_slow_adhesions_by_length">
+<code class="sig-name descname"><span class="pre">prune_slow_adhesions_by_length</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_length</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.prune_slow_adhesions_by_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.prune_slow_adhesions_by_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove slow adhesions if they are longer than ‘max_length’</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>max_length</strong> (<em>float</em>) – Adhesions with length above this will be discarded.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.relax_deformable_boundary">
+<code class="sig-name descname"><span class="pre">relax_deformable_boundary</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stiffness_x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stiffness_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_adhesions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pure_shear</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.025</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_shift_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.relax_deformable_boundary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.relax_deformable_boundary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the stress at the boundary and deform it elastically, updating cell psoitions as it moves to equilibrium.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stiffness_x</strong> (<em>float</em>) – (Default value = None)  Stiffness of boundary in x-direction.</p></li>
+<li><p><strong>stiffness_y</strong> (<em>float</em>) – (Default value = None)  Stiffness of boundary in y-direction.</p></li>
+<li><p><strong>update_adhesions</strong> (<em>bool</em>) – (Default value = True)  Perform adhesion update?</p></li>
+<li><p><strong>pure_shear</strong> (<em>bool</em>) – (Default value = False)  Enforce constant area?</p></li>
+<li><p><strong>max_shift</strong> (<em>float</em>) – (Default value = 0.025)  Maximum boundary strain (can help prevent the boundary overlapping cells).</p></li>
+<li><p><strong>max_shift_tol</strong> (<em>float</em>) – (Default value = 1e-4)  We don’t get closer than this to a cell.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return success</dt>
+<dd class="field-even"><p>Whether relaxation passed or not.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.relax_eptm_with_boundary">
+<code class="sig-name descname"><span class="pre">relax_eptm_with_boundary</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stiffness_x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stiffness_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_solves</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.relax_eptm_with_boundary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.relax_eptm_with_boundary" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Calculate the stress at the boundary and relax the boundary. N.B. stress and strain names</dt><dd><p>are wrong way around below.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stiffness_x</strong> (<em>float</em>) – (Default value = None)  Stiffness of boundary in x-direction.</p></li>
+<li><p><strong>stiffness_y</strong> (<em>float</em>) – (Default value = None)  Stiffness of boundary in y-direction.</p></li>
+<li><p><strong>max_solves</strong> (<em>in</em>) – (Default value = 1)  Maximum jiggles to try to get to equilibrium before giving up.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.relax_eptm_with_germband_bcs">
+<code class="sig-name descname"><span class="pre">relax_eptm_with_germband_bcs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posterior_pull_shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stiffness_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_solves</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.relax_eptm_with_germband_bcs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.relax_eptm_with_germband_bcs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Relax eptm with BCs from GBE. Viscous D-V, fixed anterior and posterior pull.
+NB this is very specific to the fixed boundary with 14 cells.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>posterior_pull_shift</strong> (<em>float</em>) – (Default value = None)  Strain to apply to the right boundary nodes.</p></li>
+<li><p><strong>stiffness_y</strong> (<em>float</em>) – (Default value = None)  Tissue stiffness in y.</p></li>
+<li><p><strong>max_solves</strong> (<em>int</em>) – (Default value = 5)  Maximum jiggles to try before giving up.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.remesh_all_cortices">
+<code class="sig-name descname"><span class="pre">remesh_all_cortices</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coarsen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.remesh_all_cortices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.remesh_all_cortices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add/remove mesh nodes if spacing too big/small</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coarsen</strong> (<em>bool</em>) – (Default value = True).  Boolean, whether to adaptively remove mesh nodes.</p></li>
+<li><p><strong>refine</strong> (<em>bool</em>) – (Default value = True).  Boolean, whether to adaptively add mesh nodes.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.remove_redundant_member_variables">
+<code class="sig-name descname"><span class="pre">remove_redundant_member_variables</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.remove_redundant_member_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.remove_redundant_member_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes old, lingering variables that are taking up space</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.remove_sdk_from_a_junction">
+<code class="sig-name descname"><span class="pre">remove_sdk_from_a_junction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">junc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.remove_sdk_from_a_junction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.remove_sdk_from_a_junction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes sdk from the vertices of a junction defined as junc = [cell_ref_1, cell_ref_2]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>junc</strong> (<em>list</em>) – A list of the two cell identities that make the bicellular junction.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.rotate_curve_about_line">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">rotate_curve_about_line</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.rotate_curve_about_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.rotate_curve_about_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>For plotting the symmetric junctions, rotate the soln
+m is gradient.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.arrays</em>) – x-coords of the line.</p></li>
+<li><p><strong>y</strong> (<em>np.array</em>) – y-coords of the line.</p></li>
+<li><p><strong>m</strong> (<em>float</em>) – Gradient of line</p></li>
+<li><p><strong>c</strong> (<em>float</em>) – (Default value = None)  y-intercept</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The new (x,y) arrays representing the line coordinates.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.run_simulation_timestep">
+<code class="sig-name descname"><span class="pre">run_simulation_timestep</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">apply_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">viscous_cells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.run_simulation_timestep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.run_simulation_timestep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run a full simulation timestep, including viscous length updates and solving to equilibrium.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>apply_to</strong> (<em>list</em>) – (Default value = ‘all’)  List of cells to apply function to.</p></li>
+<li><p><strong>viscous_cells</strong> – (Default value = ‘all’)  List of cells that will have length and area updates.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.scale_cells_to_fit_adhesion_to_delta">
+<code class="sig-name descname"><span class="pre">scale_cells_to_fit_adhesion_to_delta</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.scale_cells_to_fit_adhesion_to_delta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.scale_cells_to_fit_adhesion_to_delta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scale all cells such that their adhesions are within delta apart
+Note, we do them in sequence, rather than parallel, so no cells end up overlapping</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.set_adhesion_beta_scale_factor">
+<code class="sig-name descname"><span class="pre">set_adhesion_beta_scale_factor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adhesion_beta_scale_factor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.set_adhesion_beta_scale_factor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.set_adhesion_beta_scale_factor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the scale factor to normalise fast adhesion forces in the meanfield.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>adhesion_beta_scale_factor</strong> (<em>float</em>) – Exponential scaling factor.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.set_adhesion_search_radius">
+<code class="sig-name descname"><span class="pre">set_adhesion_search_radius</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.set_adhesion_search_radius"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.set_adhesion_search_radius" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the range within which to look for fast adhesion binding pairs. This is used for applying prestretch.
+For fast adhesion forces, the force is set to zero for lengths above ‘max_adhesion_length’, such that
+max_adhesion_length must be &lt;= adhesion_search_radius to work properly
+It is redundant if adhesion_type=meanfield, which adjusts the value to make sure all are connected.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>radius</strong> – The new search radius.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.set_adhesion_to_fixed_line_bool">
+<code class="sig-name descname"><span class="pre">set_adhesion_to_fixed_line_bool</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">yes_no</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.set_adhesion_to_fixed_line_bool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.set_adhesion_to_fixed_line_bool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define whether the elements are adhering to fixed line (a fixed boundary, rather than other cells).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>yes_no</strong> (<em>bool</em>) – Set to fixed line or not.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.set_adhesion_type">
+<code class="sig-name descname"><span class="pre">set_adhesion_type</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.set_adhesion_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.set_adhesion_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set how the force for fast adhesions is calculated
+“meanfield”: update max search length to always find a neighbour, regarless of how far, and calulate the
+meanfield force.  But the force is set to zero for adhesions longer than max_adhesion_length anyway.
+“nearest”: Use only the nearest neighbouring node.
+“fixed_radius”:  Attach to all neighbours within ‘adhesion_search_radius’ and calculate meanfield force.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_type</strong> (<em>string</em>) – The rule for calculating adhesion forces.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.set_area_stiffness">
+<code class="sig-name descname"><span class="pre">set_area_stiffness</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stiffness</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.set_area_stiffness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.set_area_stiffness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set area stiffness.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>stiffness</strong> (<em>float</em>) – The new bulk stiffness.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.set_cables_in_eptm">
+<code class="sig-name descname"><span class="pre">set_cables_in_eptm</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prestretch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id1_cells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id2_cells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cable_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bipolar'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.set_cables_in_eptm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.set_cables_in_eptm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialises PCP cables in the epithelium by assigning prestrain to mis-matched identities</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prestretch</strong> (<em>float</em>) – The magnitude of prestretch to apply to the cortices</p></li>
+<li><p><strong>id1_cells</strong> (<em>list</em>) – (Default value = [])  List of cells to be identity 1</p></li>
+<li><p><strong>id2_cells</strong> (<em>list</em>) – (Default value = [])  List of cells to be identity 2</p></li>
+<li><p><strong>cable_type</strong> (<em>string</em>) – (Default value = ‘bipolar’)  unipolar or bipolar cables.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.set_constitutive_model">
+<code class="sig-name descname"><span class="pre">set_constitutive_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.set_constitutive_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.set_constitutive_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the constitutive model on all the cortices</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model</strong> (<em>string</em>) – The new constitutive model.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.set_fast_adhesion_force_law">
+<code class="sig-name descname"><span class="pre">set_fast_adhesion_force_law</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.set_fast_adhesion_force_law"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.set_fast_adhesion_force_law" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constitutive properties of fast adhesions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_type</strong> (<em>string</em>) – The new rule for their constitutive properties.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.set_max_num_adhesions_for_fast_force_calculation">
+<code class="sig-name descname"><span class="pre">set_max_num_adhesions_for_fast_force_calculation</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_ads</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.set_max_num_adhesions_for_fast_force_calculation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.set_max_num_adhesions_for_fast_force_calculation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of adhesions to use when calculating the force for fast adhesions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>num_ads</strong> (<em>int</em>) – The max num adhesions.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.set_mesh_coarsening_fraction">
+<code class="sig-name descname"><span class="pre">set_mesh_coarsening_fraction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_fraction_to_remove</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.set_mesh_coarsening_fraction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.set_mesh_coarsening_fraction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify what fraction of total nodes can be removed in coarsening</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>max_fraction_to_remove</strong> (<em>float</em>) – Maxiumum fraction of mesh nodes to remove in one pass, when adaptive.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.set_omega_for_cells">
+<code class="sig-name descname"><span class="pre">set_omega_for_cells</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_omega</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.set_omega_for_cells"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.set_omega_for_cells" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the adhesion strength for specified cells.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>new_omega</strong> (<em>float</em>) – New adhesion strength.</p></li>
+<li><p><strong>apply_to</strong> (<em>list</em>) – (Default value = ‘all’)  List of cells to apply function to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.set_pressure_on_off">
+<code class="sig-name descname"><span class="pre">set_pressure_on_off</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_off</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.set_pressure_on_off"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.set_pressure_on_off" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn bulk pressure force on or off in the cells.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>on_off</strong> (<em>bool</em>) – Control whether to use medial terms.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.set_prestrain_type">
+<code class="sig-name descname"><span class="pre">set_prestrain_type</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prestrain_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.set_prestrain_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.set_prestrain_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the way the prestretch is calculated for all cells.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prestrain_type</strong> (<em>string</em>) – The new prestrain type.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.set_relax_tolerance_for_cells">
+<code class="sig-name descname"><span class="pre">set_relax_tolerance_for_cells</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.set_relax_tolerance_for_cells"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.set_relax_tolerance_for_cells" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tolerance for getting the tissue to elastic quilibrium</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tol</strong> (<em>float</em>) – New relax tolerance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.set_sdk_restlen">
+<code class="sig-name descname"><span class="pre">set_sdk_restlen</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rest_len</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.set_sdk_restlen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.set_sdk_restlen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the stiffness of an sdk bond</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>rest_len</strong> (<em>float</em>) – The bond rest length.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.set_sdk_stiffness">
+<code class="sig-name descname"><span class="pre">set_sdk_stiffness</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stiffness</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.set_sdk_stiffness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.set_sdk_stiffness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the stiffness of an sdk bond</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>stiffness</strong> (<em>float</em>) – The bond stiffness.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.set_verbose">
+<code class="sig-name descname"><span class="pre">set_verbose</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.set_verbose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.set_verbose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn print statements on or off.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>verbose</strong> (<em>bool</em>) – Whether to print information to console.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.set_viscous_bluk">
+<code class="sig-name descname"><span class="pre">set_viscous_bluk</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_off</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.set_viscous_bluk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.set_viscous_bluk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify if the area is viscous</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>on_off</strong> (<em>bool</em>) – Turn viscous bulk on or off.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.set_viscous_cortex">
+<code class="sig-name descname"><span class="pre">set_viscous_cortex</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_off</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.set_viscous_cortex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.set_viscous_cortex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify if the cortex is viscous</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>on_off</strong> (<em>bool</em>) – turn viscosity on or off</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.smooth_all_variables_with_spline">
+<code class="sig-name descname"><span class="pre">smooth_all_variables_with_spline</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">apply_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.smooth_all_variables_with_spline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.smooth_all_variables_with_spline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use a spline to smooth the variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>apply_to</strong> (<em>list</em>) – (Default value = ‘all’)  If not <code class="docutils literal notranslate"><span class="pre">'all'</span></code>, a list of cell identifiers that the function will be applied to.</p></li>
+<li><p><strong>smoothing</strong> (<em>float</em>) – (Default value = 1e-3)  How much smoothing to apply.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.solve_bvps_in_parallel">
+<code class="sig-name descname"><span class="pre">solve_bvps_in_parallel</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">applyTo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hand_of_god</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.solve_bvps_in_parallel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.solve_bvps_in_parallel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use joblib to solve the bvp for all cortices and reach tissue elastic equilibrium</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>applyTo</strong> (<em>list</em>) – (Default value = “all”)  Which cells to apply the function to.</p></li>
+<li><p><strong>smoothing</strong> (<em>float</em>) – (Default value = 0)  How much to smooth cortex variables between solving.</p></li>
+<li><p><strong>hand_of_god</strong> (<em>bool</em>) – (Default value = True)  Whether to manually move cortices to at least <code class="docutils literal notranslate"><span class="pre">delta</span></code> apart before solving.  This helps with stability.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return success</dt>
+<dd class="field-even"><p>Whether solving ran without errors and converged.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.solve_bvps_in_series">
+<code class="sig-name descname"><span class="pre">solve_bvps_in_series</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">applyTo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.solve_bvps_in_series"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.solve_bvps_in_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve the bvp for each cell in series to reach elastic equilibrium.     odo haven’t tested this functionality
+in a while</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>applyTo</strong> (<em>list</em>) – (Default value = ‘all’)  Which cells to apply the function to.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.truncate_colormap">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">truncate_colormap</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.truncate_colormap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.truncate_colormap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Truncate a colourmap between 2 values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cmap</strong> – A matplotlib colourmap.</p></li>
+<li><p><strong>cmap</strong> – mpl cmap</p></li>
+<li><p><strong>minval</strong> – (Default value = 0.0)  New max value for the colourmap.</p></li>
+<li><p><strong>minval</strong> – (Default value = 0.0)  float</p></li>
+<li><p><strong>maxval</strong> – (Default value = 1.0)  New min value for colourmap.</p></li>
+<li><p><strong>maxval</strong> – (Default value = 1.0)  float</p></li>
+<li><p><strong>n</strong> – (Default value = 1000)  Number of values in cmap.</p></li>
+<li><p><strong>n</strong> – (Default value = 1000)  int</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The truncaetd cmap</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>mpl cmap</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.update_adhesion_distances_identifiers_and_indices_for_all_cortices">
+<code class="sig-name descname"><span class="pre">update_adhesion_distances_identifiers_and_indices_for_all_cortices</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.update_adhesion_distances_identifiers_and_indices_for_all_cortices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.update_adhesion_distances_identifiers_and_indices_for_all_cortices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the distances to all adhesions and the identies of the cortices.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.update_adhesion_points_between_all_cortices">
+<code class="sig-name descname"><span class="pre">update_adhesion_points_between_all_cortices</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">only_fast</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">build_trees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fresh_sdk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prune_slow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.update_adhesion_points_between_all_cortices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.update_adhesion_points_between_all_cortices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update all specified adhesion types.
+By default, doesn’t prune slow because they may be updated before time progresses</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>only_fast</strong> (<em>bool</em>) – (Default value = False)  Update only fast adhesions (and thereby prestretches).</p></li>
+<li><p><strong>build_trees</strong> (<em>bool</em>) – (Default value = True)  Update adhesion trees.</p></li>
+<li><p><strong>apply_to</strong> (<em>list</em>) – (Default value = ‘all’)  If not <code class="docutils literal notranslate"><span class="pre">'all'</span></code>, a list of cell identifiers that the function will be applied to.</p></li>
+<li><p><strong>fresh_sdk</strong> (<em>bool</em>) – (Default value = False)  Update sidkekick adhesions.</p></li>
+<li><p><strong>prune_slow</strong> (<em>bool</em>) – (Default value = False)  Remove old and long slow adhesions.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.update_adhesions_for_hexagons">
+<code class="sig-name descname"><span class="pre">update_adhesions_for_hexagons</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.update_adhesions_for_hexagons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.update_adhesions_for_hexagons" title="Permalink to this definition">¶</a></dt>
+<dd><p>For only 1 cell.  The cell is placed in a hexagonal wall and finds adhesions to the boundary.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.update_all_max_adhesion_lengths">
+<code class="sig-name descname"><span class="pre">update_all_max_adhesion_lengths</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_adhesion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.update_all_max_adhesion_lengths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.update_all_max_adhesion_lengths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the maximum adhesion lengths.  This is the maximum length for force calculation, not prestretch
+application</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>new_length</strong> (<em>float</em>) – New rest length for adhesions.</p></li>
+<li><p><strong>update_adhesion</strong> (<em>bool</em>) – (Default value = False)  Whether to refresh the adhesion connection lists.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.update_all_missing_member_variables">
+<code class="sig-name descname"><span class="pre">update_all_missing_member_variables</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.update_all_missing_member_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.update_all_missing_member_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialse missing member variables that may have been created since the eptm was saved</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.update_all_rest_lengths">
+<code class="sig-name descname"><span class="pre">update_all_rest_lengths</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">apply_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.update_all_rest_lengths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.update_all_rest_lengths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the rest lengths, S_0 &lt;- s, of specified cortices under viscous model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>apply_to</strong> (<em>list</em>) – (Default value = ‘all’)  If not <code class="docutils literal notranslate"><span class="pre">'all'</span></code>, a list of cell identifiers that the function will be applied to.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.update_all_rest_lengths_and_areas">
+<code class="sig-name descname"><span class="pre">update_all_rest_lengths_and_areas</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">apply_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.update_all_rest_lengths_and_areas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.update_all_rest_lengths_and_areas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the rest lengths, S_0 &lt;- s, and areas of specified cortices under viscous model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>apply_to</strong> (<em>list</em>) – (Default value = ‘all’)  If not <code class="docutils literal notranslate"><span class="pre">'all'</span></code>, a list of cell identifiers that the function will be applied to.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.update_fast_adhesions">
+<code class="sig-name descname"><span class="pre">update_fast_adhesions</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">build_trees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.update_fast_adhesions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.update_fast_adhesions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the population of fast turnover adhesions, tau_ad &lt; tau_cortex
+Adds the current positions of the cortices as the possible adhesion points for each cortex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>build_trees</strong> (<em>bool</em>) – (Default value = True)  Rebuild the parameter trees with adhesion nodes.</p></li>
+<li><p><strong>apply_to</strong> (<em>list</em>) – (Default value = ‘all’)  If not <code class="docutils literal notranslate"><span class="pre">'all'</span></code>, a list of cell identifiers that the function will be applied to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.update_pref_areas">
+<code class="sig-name descname"><span class="pre">update_pref_areas</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.update_pref_areas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.update_pref_areas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the preferred area of specified cells</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>area</strong> (<em>float</em>) – (Default value = None)  New preferred area.</p></li>
+<li><p><strong>apply_to</strong> (<em>list</em>) – (Default value = ‘all’)  If not <code class="docutils literal notranslate"><span class="pre">'all'</span></code>, a list of cell identifiers that the function will be applied to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.update_pressures">
+<code class="sig-name descname"><span class="pre">update_pressures</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pressure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.update_pressures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.update_pressures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the pressure acting on the cortex, from the cell bulk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pressure</strong> (<em>float</em>) – Magnitude of pressure force in cell bulk.</p></li>
+<li><p><strong>apply_to</strong> (<em>list</em>) – (Default value = ‘all’)  If not <code class="docutils literal notranslate"><span class="pre">'all'</span></code>, a list of cell identifiers that the function will be applied to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.update_sidekick_adhesions">
+<code class="sig-name descname"><span class="pre">update_sidekick_adhesions</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fresh_sdk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.update_sidekick_adhesions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.update_sidekick_adhesions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the sidekick vertices in the tissue and then add data to cells.
+As with slow adhesions, these are stored in the Cell classes as:
+slow_ad = (local_cell_index, other_cell_x, other_cell_y, other_cell_mesh_spacing)
+rather than as adhesion objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fresh_sdk</strong> (<em>bool</em>) – (Default value = True)  Remove the existing sidekick and make new ones.</p></li>
+<li><p><strong>apply_to</strong> (<em>list</em>) – (Default value = ‘all’)  If not <code class="docutils literal notranslate"><span class="pre">'all'</span></code>, a list of cell identifiers that the function will be applied to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.update_slow_adhesions">
+<code class="sig-name descname"><span class="pre">update_slow_adhesions</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prune</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.update_slow_adhesions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.update_slow_adhesions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the slow adhesions in the tissue and then store in every cell
+To save memory, slow adhesions are stored in Cell class as:
+slow_ad = (local_cell_index, other_cell_x, other_cell_y, other_cell_mesh_spacing)
+rather than as adhesion objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prune</strong> (<em>bool</em>) – (Default value = False)  Remove adhesions based on lifetime.</p></li>
+<li><p><strong>apply_to</strong> (<em>list</em>) – (Default value = ‘all’)  If not <code class="docutils literal notranslate"><span class="pre">'all'</span></code>, a list of cell identifiers that the function will be applied to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eptm_class.Epithelium.verboseprint">
+<code class="sig-name descname"><span class="pre">verboseprint</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/eptm_class.html#Epithelium.verboseprint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eptm_class.Epithelium.verboseprint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to print out details as code runs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> – Information to be printed to console.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Alexander Nestor-Bergmann.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

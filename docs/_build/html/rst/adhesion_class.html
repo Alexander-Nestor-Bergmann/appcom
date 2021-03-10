@@ -1,0 +1,431 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>adhesion_class module &mdash; Apposed-Cortex Model 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Apposed-Cortex Model
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">adhesion_class module</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Apposed-Cortex Model</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>adhesion_class module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/rst/adhesion_class.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-adhesion_class">
+<span id="adhesion-class-module"></span><h1>adhesion_class module<a class="headerlink" href="#module-adhesion_class" title="Permalink to this headline">¶</a></h1>
+<p>MIT License</p>
+<p>Copyright (c) [2021] [Alexander Nestor-Bergmann]</p>
+<dl class="py class">
+<dt id="adhesion_class.Adhesion">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">adhesion_class.</span></code><code class="sig-name descname"><span class="pre">Adhesion</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_lifespan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adhesion_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cadherin'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adhesion_class.html#Adhesion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adhesion_class.Adhesion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class to represent an adhesion agent in a tissue.  This is a useful object to keep track of which cells the
+adhesion is attached to and the coordinates and locations in the deformed and undeformed cortex configurations.</p>
+<dl class="py method">
+<dt id="adhesion_class.Adhesion.cell_index_by_id">
+<code class="sig-name descname"><span class="pre">cell_index_by_id</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adhesion_class.html#Adhesion.cell_index_by_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adhesion_class.Adhesion.cell_index_by_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the local index on a cortex that the adhesion is attached to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>id</strong> (<em>string</em>) – The identity of the cell to look on.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The local index that the adhesion is connected to for the given cell.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="adhesion_class.Adhesion.get_angle_relative_to_cortices">
+<code class="sig-name descname"><span class="pre">get_angle_relative_to_cortices</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adhesion_class.html#Adhesion.get_angle_relative_to_cortices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adhesion_class.Adhesion.get_angle_relative_to_cortices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the angle the adhesion makes relative to the tangent along both cortices</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The angle that the adhesion makes relative to the tangent along the connected cortices.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(float, float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="adhesion_class.Adhesion.get_cell_id_at_other_end">
+<code class="sig-name descname"><span class="pre">get_cell_id_at_other_end</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">this_cell_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adhesion_class.html#Adhesion.get_cell_id_at_other_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adhesion_class.Adhesion.get_cell_id_at_other_end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the identity at the other side of the adhesion, given that we are in <code class="docutils literal notranslate"><span class="pre">this_cell</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>this_cell_id</strong> (<em>string</em>) – The identity of the cell that we know.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The identity of the cell on the other side.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="adhesion_class.Adhesion.get_force_magnitude">
+<code class="sig-name descname"><span class="pre">get_force_magnitude</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_id_for_new_xy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'None'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_xy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adhesion_class.html#Adhesion.get_force_magnitude"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adhesion_class.Adhesion.get_force_magnitude" title="Permalink to this definition">¶</a></dt>
+<dd><p>Force acting on adhesion</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cell_id_for_new_xy</strong> (<em>string</em>) – (Default value = ‘None’)  Optional identifier for cell that we want to change the position of.</p></li>
+<li><p><strong>new_xy</strong> (<em>tuple</em>) – (Default value = (0, 0)  The new (x,y) position of the given cell.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The magnitude of (spring) force in the adhesion.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="adhesion_class.Adhesion.get_length">
+<code class="sig-name descname"><span class="pre">get_length</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_id_for_new_xy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'None'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_xy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adhesion_class.html#Adhesion.get_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adhesion_class.Adhesion.get_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the length of the adhesion. Can change the xy location of one of the cells.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cell_id_for_new_xy</strong> (<em>string</em>) – (Default value = ‘None’)  Optional identifier for cell that we want to change the position of.</p></li>
+<li><p><strong>new_xy</strong> (<em>tuple</em>) – (Default value = (0, 0)  The new (x,y) position of the given cell.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The length of the adhesion.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="adhesion_class.Adhesion.get_spacing_at_other_end">
+<code class="sig-name descname"><span class="pre">get_spacing_at_other_end</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">this_cell_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adhesion_class.html#Adhesion.get_spacing_at_other_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adhesion_class.Adhesion.get_spacing_at_other_end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the spacing at the other side of the adhesion, given that we are in cell with <code class="docutils literal notranslate"><span class="pre">this_cell_id</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>this_cell_id</strong> (<em>string</em>) – The identity of the cell that we know/are in.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The discretised spacing on the other cortex.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="adhesion_class.Adhesion.get_unit_direction">
+<code class="sig-name descname"><span class="pre">get_unit_direction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_id_for_new_xy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'None'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_xy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adhesion_class.html#Adhesion.get_unit_direction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adhesion_class.Adhesion.get_unit_direction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a vector describing the direction of the adhesion</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cell_id_for_new_xy</strong> (<em>string</em>) – (Default value = ‘None’)  Optional identifier for cell that we want to change the position of.</p></li>
+<li><p><strong>new_xy</strong> (<em>tuple</em>) – (Default value = (0, 0)  The new (x,y) position of the given cell.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The direction of the adhesion, from cell1 to cell2</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="adhesion_class.Adhesion.get_vector_force">
+<code class="sig-name descname"><span class="pre">get_vector_force</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_cell_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_xy_for_from_cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adhesion_class.html#Adhesion.get_vector_force"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adhesion_class.Adhesion.get_vector_force" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a vector for the adhesion force, acting on from_cell_id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cell_id_for_new_xy</strong> (<em>string</em>) – (Default value = ‘None’)  Optional identifier for cell that we want to change the position of.</p></li>
+<li><p><strong>new_xy</strong> (<em>tuple</em>) – (Default value = (0, 0)  The new (x,y) position of the given cell.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The vector force exerted by the adhesion on cell 1.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="adhesion_class.Adhesion.get_xy">
+<code class="sig-name descname"><span class="pre">get_xy</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adhesion_class.html#Adhesion.get_xy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adhesion_class.Adhesion.get_xy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the [(x_1, y_1), (x_2, y_2)] coords of the cell connections</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The coords of the adhesion connections.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="adhesion_class.Adhesion.get_xy_at_other_end">
+<code class="sig-name descname"><span class="pre">get_xy_at_other_end</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">this_cell_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adhesion_class.html#Adhesion.get_xy_at_other_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adhesion_class.Adhesion.get_xy_at_other_end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the spacing at the other side of the adhesion, given that we are in this_cell</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>this_cell_id</strong> (<em>string</em>) – The identifier of the cell we know.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The (x,y) coords that the adhesion is connected to on the other end.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="adhesion_class.Adhesion.get_xy_at_this_end">
+<code class="sig-name descname"><span class="pre">get_xy_at_this_end</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">this_cell_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adhesion_class.html#Adhesion.get_xy_at_this_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adhesion_class.Adhesion.get_xy_at_this_end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the discrete cortex spacing where the adhesion is attached to a given cell</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>this_cell_id</strong> (<em>string</em>) – The identity of the cell to get the spacing.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The (x,y) coords that the adhesion is connected to on the given cell.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="adhesion_class.Adhesion.plot">
+<code class="sig-name descname"><span class="pre">plot</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">plot_params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adhesion_class.html#Adhesion.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adhesion_class.Adhesion.plot" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>mpl axis</em>) – (Default value = None)  Axis object to plot on.</p></li>
+<li><p><strong>plot_params</strong> (<em>dict</em>) – Optional plotting arguments.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="adhesion_class.Adhesion.update_local_cell_indices_with_s">
+<code class="sig-name descname"><span class="pre">update_local_cell_indices_with_s</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adhesion_class.html#Adhesion.update_local_cell_indices_with_s"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adhesion_class.Adhesion.update_local_cell_indices_with_s" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the local cortex indices by the s values for the cells.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="adhesion_class.Adhesion.update_s_by_local_cell_indices">
+<code class="sig-name descname"><span class="pre">update_s_by_local_cell_indices</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adhesion_class.html#Adhesion.update_s_by_local_cell_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#adhesion_class.Adhesion.update_s_by_local_cell_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the local cortex indices by the s values for the cells.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Alexander Nestor-Bergmann.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

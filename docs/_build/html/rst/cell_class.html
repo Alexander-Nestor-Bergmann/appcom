@@ -1,0 +1,1176 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>cell_class module &mdash; Apposed-Cortex Model 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Apposed-Cortex Model
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">cell_class module</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Apposed-Cortex Model</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>cell_class module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/rst/cell_class.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-cell_class">
+<span id="cell-class-module"></span><h1>cell_class module<a class="headerlink" href="#module-cell_class" title="Permalink to this headline">¶</a></h1>
+<p>MIT License</p>
+<p>Copyright (c) [2021] [Alexander Nestor-Bergmann]</p>
+<dl class="py class">
+<dt id="cell_class.Cell">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">cell_class.</span></code><code class="sig-name descname"><span class="pre">Cell</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_guesses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'A'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">cell_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<blockquote>
+<div><p>Class that represents the apical cell cortex and holds all variables and functions to manipulate it.</p>
+<p>The class stores cortex variables <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code>, <code class="docutils literal notranslate"><span class="pre">theta</span></code>, theta’ (called <code class="docutils literal notranslate"><span class="pre">c</span></code>), theta’’ (called <code class="docutils literal notranslate"><span class="pre">d</span></code>) and alpha (called <code class="docutils literal notranslate"><span class="pre">gamma</span></code>, here).</p>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Due to old naming conventions, some variables are different to the published names:
+(name here = published name),
+<code class="docutils literal notranslate"><span class="pre">kappa</span></code> = kappa^2,
+<code class="docutils literal notranslate"><span class="pre">gamma</span></code> = alpha,
+<code class="docutils literal notranslate"><span class="pre">prestrain</span></code> = prestretch,
+<code class="docutils literal notranslate"><span class="pre">s</span></code> = S_0.</p>
+</div>
+<dl class="py method">
+<dt id="cell_class.Cell.activate_fast_adhesions">
+<code class="sig-name descname"><span class="pre">activate_fast_adhesions</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_off</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.activate_fast_adhesions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.activate_fast_adhesions" title="Permalink to this definition">¶</a></dt>
+<dd><p>(De)activates the forces coming from fast adhesions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>on_off</strong> (<em>bool</em>) – Set whether fast adhesions exert forces on the cortex.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.adaptive_mesh_update">
+<code class="sig-name descname"><span class="pre">adaptive_mesh_update</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coarsen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes_to_keep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.adaptive_mesh_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.adaptive_mesh_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>refine and coarsen mesh based on curvature</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coarsen</strong> (<em>bool</em>) – (Default value = True) Whether to apply coarsening by removing nodes.</p></li>
+<li><p><strong>refine</strong> (<em>bool</em>) – (Default value = True)  Whether to apply refinement by adding nodes.</p></li>
+<li><p><strong>nodes_to_keep</strong> (<em>set</em>) – (Default value = set())  A list of nodes that cannot be removed.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.build_adhesion_tree">
+<code class="sig-name descname"><span class="pre">build_adhesion_tree</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">build_polygon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.build_adhesion_tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.build_adhesion_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds a kdtree of the possible adhesion locations from self.adhesion_point_coords</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>build_polygon</strong> (<em>bool</em>) – (Default value = False) Set whether the adhesion polygon will be built. (It’s not used much anymore)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.bvp_bcs">
+<code class="sig-name descname"><span class="pre">bvp_bcs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ya</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.bvp_bcs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.bvp_bcs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check how close we are to periodic BCS for cortex variables.  Used for solving BVP</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ya</strong> (<em>list</em>) – The current value of the cortex variables at the first index: <code class="docutils literal notranslate"><span class="pre">[theta[0],</span> <span class="pre">gamma[0],</span> <span class="pre">x[0],</span> <span class="pre">y[0],</span> <span class="pre">C[0],</span> <span class="pre">D[0]]</span></code></p></li>
+<li><p><strong>yb</strong> (<em>list</em>) – The current value of the cortex variables at the first index: <code class="docutils literal notranslate"><span class="pre">[theta[-1],</span> <span class="pre">gamma[-1],</span> <span class="pre">x[-1],</span> <span class="pre">y[-1],</span> <span class="pre">C[-1],</span> <span class="pre">D[-1]]</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of the differences between the enp-point variables (theta is mod 2pi).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.check_if_cell_intersects_adhesion_boundary">
+<code class="sig-name descname"><span class="pre">check_if_cell_intersects_adhesion_boundary</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.check_if_cell_intersects_adhesion_boundary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.check_if_cell_intersects_adhesion_boundary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if any cortex node intersects the adhesion boundary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>list</em>) – (Default value = None) x coords for cell cortex points.  Can default to use stored values.</p></li>
+<li><p><strong>y</strong> (<em>list</em>) – (Default value = None) y coords for cell cortex points.  Can default to use stored values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If the boundary intersects.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.clear_adhesion_points">
+<code class="sig-name descname"><span class="pre">clear_adhesion_points</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.clear_adhesion_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.clear_adhesion_points" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all stored possible adhesion points.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.coarsen_mesh">
+<code class="sig-name descname"><span class="pre">coarsen_mesh</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'spacing'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes_to_keep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.coarsen_mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.coarsen_mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes nodes in the mesh that are no longer needed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>method</strong> (<em>string</em>) – (Default value = ‘spacing’)  Method to determine which nodes are removed.  spacing or curvature</p></li>
+<li><p><strong>nodes_to_keep</strong> (<em>set</em>) – (Default value = set())  A set of nodes that can’t be removed.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.create_apposed_cortex">
+<code class="sig-name descname"><span class="pre">create_apposed_cortex</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.create_apposed_cortex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.create_apposed_cortex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an additional cell cortex within this class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.decimate_all_variables_onto_new_grid">
+<code class="sig-name descname"><span class="pre">decimate_all_variables_onto_new_grid</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_scipy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.decimate_all_variables_onto_new_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.decimate_all_variables_onto_new_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the grid and interpolate all variables onto it</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>factor</strong> – Scaling factor for removing nodes.</p></li>
+<li><p><strong>factor</strong> – int</p></li>
+<li><p><strong>use_scipy</strong> – (Default value = False)  Whether to use Scipy’s version of the function.</p></li>
+<li><p><strong>use_scipy</strong> – bool</p></li>
+<li><p><strong>new_s</strong> – (Default value = None)  The new undeformed mesh, S_0., which the decimated grid can be interpolated onto.</p></li>
+<li><p><strong>new_s</strong> – list</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.double_mesh">
+<code class="sig-name descname"><span class="pre">double_mesh</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.double_mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.double_mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>put new mesh points at mean locations of current</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.funcForScipyBVPSolver">
+<code class="sig-name descname"><span class="pre">funcForScipyBVPSolver</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">U</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.funcForScipyBVPSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.funcForScipyBVPSolver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to pass to Scipy’s BVP solver; returns the cortex equilibrium equations from the force balance.
+U = [theta, gamma, x, y, D, C]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>s</strong> (<em>np.array</em>) – S_0 cortex coordintes (the undeformed mesh).</p></li>
+<li><p><strong>U</strong> – A list of the cortex variables <code class="docutils literal notranslate"><span class="pre">[theta,</span> <span class="pre">gamma,</span> <span class="pre">x,</span> <span class="pre">y,</span> <span class="pre">C,</span> <span class="pre">D]</span></code> (passed as arrays; unintuitive ordering)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The first derivative of the cortex variables, which will be solved by Scipy.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_adhesion_nodes_connected_to_xy">
+<code class="sig-name descname"><span class="pre">get_adhesion_nodes_connected_to_xy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_by_distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_adhesion_nodes_connected_to_xy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_adhesion_nodes_connected_to_xy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the adhesions that will be connected to given a list of (x,y) coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nodes</strong> (<em>list</em>) – The list of coordinates that will look for adhesion connections.</p></li>
+<li><p><strong>sort_by_distance</strong> (<em>bool</em>) – (Default value = True)  Sort the return list by distance.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The <code class="docutils literal notranslate"><span class="pre">distances</span></code> that the nodes have to the adhesion boundary, and the <code class="docutils literal notranslate"><span class="pre">indices</span></code> matching the output distances to the input nodes.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(list, list)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_area">
+<code class="sig-name descname"><span class="pre">get_area</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_area"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_area" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the signed area of the cell</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.array</em>) – (Default value = None)  x-coordinates to use.  Defaults to stored cortex x variable.</p></li>
+<li><p><strong>y</strong> (<em>np.array</em>) – (Default value = None) y-coordinates to use.  Defaults to stored cortex y variable.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The area enclosed by the cortex.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_centroid">
+<code class="sig-name descname"><span class="pre">get_centroid</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_centroid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_centroid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the perimeter-based centroid. This is important if the spacing becomes non-uniform then the
+mean of node positions becomes biased to where nodes are most dense.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.array</em>) – (Default value = None)  x-coordinates to use.  Defaults to stored cortex x variable.</p></li>
+<li><p><strong>y</strong> (<em>np.array</em>) – (Default value = None) y-coordinates to use.  Defaults to stored cortex y variable.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The (x,y) coords of the centroid.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_cortex_forces">
+<code class="sig-name descname"><span class="pre">get_cortex_forces</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_cortex_forces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_cortex_forces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the total forces exerted by the cortex (against adhesion), summed of normal and tang dirs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Total force acting across cortex.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_effective_pressure">
+<code class="sig-name descname"><span class="pre">get_effective_pressure</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_effective_pressure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_effective_pressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Isotropic part of cell-level stress</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Trace of the stress tensor</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_fast_adhesion_forces_across_cortex">
+<code class="sig-name descname"><span class="pre">get_fast_adhesion_forces_across_cortex</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_by_distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_fast_adhesion_forces_across_cortex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_fast_adhesion_forces_across_cortex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query the adhesion tree to get indices of neighouring cortices within the max adhesion length.
+Then calculate the distance to each point and calculate the force.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.array</em>) – (Default value = None)  x-coordintes to use.  Defaults to stored cortex x variable.</p></li>
+<li><p><strong>y</strong> (<em>np.array</em>) – (Default value = None) y-coordintes to use.  Defaults to stored cortex y variable.</p></li>
+<li><p><strong>sort_by_distance</strong> (<em>bool</em>) – (Default value = True) Organise the adhesions by distance.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of the adhesion forces acting across the cortex.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_first_derivative_of_cortex_variables">
+<code class="sig-name descname"><span class="pre">get_first_derivative_of_cortex_variables</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_first_derivative_of_cortex_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_first_derivative_of_cortex_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the first derivative of all cortex variables. (Note, return order differs to input order   odo)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.array</em>) – (Default value = None)  x-coordinates to use.  Defaults to stored cortex x variable.</p></li>
+<li><p><strong>y</strong> (<em>np.array</em>) – (Default value = None) y-coordinates to use.  Defaults to stored cortex y variable.</p></li>
+<li><p><strong>theta</strong> (<em>np.array</em>) – (Default value = None) cortex angles to use.  Defaults to stored cortex theta variable.</p></li>
+<li><p><strong>gamma</strong> (<em>np.array</em>) – (Default value = None) cortex stretches to use.  Defaults to stored cortex gamma variable.</p></li>
+<li><p><strong>C</strong> (<em>np.array</em>) – (Default value = None) theta’ to use.  Defaults to stored cortex C variable.</p></li>
+<li><p><strong>D</strong> (<em>np.array</em>) – (Default value = None) theta’’ to use.  Defaults to stored cortex D variable.</p></li>
+<li><p><strong>s</strong> (<em>np.array</em>) – (Default value = None) S_0-coordintes to use.  Defaults to stored cortex S_0 variable.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of arrays, where each array is the first deriv of a cortex variable.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_intersection_indices">
+<code class="sig-name descname"><span class="pre">get_intersection_indices</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_intersection_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_intersection_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get at list of the idxs, from given points, that intersect adhesion boundaries. DEPRECIATED</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>points</strong> (<em>list</em>) – The coords of points to check</p>
+</dd>
+<dt class="field-even">Return indices</dt>
+<dd class="field-even"><p>The indices of the points that intersected the boundary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_length">
+<code class="sig-name descname"><span class="pre">get_length</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get total length cortex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The integrated deformed mesh spacing.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_length_of_adhesions">
+<code class="sig-name descname"><span class="pre">get_length_of_adhesions</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rerun_distance_calculation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_length_of_adhesions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_length_of_adhesions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the lengths of all connected adhesions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rerun_distance_calculation</strong> – (Default value = True)  Whether to re-check the lengths of adhesions.</p></li>
+<li><p><strong>rerun_distance_calculation</strong> – bool</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The lengths of the adhesions</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_length_of_cortex_with_active_contractility">
+<code class="sig-name descname"><span class="pre">get_length_of_cortex_with_active_contractility</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_length_of_cortex_with_active_contractility"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_length_of_cortex_with_active_contractility" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the total length of the cortex that has active contractility</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The summed cortex segments that have active contractility.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_length_of_longest_adhesion">
+<code class="sig-name descname"><span class="pre">get_length_of_longest_adhesion</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rerun_distance_calculation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_length_of_longest_adhesion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_length_of_longest_adhesion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Length of the longest connected adhesion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rerun_distance_calculation</strong> – (Default value = True)  Whether to update the adhesions.</p></li>
+<li><p><strong>rerun_distance_calculation</strong> – bool</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The length of the longest adhesion.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_length_of_shortest_adhesion">
+<code class="sig-name descname"><span class="pre">get_length_of_shortest_adhesion</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rerun_distance_calculation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_length_of_shortest_adhesion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_length_of_shortest_adhesion" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rerun_distance_calculation</strong> – (Default value = True)  Whether to update the adhesions.</p></li>
+<li><p><strong>rerun_distance_calculation</strong> – bool</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The length of the shortest adhesion.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_mesh_spacing">
+<code class="sig-name descname"><span class="pre">get_mesh_spacing</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_mesh_spacing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_mesh_spacing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the spacing between nodes in the undeformed configuration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The current undeformed mesh spacing</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_neighbours">
+<code class="sig-name descname"><span class="pre">get_neighbours</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_neighbours"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_neighbours" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the identities of neighbouring cells</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_normal_and_tangential_components_of_cortex_forces">
+<code class="sig-name descname"><span class="pre">get_normal_and_tangential_components_of_cortex_forces</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_normal_and_tangential_components_of_cortex_forces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_normal_and_tangential_components_of_cortex_forces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get normal and tangential components of force gradient exerted by cortex.
+This is sum of adhesion and pressure in equilibrium</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Cortex forces in the normal and tangential directions</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(np.array, np.array)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_prestrains">
+<code class="sig-name descname"><span class="pre">get_prestrains</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_prestrains"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_prestrains" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an array of the calculated prestrethc (called prestrain) at every mesh point, using the
+fast adhesion methods</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>shape</strong> (<em>int</em>) – (Default value = None) The desired return shape (used when solving bvp with collocation nodes).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The prestretch across the cortex.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_protrusion_force">
+<code class="sig-name descname"><span class="pre">get_protrusion_force</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_protrusion_force"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_protrusion_force" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Make a protrusion pointing to another cell and get a list of the forces acting across the cortex due to it</dt><dd><p>(this will mostly be a sparse list of [0,0] except where the protrusion is)    odo this is old might not work anymore</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.array</em>) – (Default value = None)  x-coordintes to use.  Defaults to stored cortex x variable.</p></li>
+<li><p><strong>y</strong> (<em>np.array</em>) – (Default value = None) y-coordintes to use.  Defaults to stored cortex y variable.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of the forces acting across the cortex due to protrusions.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_sdk_forces_across_cortex">
+<code class="sig-name descname"><span class="pre">get_sdk_forces_across_cortex</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_sdk_forces_across_cortex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_sdk_forces_across_cortex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a vector len(self.s) of the total force on each cortex node due to sdk</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.array</em>) – (Default value = None)  x-coordintes to use.  Defaults to stored cortex x variable.</p></li>
+<li><p><strong>y</strong> (<em>np.array</em>) – (Default value = None) y-coordintes to use.  Defaults to stored cortex y variable.</p></li>
+<li><p><strong>s</strong> (<em>np.array</em>) – (Default value = None) S_0-coordintes to use.  Defaults to stored cortex S_0 variable.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of the sidekick adhesion forces acting across the cortex.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_shape_tensor">
+<code class="sig-name descname"><span class="pre">get_shape_tensor</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_shape_tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_shape_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get cell shape tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>2x2 shape tensor.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_slow_adhesion_forces_across_cortex">
+<code class="sig-name descname"><span class="pre">get_slow_adhesion_forces_across_cortex</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_slow_adhesion_forces_across_cortex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_slow_adhesion_forces_across_cortex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate a vector len(self.s) giving the total force at every cortexz node coming from the population of
+slow adhesions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.array</em>) – (Default value = None)  x-coordintes to use.  Defaults to stored cortex x variable.</p></li>
+<li><p><strong>y</strong> (<em>np.array</em>) – (Default value = None) y-coordintes to use.  Defaults to stored cortex y variable.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of the slow adhesion forces acting across the cortex.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_stress_tensor">
+<code class="sig-name descname"><span class="pre">get_stress_tensor</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_stress_tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_stress_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate cell stress tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The 2x2 stress tensor</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_total_adhesion_force_across_cortex">
+<code class="sig-name descname"><span class="pre">get_total_adhesion_force_across_cortex</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_total_adhesion_force_across_cortex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_total_adhesion_force_across_cortex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the total adhesion force, with fast, sdk and slow adhesions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.array</em>) – (Default value = None)  x-coordintes to use.  Defaults to stored cortex x variable.</p></li>
+<li><p><strong>y</strong> (<em>np.array</em>) – (Default value = None) y-coordintes to use.  Defaults to stored cortex y variable.</p></li>
+<li><p><strong>s</strong> (<em>np.array</em>) – (Default value = None) S_0-coordintes to use.  Defaults to stored cortex S_0 variable.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of the sidekick adhesion forces acting across the cortex.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_total_adhesion_force_from_adhesion_indices">
+<code class="sig-name descname"><span class="pre">get_total_adhesion_force_from_adhesion_indices</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coord</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adhesion_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_intersection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_total_adhesion_force_from_adhesion_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_total_adhesion_force_from_adhesion_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>For fast adhesions.  Given (x,y) coord on this cortex and index (adhesion_idx) in adhesion list that it is connected to,
+calculate vector force.  Note self.adhesion_connections[adhesion_index] can be a list of multiple connections.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coord</strong> – The (x,y) coord to get the adhesion force for.</p></li>
+<li><p><strong>is_intersection</strong> (<em>bool</em>) – (Default value = False).  Unused now.  If it is intersecting the adhesion boundary, the force is reversed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The <code class="docutils literal notranslate"><span class="pre">distances</span></code> that the nodes have to the adhesion boundary, and the <code class="docutils literal notranslate"><span class="pre">indices</span></code> matching the output distances to the input nodes.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(list, list)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.get_xy_segment_lengths">
+<code class="sig-name descname"><span class="pre">get_xy_segment_lengths</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.get_xy_segment_lengths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.get_xy_segment_lengths" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.array</em>) – (Default value = None)  x-coordinates to use.  Defaults to stored cortex x variable.</p></li>
+<li><p><strong>y</strong> (<em>np.array</em>) – (Default value = None) y-coordinates to use.  Defaults to stored cortex y variable.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.interpolate_variable_onto_new_grid">
+<code class="sig-name descname"><span class="pre">interpolate_variable_onto_new_grid</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_grid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.interpolate_variable_onto_new_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.interpolate_variable_onto_new_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interpolates a given cortex variable from old_grid to new_grid</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>variable</strong> (<em>list</em>) – The cortex variable (or any array) to be interpolated onto a new grid..</p></li>
+<li><p><strong>current_grid</strong> (<em>list</em>) – The current undeformed mesh spacing, S_0.</p></li>
+<li><p><strong>new_grid</strong> (<em>list</em>) – The new mesh grid that the variable will be interpolated to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.make_heatmap_from_array">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">make_heatmap_from_array</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'coolwarm'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.make_heatmap_from_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.make_heatmap_from_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given an array of values, generate a heatmap</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_array</strong> (<em>list</em>) – Input array of values to base the cmap on.</p></li>
+<li><p><strong>cmap</strong> (<em>sring</em>) – (Default value = ‘coolwarm’)  Name of a Matplotlib cmap.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An rgba colourmap.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>mpl cmap</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.move_cortex_nodes_to_equilibrium_dist">
+<code class="sig-name descname"><span class="pre">move_cortex_nodes_to_equilibrium_dist</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scaling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbours_moving</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.move_cortex_nodes_to_equilibrium_dist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.move_cortex_nodes_to_equilibrium_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enforces that the cortex is no closer than delta to any neighbouring cortex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scaling</strong> (<em>float</em>) – (Default value = 1)  Additional scaling relative to delta that the cortex nodes will sit from neighbours.</p></li>
+<li><p><strong>neighbours_moving</strong> (<em>bool</em>) – (Default value = True)  An additional check if the neighbouring cortices will move.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Wether we were successful.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.pickle_self">
+<code class="sig-name descname"><span class="pre">pickle_self</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">SAVE_DIR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.pickle_self"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.pickle_self" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pickles instance of this class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>SAVE_DIR</strong> (<em>string</em>) – (Default value = None)  Location to save.</p></li>
+<li><p><strong>name</strong> (<em>string</em>) – (Default value = None)  Name of the pickled file.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.plot_adhesion_points">
+<code class="sig-name descname"><span class="pre">plot_adhesion_points</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_forces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_adhesion_at_specific_locations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.plot_adhesion_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.plot_adhesion_points" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the adhesions on the cortex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> – (Default value = None)</p></li>
+<li><p><strong>plot_forces</strong> – (Default value = True)</p></li>
+<li><p><strong>plot_adhesion_at_specific_locations</strong> – (Default value = False)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.plot_cortex">
+<code class="sig-name descname"><span class="pre">plot_cortex</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_tension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cortex_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'k'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_strain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.002</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.plot_cortex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.plot_cortex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the cortex (outline) of the cell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> – (Default value = None)</p></li>
+<li><p><strong>x</strong> – (Default value = None)</p></li>
+<li><p><strong>y</strong> – (Default value = None)</p></li>
+<li><p><strong>plot_tension</strong> – (Default value = False)</p></li>
+<li><p><strong>cortex_width</strong> – (Default value = 2)</p></li>
+<li><p><strong>col</strong> – (Default value = ‘k’)</p></li>
+<li><p><strong>max_strain</strong> – (Default value = .002)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.plot_cortex_variables">
+<code class="sig-name descname"><span class="pre">plot_cortex_variables</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestyle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_strain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.plot_cortex_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.plot_cortex_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to plot the data on 3 plot_3panels</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> – (Default value = None)</p></li>
+<li><p><strong>linestyle</strong> – (Default value = ‘-‘)</p></li>
+<li><p><strong>plot_legend</strong> – (Default value = True)</p></li>
+<li><p><strong>plot_strain</strong> – (Default value = False)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.plot_medial_pressure">
+<code class="sig-name descname"><span class="pre">plot_medial_pressure</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.plot_medial_pressure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.plot_medial_pressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the adhesions on the cortex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ax</strong> – (Default value = None)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.plot_principal_axes_of_shape">
+<code class="sig-name descname"><span class="pre">plot_principal_axes_of_shape</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.plot_principal_axes_of_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.plot_principal_axes_of_shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot pricipal axes of shape</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ax</strong> – (Default value = None)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.plot_protrusion_force">
+<code class="sig-name descname"><span class="pre">plot_protrusion_force</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colour</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'C0'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.plot_protrusion_force"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.plot_protrusion_force" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the protrusion on the cortex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> – (Default value = None)</p></li>
+<li><p><strong>colour</strong> – (Default value = ‘C0’)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.plot_stress">
+<code class="sig-name descname"><span class="pre">plot_stress</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plot_stress_axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'single'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.plot_stress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.plot_stress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the adhesions on the cortex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>plot_stress_axis</strong> – (Default value = False)</p></li>
+<li><p><strong>ax</strong> – (Default value = None)</p></li>
+<li><p><strong>sim_type</strong> – (Default value = ‘single’)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.plot_xy_on_trijunction">
+<code class="sig-name descname"><span class="pre">plot_xy_on_trijunction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'k'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equalAx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plotAdhesion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cortexwidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_adhesion_forces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_adhesion_at_specific_locations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lagrangian_tracking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_tension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_stress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_stress_axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'single'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">26</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.plot_xy_on_trijunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.plot_xy_on_trijunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the ys x for the junction and reflect/rotate if necessary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> – (Default value = None)</p></li>
+<li><p><strong>col</strong> – (Default value = ‘k’)</p></li>
+<li><p><strong>equalAx</strong> – (Default value = True)</p></li>
+<li><p><strong>plotAdhesion</strong> – (Default value = True)</p></li>
+<li><p><strong>cortexwidth</strong> – (Default value = 2)</p></li>
+<li><p><strong>plot_adhesion_forces</strong> – (Default value = True)</p></li>
+<li><p><strong>plot_adhesion_at_specific_locations</strong> – (Default value = False)</p></li>
+<li><p><strong>lagrangian_tracking</strong> – (Default value = False)</p></li>
+<li><p><strong>plot_pressure</strong> – (Default value = False)</p></li>
+<li><p><strong>plot_tension</strong> – (Default value = False)</p></li>
+<li><p><strong>label</strong> – (Default value = None)</p></li>
+<li><p><strong>plot_stress</strong> – (Default value = False)</p></li>
+<li><p><strong>plot_stress_axis</strong> – (Default value = False)</p></li>
+<li><p><strong>sim_type</strong> – (Default value = ‘single’)</p></li>
+<li><p><strong>plot_shape</strong> – (Default value = False)</p></li>
+<li><p><strong>label_size</strong> – (Default value = 26)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.prune_adhesion_data">
+<code class="sig-name descname"><span class="pre">prune_adhesion_data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.prune_adhesion_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.prune_adhesion_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all locally stored adhesion data.  This data is usually permanently held by the Epithelium class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.refine_mesh">
+<code class="sig-name descname"><span class="pre">refine_mesh</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'spacing'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.refine_mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.refine_mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Refine the mesh by adding nodes in regions of high curvature or low spacing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>method</strong> (<em>string</em>) – (Default value = ‘spacing’)  Method to use. Add mesh nodes based on their spacing or curvature.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.scale_whole_cell_to_fit_adhesion_to_delta">
+<code class="sig-name descname"><span class="pre">scale_whole_cell_to_fit_adhesion_to_delta</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stretch_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_adhesion_lengths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.scale_whole_cell_to_fit_adhesion_to_delta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.scale_whole_cell_to_fit_adhesion_to_delta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies a homogenous isotropic stretch/compression to the cell such that the shortest
+adhesion is delta</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stretch_factor</strong> (<em>float</em>) – (Default value = 1.01)  How much to scale the cortex <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">-&gt;</span> <span class="pre">x</span> <span class="pre">*</span> <span class="pre">stretch_factor</span></code></p></li>
+<li><p><strong>delta_tol</strong> (<em>float</em>) – (Default value = 1.05)  Tolerance range for <code class="docutils literal notranslate"><span class="pre">delta</span></code>.</p></li>
+<li><p><strong>update_adhesion_lengths</strong> (<em>bool</em>) – (Default value = True) Whether to perfrom an initial adhesion update.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.smooth_variables">
+<code class="sig-name descname"><span class="pre">smooth_variables</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.smooth_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.smooth_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a savgol filter to smooth the cortex variables</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fac</strong> (<em>int</em>) – (Default value = 40)  Factor to determine window size, = num_nodes / fac, for smoothing.</p></li>
+<li><p><strong>poly_order</strong> (<em>int</em>) – (Default value = 1)  Order of polynomial used for smoothing.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.solve_bvp">
+<code class="sig-name descname"><span class="pre">solve_bvp</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.solve_bvp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.solve_bvp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve BVP for cortex variables using Scipy’s BVP solver</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A tuple, whether solving was a success; a list, the new cortex variables: <code class="docutils literal notranslate"><span class="pre">[s,</span> <span class="pre">theta,</span> <span class="pre">gamma,</span> <span class="pre">x,</span> <span class="pre">y,</span> <span class="pre">C,</span> <span class="pre">D]</span></code></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(bool, list)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.truncate_colormap">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">truncate_colormap</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.truncate_colormap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.truncate_colormap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Truncate a colourmap between 2 values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cmap</strong> – A matplotlib colourmap.</p></li>
+<li><p><strong>cmap</strong> – mpl cmap</p></li>
+<li><p><strong>minval</strong> – (Default value = 0.0)  New max value for the colourmap.</p></li>
+<li><p><strong>minval</strong> – (Default value = 0.0)  float</p></li>
+<li><p><strong>maxval</strong> – (Default value = 1.0)  New min value for colourmap.</p></li>
+<li><p><strong>maxval</strong> – (Default value = 1.0)  float</p></li>
+<li><p><strong>n</strong> – (Default value = 1000)  Number of values in cmap.</p></li>
+<li><p><strong>n</strong> – (Default value = 1000)  int</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The truncaetd cmap</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>mpl cmap</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.update_adhesion_distances_identifiers_and_indices">
+<code class="sig-name descname"><span class="pre">update_adhesion_distances_identifiers_and_indices</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_by_distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">build_tree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.update_adhesion_distances_identifiers_and_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.update_adhesion_distances_identifiers_and_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query the adhesion tree to build adhesion connections, storing the distance, id and index of the connection.
+The data is stored internally, with no output here.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.array</em>) – (Default value = None)  x-coordintes to use.  Defaults to stored cortex x variable.</p></li>
+<li><p><strong>y</strong> (<em>np.array</em>) – (Default value = None) y-coordintes to use.  Defaults to stored cortex x variable.</p></li>
+<li><p><strong>sort_by_distance</strong> (<em>bool</em>) – (Default value = True)  Whether to rganise the adhesion connections by distance.</p></li>
+<li><p><strong>build_tree</strong> (<em>bool</em>) – (Default value = False)  Whether to fresh-build the adhesion tree.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.update_adhesion_points">
+<code class="sig-name descname"><span class="pre">update_adhesion_points</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spacing</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.update_adhesion_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.update_adhesion_points" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store points that fast adhesions can adhere to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>points</strong> (<em>list</em>) – A list of (x,y) coordinates, which the cell cortex xan adhere to.</p></li>
+<li><p><strong>ids</strong> (<em>list</em>) – A list of the cell identifiers that those adhesion points came from.</p></li>
+<li><p><strong>spacing</strong> (<em>list</em>) – A list of the discretised spacing (on the other cortices) for those adhesion points.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.update_deformed_mesh_spacing">
+<code class="sig-name descname"><span class="pre">update_deformed_mesh_spacing</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.update_deformed_mesh_spacing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.update_deformed_mesh_spacing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the spacing between mesh nodes in the deformed configuration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.array</em>) – (Default value = None)  x-coordinates to use.  Defaults to stored cortex x variable.</p></li>
+<li><p><strong>y</strong> (<em>np.array</em>) – (Default value = None) y-coordinates to use.  Defaults to stored cortex y variable.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.update_prestrains">
+<code class="sig-name descname"><span class="pre">update_prestrains</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.update_prestrains"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.update_prestrains" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the values of prestretches (called prestrain here based on the identity of (fast) adhesion connections</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.update_reference_configuration_to_current">
+<code class="sig-name descname"><span class="pre">update_reference_configuration_to_current</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.update_reference_configuration_to_current"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.update_reference_configuration_to_current" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the Lagrangian coordinate S_0 to the current configuration from the stretches and prestretches:
+S_0 &lt;- s = S_0 * stretch * prestretch</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.upsample_all_variables_onto_new_grid">
+<code class="sig-name descname"><span class="pre">upsample_all_variables_onto_new_grid</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_n</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.upsample_all_variables_onto_new_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.upsample_all_variables_onto_new_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the grid and interpolate all variables onto it</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_n</strong> (<em>int</em>) – The new number of discretised nodes for the cortex variabels.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cell_class.Cell.verboseprint">
+<code class="sig-name descname"><span class="pre">verboseprint</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cell_class.html#Cell.verboseprint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cell_class.Cell.verboseprint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to print out details as code runs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> – Information to be printed to console.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Alexander Nestor-Bergmann.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
