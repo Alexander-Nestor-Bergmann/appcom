@@ -1,6 +1,6 @@
 # AppCoM: an **App**osed-**Co**rtex **M**odel of an epithelial tissue.
 
-![simulation](doc/Figures/simulation.mp4)
+![simulation](docs/Figures/simulation.mp4)
 
 <hr/>
 
@@ -20,9 +20,9 @@ Each cell cortex in the **App**osed-**Co**rtex **M**odel is represented as an ac
 
 Adhesions are modelled as simple springs, explicitly coupling neighbouring cell cortices.  Adhesion molecules are given a characteristic timescale, representing the average time between binding and unbinding, which modules tissue dynamics.
 
-![AppCoM](doc/Figures/model.png)
+![AppCoM](docs/Figures/model.png)
 
-#### Demo: loading and viewing a tissue
+### Demo: loading and viewing a tissue
 
 ```python
 import matplotlib.pyplot as plt
