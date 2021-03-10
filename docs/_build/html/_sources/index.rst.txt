@@ -22,7 +22,7 @@ Load a tissue with 14 cells:
 .. code-block:: python
     :linenos:
 
-    with open('initial_conditions/14_cells', 'rb') as new_tissue:
+    with open('pickled_tissues/14_cells', 'rb') as new_tissue:
         eptm = dill.load(new_tissue)
 
 
