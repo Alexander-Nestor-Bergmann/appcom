@@ -4,7 +4,7 @@
 # Author  : Alexander Nestor-Bergmann
 # Released: 08/03/2021
 # =============================================================================
-"""Implementation of a class to represent the an epithelial tissue comprised of cell cortices and adhesions."""
+"""Implementation of a class to represent an epithelial tissue comprised of cell cortices and adhesions."""
 
 import copy
 import dill
