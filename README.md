@@ -18,7 +18,7 @@ Each cell cortex in the **App**osed-**Co**rtex **M**odel is represented as an ac
 
 ## How are adhesions represented?
 
-Adhesions are modelled as simple springs, explicitly coupling neighbouring cell cortices.  Adhesion molecules are given a characteristic timescale, representing the average time between binding and unbinding, which modules tissue dynamics.
+Adhesions are modelled as simple springs, explicitly coupling neighbouring cell cortices.  Adhesion molecules are given a characteristic timescale, representing the average time between binding and unbinding, which modules tissue dynamics. 
 
 ![AppCoM](doc/Figures/model.png)
 
