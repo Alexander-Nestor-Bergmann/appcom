@@ -12,13 +12,13 @@ The `AppCoM` library is an implementation of a mechanical model of an active epi
 
 ### The apposed-cortex model
 
-## How is the cell cortex represented?
+#### How is the cell cortex represented?
 
 Each cell cortex in the **App**osed-**Co**rtex **M**odel is represented as an active, continuum morphoelastic rod with resistance to bending and extension.  By explicitly considering both cortices along bicellular junctions, the model is able to replicate important cell behaviours that are not captured in many existing models e.g. cell-cell shearing and material flow around cell vertices.
 
-## How are adhesions represented?
+#### How are adhesions represented?
 
-Adhesions are modelled as simple springs, explicitly coupling neighbouring cell cortices.  Adhesion molecules are given a characteristic timescale, representing the average time between binding and unbinding, which modules tissue dynamics. 
+Adhesions are modelled as simple springs, explicitly coupling neighbouring cell cortices.  Adhesion molecules are given a characteristic timescale, representing the average time between binding and unbinding, which modules tissue dynamics.
 
 ![AppCoM](doc/Figures/model.png)
 
