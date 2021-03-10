@@ -1,6 +1,6 @@
 # AppCoM: an **App**osed-**Co**rtex **M**odel of an epithelial tissue.
 
-https://user-images.githubusercontent.com/3624167/110665660-7e717200-81c0-11eb-9813-3d2d481a34b4.mp4
+![AppCoM](docs/Figures/simulation.gif)
 
 <hr/>
 
