@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# =============================================================================
+# Author  : Alexander Nestor-Bergmann
+# Released: 08/03/2021
+# =============================================================================
 """
 
 Template file that can be used to run all of the simulations published in XXX

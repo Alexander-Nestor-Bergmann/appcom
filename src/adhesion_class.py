@@ -1,9 +1,10 @@
-"""
-MIT License
-
-Copyright (c) [2021] [Alexander Nestor-Bergmann]
-
-"""
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# =============================================================================
+# Author  : Alexander Nestor-Bergmann
+# Released: 08/03/2021
+# =============================================================================
+"""Implementation of a class to represent the cell-cell adhesions."""
 
 import numpy as np
 import matplotlib.pyplot as plt

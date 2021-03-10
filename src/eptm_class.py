@@ -1,9 +1,10 @@
-"""
-MIT License
-
-Copyright (c) [2021] [Alexander Nestor-Bergmann]
-
-"""
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# =============================================================================
+# Author  : Alexander Nestor-Bergmann
+# Released: 08/03/2021
+# =============================================================================
+"""Implementation of a class to represent the an epithelial tissue comprised of cell cortices and adhesions."""
 
 import copy
 import dill
