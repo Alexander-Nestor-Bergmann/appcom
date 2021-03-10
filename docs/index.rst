@@ -9,7 +9,7 @@ Welcome to AppCoM's documentation!
 The **App**\ osed-**Co**\ rtex **M**\ odel library provides an interface to implement a
 biomechanical model of an epithelial tissue.  In this model, each cell cortex is represented
 as an active, continuum morphoelastic rod with resistance to bending and extension.  Adhesions
-are modelleld as agents explicitly coupling neighbouring cell cortices.
+are modelled as agents explicitly coupling neighbouring cell cortices.
 
 .. note::
     Take a look at the theoretical development of the model here: TBA.
