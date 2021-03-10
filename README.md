@@ -1,6 +1,6 @@
 # AppCoM: an **App**osed-**Co**rtex **M**odel of an epithelial tissue.
 
-![AppCoM](doc/Figures/simulation.mp4)
+![simulation](doc/Figures/simulation.mp4)
 
 <hr/>
 
@@ -22,6 +22,26 @@ Adhesions are modelled as simple springs, explicitly coupling neighbouring cell 
 
 ![AppCoM](doc/Figures/model.png)
 
+#### Demo: loading and viewing a tissue
+
+```python
+import matplotlib.pyplot as plt
+
+# Load a stored tissue, with 14 cells
+with open('pickled_tissues/14_cells', 'rb') as new_tissue:
+        eptm = dill.load(new_tissue)
+
+# Pass the adhesion data to the cells
+eptm.update_adhesion_points_between_all_cortices()
+# Add some prestress to the junction shared by cells A and B
+prestrech_magnitude = 1 - 0.01
+eptm.apply_prestretch_to_cell_identity_pairs(prestrech_magnitude, [['A','B']])
+
+# View in matplotlib
+fig, ax = plt.subplots(figsize=(11, 9))
+eptm.plot_xy_on_trijunction(ax=ax, plot_stress=True, plot_tension=True)
+plt.show()
+```
 
 ### Documentation
 
