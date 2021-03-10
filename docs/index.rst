@@ -66,7 +66,6 @@ More coming soon!
    :maxdepth: 2
    :caption: Contents:
 
-#   rst/modules
 
 Indices and tables
 ==================
