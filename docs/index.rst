@@ -12,7 +12,7 @@ as an active, continuum morphoelastic rod with resistance to bending and extensi
 are modelled as agents explicitly coupling neighbouring cell cortices.
 
 .. note::
-    Take a look at the theoretical development of the model here: TBA.
+    Take a look at the theoretical development of the model `here <https://doi.org/10.1101/2021.04.11.439313>`_
 
 Quickstart demo
 ===============
