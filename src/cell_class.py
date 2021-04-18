@@ -119,6 +119,7 @@ class Cell(object):
         # Consitutive model for cortex stress-strain relationship \todo can use only 'linear' atm.
         self.possible_constitutive_models = ["linear", "hyperelastic"]
         self.constitutive_model = cell_kwargs.get('constitutive_model', 'linear')
+        self.cortical_turnover_time = cell_kwargs.get('cortical_turnover_time', 0)
 
         # Prestretch applied via 'identity sensing' adhesions.  Specify rule for force calculation.
         self.prestrain_type = cell_kwargs.get('prestrain_type', 'min')  # Can be "most_common", "average", "min", "nearest"
@@ -133,7 +134,6 @@ class Cell(object):
 
         # Cell pressure forces from medial myosin
         self.pressure = cell_kwargs.get('pressure', 0)
-        self.pressure_on_off = cell_kwargs.get('pressure_on_off', True)  # Whether to bother looking for medial pressures. Generally, just use True.
 
         # Protrusion forces
         self.protrusion_target = cell_kwargs.get('protrusion_target', None)  # Would be the unique identifier for another cell
@@ -245,19 +245,42 @@ class Cell(object):
         self.adhesion_polygon = None
 
 
-    def update_reference_configuration_to_current(self):
-        """Update the Lagrangian coordinate S_0 to the current configuration from the stretches and prestretches:
+    def update_reference_configuration(self):
+        """Update the Lagrangian coordinate S_0 to the current configuration from the stretches and prestretches.
+         If the cortex is purely viscous (cortical_turnover_time = 0):
          S_0 <- s = S_0 * stretch * prestretch
 
+         If the cortex is viscoelastic (cortical_turnover_time > 0), we have the rule
+         \dot{dS_0) = (ds - dS_0) / cortical_turnover_time
+                    = (stretch * prestretch * dS_0 - dS_0) / cortical_turnover_time
+
+         such that
+
+         S0_i^t+1 = ((S0_i+1^t - S0_i^t) * ( 1 + (( stretch * prestretch - 1)) / cortical_turnover_time) + S0_i^t
+
         """
+
+        self.verboseprint(f'updating reference length for cell {self.identifier}', object(), 1)
+
+        # No turnover in elastic cortex.
+        if self.cortical_turnover_time == np.inf:
+            return
 
         # Calculate the prestretches
         prestrains = self.get_prestrains()
         # Current undeformed segment lengths
         ds = np.diff(self.s)
+
         # Update S_0
-        for idx in range(self.s.size - 1):
-            self.s[idx + 1] = self.gamma[idx] * prestrains[idx] * ds[idx] + self.s[idx]
+        # If purely viscous
+        if self.cortical_turnover_time == 0:
+            for idx in range(self.s.size - 1):
+                self.s[idx + 1] = self.gamma[idx] * prestrains[idx] * ds[idx] + self.s[idx]
+        # If viscoelastic
+        else:
+            for idx in range(self.s.size - 1):
+                self.s[idx + 1] = ds[idx] * (1 + ((self.gamma[idx] * prestrains[idx] - 1) / self.cortical_turnover_time)) \
+                                  + self.s[idx]
 
         # Reset the rest length and integration domain
         self.rest_len = self.s[-1] - self.s[0]
@@ -437,7 +460,7 @@ class Cell(object):
             # scale
             self.x = xs * stretch_factor + C_x
             self.y = ys * stretch_factor + C_y
-            self.update_reference_configuration_to_current()
+            self.update_reference_configuration()
             # now see how small it is
             min_adh = self.get_length_of_shortest_adhesion(rerun_distance_calculation=update_adhesion_lengths)
 
@@ -452,11 +475,11 @@ class Cell(object):
             # scale
             self.x = xs * (2 - stretch_factor) + C_x
             self.y = ys * (2 - stretch_factor) + C_y
-            self.update_reference_configuration_to_current()
+            self.update_reference_configuration()
 
             min_adh = self.get_length_of_shortest_adhesion(rerun_distance_calculation=update_adhesion_lengths)
 
-        self.update_reference_configuration_to_current()
+        self.update_reference_configuration()
 
 
     def activate_fast_adhesions(self, on_off):
@@ -1072,20 +1095,21 @@ class Cell(object):
         gradOmegaDotT = (ad_forces.T * tangent).sum(axis=0)
 
         # Pressure forces:
-        if self.pressure_on_off and (self.area_stiffness != 0 or self.pressure != 0):
-            # pressure = self.pressure
-            pressure = - self.area_stiffness * (self.get_area(x, y) - self.pref_area) + self.pressure
-
-            # Get the ids of the nearest/most common cortex
-            ids = [
-                max(self.adhesion_connections_identities[i], key=Counter(self.adhesion_connections_identities[i]).get)
-                if self.adhesion_connections_identities[i] else 'none'
-                for i in range(0, x.size)]
+        if self.area_stiffness != 0 or self.pressure != 0:
+            pressure = self.pressure
+            # pressure = - self.area_stiffness * (self.get_area(x, y) - self.pref_area) + self.pressure
 
             # Scale medial with adhesion density
-            pressure_scale = np.array(list(map(lambda val: self.adhesion_density_dict[val], ids)))
-            # Remove pressure force if there are no cadherins
-            pressure_scale[np.sum(ad_forces, axis=1) == 0] = 0
+            # Get the ids of the nearest/most common cortex
+            # ids = [
+            #     max(self.adhesion_connections_identities[i], key=Counter(self.adhesion_connections_identities[i]).get)
+            #     if self.adhesion_connections_identities[i] else 'none'
+            #     for i in range(0, x.size)]
+            # pressure_scale = np.array(list(map(lambda val: self.adhesion_density_dict[val], ids)))
+            # # Remove pressure force if there are no cadherins
+            # pressure_scale[np.sum(ad_forces, axis=1) == 0] = 0
+
+            pressure_scale = np.ones(gradOmegaDotT.size)
 
             spacing = self.get_xy_segment_lengths(x, y)
 
@@ -1278,6 +1302,9 @@ class Cell(object):
             self.n = self.decimateAbove
             self.s = new_s
 
+        # Update spacing
+        self.update_deformed_mesh_spacing()
+
         # store status of last solve
         self.last_solve_status = sol1.status
 
@@ -1303,9 +1330,9 @@ class Cell(object):
         gradOmegaDotT = (ad_forces.T * tangent).sum(axis=0)
 
         # Pressure forces:
-        if self.pressure_on_off and (self.area_stiffness != 0 or self.pressure != 0):
-            # pressure = self.pressure
-            pressure = - self.area_stiffness * (self.get_area(self.x, self.y) - self.pref_area) + self.pressure
+        if self.area_stiffness != 0 or self.pressure != 0:
+            pressure = self.pressure
+            # pressure = - self.area_stiffness * (self.get_area(self.x, self.y) - self.pref_area) + self.pressure
 
             # Get the ids of the nearest/most common cortex
             ids = [
@@ -1441,7 +1468,7 @@ class Cell(object):
         self.n = self.s.size
         self.decimateAbove = self.n * 1.1
 
-        self.update_reference_configuration_to_current()
+        self.update_reference_configuration()
 
 
     def adaptive_mesh_update(self, coarsen=True, refine=True, nodes_to_keep=set()):
@@ -1455,6 +1482,7 @@ class Cell(object):
         :type nodes_to_keep:  set
 
         """
+
         self.verboseprint("Adapting mesh", object(), 1)
         if refine:
             self.refine_mesh()
@@ -1656,6 +1684,8 @@ class Cell(object):
         :type y:  np.array
 
         """
+
+        self.verboseprint(f'Updating deformed mesh spacing on cell {self.identifier}', object(), 1)
 
         self.deformed_mesh_spacing = self.get_xy_segment_lengths(x, y)
 
@@ -2005,7 +2035,7 @@ class Cell(object):
             ax[1].legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
 
-    def plot_xy_on_trijunction(self, ax=None, col='k', equalAx=True, plotAdhesion=True,
+    def plot_xy_on_trijunction(self, ax=None, col='C0', equalAx=True, plotAdhesion=True,
                                cortexwidth=2, plot_adhesion_forces=True, plot_adhesion_at_specific_locations=False,
                                lagrangian_tracking=False, plot_pressure=False, plot_tension=False,
                                label=None, plot_stress=False, plot_stress_axis=False, sim_type='single',
@@ -2043,7 +2073,7 @@ class Cell(object):
             self.plot_medial_pressure(ax=ax)
         else:
             # col = 'C0'
-            face_alpha = 1 if col == "white" else .2
+            face_alpha = 1 if col == "white" else .6
             ax.fill(x, y, col, alpha=face_alpha)
 
         # cell outline:
@@ -2187,7 +2217,7 @@ class Cell(object):
         # This bit plots all fast adhesions at only certain cortex nodes
         if plot_adhesion_at_specific_locations:
             edges = []
-            for i in [500, 1165]:
+            for i in [501]:
                 for node in self.adhesion_connections[i]:
                     edges.append([(node[0], node[1]), (points[i, 0], points[i, 1])])
 
@@ -2205,19 +2235,19 @@ class Cell(object):
                 force = self.omega0 * e
 
                 # scaling_factors_by_distance using softmax function
-                exp_factor = self.adhesion_beta_scale_factor
+                exp_factor = self.adhesion_beta_scale_factor / 2
                 dist_scaling = np.exp(-exp_factor * d)
                 dist_scaling /= np.sum(dist_scaling)
                 force *= dist_scaling
 
                 vector_of_forces = dirs * force[:, np.newaxis]
                 vector_force = np.sum(vector_of_forces, axis=0)
-                ax.quiver(points[i, 0], points[i, 1], vector_force[0], vector_force[1], width=0.008, scale=.00075,
+                ax.quiver(points[i, 0], points[i, 1], vector_force[0], vector_force[1], width=0.008, scale=.025,
                           color='r', zorder=11)
 
                 for idx in range(len(dirs)):
-                    dir = dirs[idx] * force[idx] * 100000
-                    ax.quiver(points[i, 0], points[i, 1], dir[0], dir[1], width=0.0025, scale=5,  # scale=.00010,
+                    dir = dirs[idx] * (1 / d[idx])  # * force[idx]  #
+                    ax.quiver(points[i, 0], points[i, 1], dir[0], dir[1], width=0.0025, scale=2.5,
                               color='b', zorder=10)
 
             lc = LineCollection(edges, linewidths=0.5, color='k')
@@ -2276,7 +2306,7 @@ class Cell(object):
         pressure = self.pressure
 
         # Make a heatmap
-        max_pressure = 10
+        max_pressure = 1e-2
         default_cmap = plt.get_cmap('seismic')
         cNorm = matplotlib.colors.Normalize(vmin=-max_pressure, vmax=max_pressure)
         scaled_cmap = matplotlib.cm.ScalarMappable(norm=cNorm, cmap=default_cmap)

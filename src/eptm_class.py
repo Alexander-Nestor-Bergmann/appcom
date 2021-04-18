@@ -102,9 +102,7 @@ class Epithelium(object):
         self.max_elastic_relax_steps = eptm_kwargs.get('max_elastic_relax_steps', 10)
         self.elastic_relax_tol = eptm_kwargs.get('elastic_relax_tol', 2e-2)
         self.in_equilibrium = False
-        self.viscous_timescale = eptm_kwargs.get('viscous_timescale', 0)
-        self.viscous_cortex = eptm_kwargs.get('viscous_cortex', True)
-        self.viscous_bulk = eptm_kwargs.get('viscous_bulk', False)
+        self.bulk_turnover_time = eptm_kwargs.get('bulk_turnover_time', 0)
         self.last_solve_success = True
 
         self.use_mesh_coarsening = eptm_kwargs.get('use_mesh_coarsening', False)
@@ -166,172 +164,6 @@ class Epithelium(object):
         except AttributeError:
             self.verbose = True
         print(args) if self.verbose else None
-        # print if self.verbose else lambda *args, **k: None
-
-    def remove_redundant_member_variables(self):
-        """Deletes old, lingering variables that are taking up space"""
-
-        # self.reference_boundary_adhesions = []
-        if hasattr(self, 'adhesion_friction_timescale'):
-            delattr(self, 'adhesion_friction_timescale')
-        if hasattr(self, 'slow_adhesion_persistence'):
-            delattr(self, 'slow_adhesion_persistence')
-
-
-        for cell in self.cells:
-            if hasattr(cell, 'ICs'):
-                delattr(cell, 'ICs')
-            # if hasattr(cell, 'adhesion_density_dict'):
-            #     delattr(cell, 'adhesion_density_dict')
-            if hasattr(cell, 'collocation_adhesion_connections'):
-                delattr(cell, 'collocation_adhesion_connections')
-            if hasattr(cell, 'collocation_adhesion_connections_identities'):
-                delattr(cell, 'collocation_adhesion_connections_identities')
-            if hasattr(cell, 'deltaOld'):
-                delattr(cell, 'deltaOld')
-            if hasattr(cell, 'deltaTarget'):
-                delattr(cell, 'deltaTarget')
-            if hasattr(cell, 'endConditions'):
-                delattr(cell, 'endConditions')
-            if hasattr(cell, 'extForce'):
-                delattr(cell, 'extForce')
-            if hasattr(cell, 'extMoment'):
-                delattr(cell, 'extMoment')
-            if hasattr(cell, 'identity'):
-                delattr(cell, 'identity')
-            if hasattr(cell, 'kappaOld'):
-                delattr(cell, 'kappaOld')
-            if hasattr(cell, 'kappaTarget'):
-                delattr(cell, 'kappaTarget')
-            if hasattr(cell, 'knownEndVariables'):
-                delattr(cell, 'knownEndVariables')
-            if hasattr(cell, 'knownICs'):
-                delattr(cell, 'knownICs')
-            if hasattr(cell, 'myoForceOld'):
-                delattr(cell, 'myoForceOld')
-            if hasattr(cell, 'myoForceTarget'):
-                delattr(cell, 'myoForceTarget')
-            if hasattr(cell, 'nabo_spacing_dict'):
-                delattr(cell, 'nabo_spacing_dict')
-            if hasattr(cell, 'omega0Old'):
-                delattr(cell, 'omega0Old')
-            if hasattr(cell, 'omega0Target'):
-                delattr(cell, 'omega0Target')
-            if hasattr(cell, 'pressureTarget'):
-                delattr(cell, 'pressureTarget')
-            if hasattr(cell, 'sdkForceOld'):
-                delattr(cell, 'sdkForceOld')
-            if hasattr(cell, 'sdkForceTarget'):
-                delattr(cell, 'sdkForceTarget')
-            if hasattr(cell, 'sdkForce'):
-                delattr(cell, 'sdkForce')
-            if hasattr(cell, 'theta0Old'):
-                delattr(cell, 'theta0Old')
-            if hasattr(cell, 'thetaLOld'):
-                delattr(cell, 'thetaLOld')
-            if hasattr(cell, 'theta0Target'):
-                delattr(cell, 'theta0Target')
-            if hasattr(cell, 'thetaLTarget'):
-                delattr(cell, 'thetaLTarget')
-            if hasattr(cell, 'variablesDict'):
-                delattr(cell, 'variablesDict')
-
-    def update_all_missing_member_variables(self):
-        """ Initialse missing member variables that may have been created since the eptm was saved
-        """
-
-        if not hasattr(self, 'relax_dist_threshold'):
-            self.relax_dist_threshold = .1
-        if not hasattr(self, 'max_elastic_relax_steps'):
-            self.max_elastic_relax_steps = 50
-        if not hasattr(self, 'elastic_relax_tol'):
-            self.elastic_relax_tol = 5e-2
-        if not hasattr(self, 'in_equilibrium'):
-            self.in_equilibrium = 0
-        if not hasattr(self, 'reference_boundary_adhesions'):
-            self.reference_boundary_adhesions = []
-        if not hasattr(self, 'boundary_bc'):
-            self.boundary_bc = 'fixed'
-        if not hasattr(self, 'total_elastic_relaxes'):
-            self.total_elastic_relaxes = 0
-        if not hasattr(self, 'viscous_timescale'):
-            self.viscous_timescale = 0
-        if not hasattr(self, 'viscous_bulk'):
-            self.viscous_bulk = False
-        if not hasattr(self, 'viscous_cortex'):
-            self.viscous_cortex = True
-        if not hasattr(self, 'sidekick_active'):
-            self.sidekick_active = False
-        # if not hasattr(self, 'sidekick_vertices'):
-        #     self.sidekick_vertices = []
-        if not hasattr(self, 'sidekick_adhesions'):
-            self.sidekick_adhesions = []
-        if not hasattr(self, 'use_mesh_coarsening'):
-            self.use_mesh_coarsening = False
-        if not hasattr(self, 'use_mesh_refinement'):
-            self.use_mesh_refinement = False
-        if not hasattr(self, 'slow_adhesions'):
-            self.slow_adhesions = []
-        if not hasattr(self, 'slow_adhesions_active'):
-            self.slow_adhesions_active = False
-        if not hasattr(self, 'slow_adhesion_lifespan'):
-            self.slow_adhesion_lifespan = 1
-        if not hasattr(self, 'adhesion_shear_unbinding_factor'):
-            self.adhesion_shear_unbinding_factor = 0
-
-        if not hasattr(self, 'boundary_cell'):
-            initial_guessesA = {'D': [], 'C': [], 'gamma': [], 'theta': [],
-                                'x': self.boundary_adhesions[0], 'y': self.boundary_adhesions[1]}
-            self.boundary_cell = Cell(initial_guesses=initial_guessesA, identifier='boundary')
-            self.boundary_cell.prune_adhesion_data()
-            self.boundary_adhesions[0] = self.boundary_cell.x
-            self.boundary_adhesions[1] = self.boundary_cell.y
-            self.cellDict['boundary'] = self.boundary_cell
-            # self.boundary_cell.s_index_dict = {s: idx for (idx, s) in enumerate(self.boundary_cell.s)}
-        self.cellDict['boundary'].update_deformed_mesh_spacing()
-
-
-        # Cell properties
-        for cell in self.cells:
-            if cell.identifier != 'boundary':
-                if not hasattr(cell, 'relax_tol'):
-                    cell.relax_tol = 1e0
-                if not hasattr(cell, 'last_solve_status'):
-                    cell.last_solve_status = 0
-                if not hasattr(cell, 'identity'):
-                    cell.identity = 1
-                if not hasattr(cell, 'pref_area'):
-                    cell.pref_area = cell.get_area()
-                if not hasattr(cell, 'area_stiffness'):
-                    cell.area_stiffness = 0
-                if not hasattr(cell, 'prestrain_indices_list'):
-                    cell.prestrain_indices_list = []
-                if not hasattr(cell, 'pressure_on_off'):
-                    cell.pressure_on_off = False
-                if not hasattr(cell, 'adhesion_beta_scale_factor'):
-                    cell.adhesion_beta_scale_factor = 100
-                if not hasattr(cell, 'sidekick_adhesions'):
-                    cell.sidekick_adhesions = []
-                # if not hasattr(cell, 'sidekick_adhesion_coords'):
-                #     cell.sidekick_adhesion_coords = []
-                if not hasattr(cell, 'sdk_stiffness'):
-                    cell.sdk_stiffness = cell.omega0 * 100
-                if not hasattr(cell, 'sdk_restlen'):
-                    cell.sdk_restlen = 1
-                # if not hasattr(cell, 's_index_dict'):
-                #     cell.s_index_dict = {s: idx for (idx, s) in enumerate(cell.s)}
-                if not hasattr(cell, 'deformed_mesh_spacing'):
-                    cell.update_deformed_mesh_spacing()
-                if not hasattr(cell, 'slow_adhesions'):
-                    cell.slow_adhesions = []
-                if not hasattr(cell, 'fast_adhesions_active'):
-                    cell.fast_adhesions_active = True
-                if not hasattr(cell, 'lagrangian_point_ids'):
-                    cell.lagrangian_point_ids = np.arange(cell.s.size)
-                if not hasattr(cell, 'prestrain_plot_offset'):
-                    cell.prestrain_plot_offset = 0.9
-                if not hasattr(cell, 'max_mesh_coarsen_fraction'):
-                    cell.max_mesh_coarsen_fraction = 0.01
 
 
     def set_mesh_coarsening_fraction(self, max_fraction_to_remove):
@@ -392,6 +224,8 @@ class Epithelium(object):
                     ad.update_local_cell_indices_with_s()
             self.slow_adhesions = remaining_slows
 
+            # self.update_slow_adhesions()
+
 
     def adjust_intersections(self):
         """Applies a hand-of-god correction to prevent intersections of cortices.
@@ -430,26 +264,6 @@ class Epithelium(object):
 
         for cell in self.cells:
             cell.adhesion_beta_scale_factor = adhesion_beta_scale_factor
-
-
-    def set_viscous_cortex(self, on_off):
-        """Specify if the cortex is viscous
-
-        :param on_off: turn viscosity on or off
-        :type on_off: bool
-
-        """
-        self.viscous_cortex = on_off
-
-
-    def set_viscous_bluk(self, on_off):
-        """Specify if the area is viscous
-
-        :param on_off: Turn viscous bulk on or off.
-        :type on_off: bool
-
-        """
-        self.viscous_bulk = on_off
 
 
     def activate_fast_adhesions(self, on_off):
@@ -517,10 +331,8 @@ class Epithelium(object):
 
         apply_to = [c.identifier for c in self.cells] if apply_to == "all" else apply_to
 
-        if self.viscous_cortex:
-            self.update_all_rest_lengths(apply_to=apply_to)
-        if self.viscous_bulk:
-            self.update_pref_areas(apply_to=apply_to)
+        self.update_all_rest_lengths(apply_to=apply_to)
+        self.update_pref_areas(apply_to=apply_to)
 
         # If we have slow or sidekick adhesions, the s coordinates need to be updated to their new values after
         # the viscous update.
@@ -547,19 +359,11 @@ class Epithelium(object):
 
         # Reset lengths
         for cell_ref in apply_to:
-            cell = self.cellDict[cell_ref]
-            total_len = cell.get_length()
-            if self.viscous_timescale != 0:
-                # \todo this is no longer implemented properly
-                raise NotImplementedError("Haven't implemented viscoelasticity yet")
-                # new_rest_len = cell.rest_len + (total_len - cell.rest_len)/self.viscous_timescale
-                # cell.update_reference_configuration_to_current()
-            else:
-                cell.update_reference_configuration_to_current()
+            self.cellDict[cell_ref].update_reference_configuration()
 
 
     def update_pref_areas(self, area=None, apply_to='all'):
-        """Update the preferred area of specified cells
+        """Update the preferred area of specified cells \todo make this a cell method.
 
         :param area:  (Default value = None)  New preferred area.
         :type area: float
@@ -571,12 +375,24 @@ class Epithelium(object):
 
         for ref in apply_to:
             cell = self.cellDict[ref]
-            if self.viscous_timescale != 0:
+            if self.bulk_turnover_time != 0:
                 cell_area = cell.get_area()
-                cell.pref_area = cell.pref_area + (cell_area - cell.pref_area) / self.viscous_timescale
+                cell.pref_area = cell.pref_area + (cell_area - cell.pref_area) / self.bulk_turnover_time
             else:
                 new_pref_area = area if area is not None else cell.get_area()
                 cell.pref_area = new_pref_area
+
+
+    def set_cortical_timescale(self, timescale):
+        """Specify the turnover time of the actin cortex.
+
+        :param timescale: New cortical timescale
+        :type timescale: float
+
+        """
+
+        for cell in self.cells:
+            cell.cortical_turnover_time = timescale
 
 
     def update_pressures(self, pressure, apply_to='all'):
@@ -699,17 +515,6 @@ class Epithelium(object):
 
         for cell in self.cells:
             cell.prestrain_type = prestrain_type
-
-
-    def set_pressure_on_off(self, on_off):
-        """Turn bulk pressure force on or off in the cells.
-
-        :param on_off:  Control whether to use medial terms.
-        :type on_off: bool
-
-        """
-        for cell in self.cells:
-            cell.pressure_on_off = on_off
 
 
     def set_area_stiffness(self, stiffness):
@@ -983,6 +788,9 @@ class Epithelium(object):
                 cells_to_relax[cell_id].D = results[cell_id, 5]
                 cells_to_relax[cell_id].C = results[cell_id, 6]
                 cells_to_relax[cell_id].n = cells_to_relax[cell_id].x.size
+
+                # Update spacing
+                cells_to_relax[cell_id].update_deformed_mesh_spacing()
 
             if smoothing != 0:
                 self.smooth_all_variables_with_spline(smoothing=smoothing)
