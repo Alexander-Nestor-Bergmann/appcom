@@ -39,7 +39,7 @@ eptm.apply_prestretch_to_cell_identity_pairs(prestrech_magnitude, [['A','B']])
 
 # View in matplotlib
 fig, ax = plt.subplots(figsize=(11, 9))
-eptm.plot_xy_on_trijunction(ax=ax, plot_stress=True, plot_tension=True)
+eptm.plot_self(ax=ax, plot_stress=True, plot_tension=True)
 plt.show()
 ```
 
