@@ -55,7 +55,7 @@ Have a look at the result, colouring the cortex with tension and bulk with cell 
 
     import matplotlib.pyplot as plt
     fig, ax = plt.subplots(figsize=(11, 9))
-    eptm.plot_xy_on_trijunction(ax=ax, plot_stress=True, plot_tension=True)
+    eptm.plot_self(ax=ax, plot_stress=True, plot_tension=True)
     plt.show()
 
 

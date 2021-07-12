@@ -1437,7 +1437,7 @@ class Epithelium(object):
         # evec1, evec2 = eigvecs[:, 0], eigvecs[:, 1]
         #
         # fig, ax = plt.subplots(figsize=(11, 9))
-        # # self.plot_xy_on_trijunction(ax=ax, axEqual=True, plot_stress=0, plot_adhesion_forces=1, plotAdhesion=1,
+        # # self.plot_self(ax=ax, axEqual=True, plot_stress=0, plot_adhesion_forces=1, plotAdhesion=1,
         # #                             plot_boundary=1,
         # #                             lagrangian_tracking=0, plot_tension=1)
         # ax.quiver(boundary_coords[:, 0], boundary_coords[:, 1], vector_of_forces[:, 0], vector_of_forces[:, 1],
@@ -3315,12 +3315,9 @@ class Epithelium(object):
                             * np.array([np.cos(theta), np.sin(theta)])
                     ax.quiver(x, y, force[0], force[1], width=arrow_width, scale=arrow_scale, color=arrow_col, zorder=10)
 
-
-    def plot_xy_on_trijunction(self, ax=None, axEqual=True, plotAdhesion=True, plot_stress=False, plot_shape=False,
-                               plot_adhesion_forces=True, plot_boundary=True, cell_ids=[],
-                               lagrangian_tracking=False, plot_tension=False, plot_boundary_movement=True,
-                               plot_cbar=True,
-                               cell_kwargs={}, sim_type='auto'):
+    def plot_self(self, ax=None, axEqual=True, plotAdhesion=True, plot_stress=False, plot_shape=False,
+                  plot_adhesion_forces=True, plot_boundary=True, cell_ids=[], lagrangian_tracking=False,
+                  plot_tension=False, plot_boundary_movement=True, plot_cbar=True, sim_type='auto', cell_kwargs={}):
         """Plot the tissue and the boundary.
 
         :param ax: (Default value = None)  Axis object to plot on.
@@ -3432,7 +3429,7 @@ class Epithelium(object):
             # Specify cell label
             cell_label = r'$%s$' % int(list(self.cellDict.keys()).index(cell_ref)+1)
             # plot the cell
-            self.cellDict[cell_ref].plot_xy_on_trijunction(ax=ax, equalAx=axEqual, plotAdhesion=plotAdhesion,
+            self.cellDict[cell_ref].plot_self(ax=ax, equalAx=axEqual, plotAdhesion=plotAdhesion,
                                                            plot_shape=plot_shape,
                                                            plot_adhesion_forces=plot_adhesion_forces,
                                                            plot_pressure=plot_pressure,

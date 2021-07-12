@@ -2035,11 +2035,10 @@ class Cell(object):
             ax[1].legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
 
-    def plot_xy_on_trijunction(self, ax=None, col='C0', equalAx=True, plotAdhesion=True,
-                               cortexwidth=2, plot_adhesion_forces=True, plot_adhesion_at_specific_locations=False,
-                               lagrangian_tracking=False, plot_pressure=False, plot_tension=False,
-                               label=None, plot_stress=False, plot_stress_axis=False, sim_type='single',
-                               plot_shape=False, label_size=26):
+    def plot_self(self, ax=None, col='C0', equalAx=True, plotAdhesion=True, cortexwidth=2, plot_adhesion_forces=True,
+                  plot_adhesion_at_specific_locations=False, lagrangian_tracking=False, plot_pressure=False,
+                  plot_tension=False, label=None, plot_stress=False, plot_stress_axis=False, sim_type='single',
+                  plot_shape=False, label_size=26):
         """Plot the ys x for the junction and reflect/rotate if necessary.
 
         :param ax:  (Default value = None)
