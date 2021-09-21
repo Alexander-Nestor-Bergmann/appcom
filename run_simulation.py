@@ -19,99 +19,105 @@ myosin.
 
 """
 
-import dill
-import matplotlib
 import os
 import time
-import numpy as np
 from datetime import datetime
+from typing import List, Tuple
+
+import dill
+import matplotlib
+import numpy as np
 
 matplotlib.rcParams.update({'font.size': 22})
 
 CURRENT_DIR = os.path.dirname(__file__)
 
 # save dir
-SAVE_DIR = ''
+SAVE_DIR: str = ''
 # Name of file to start from
-name = '14_cells'
-location = 'pickled_tissues'
+name: str = '14_cells'
+location: str = 'pickled_tissues'
 # Any additional info wanted to append to the save-filename
-name_postfix = ''
+name_postfix: str = ''
 
 ############ Set params
 
 # General simulation parameters
-verbose = False
-num_simulation_steps = 400
+verbose: bool = False
+num_simulation_steps: int = 60
 
 ############
 
 # Prestretch properties
-global_prestretch = 0.9998  # Background contractilty in all cells. Set to 1 if not wanted.
+cell_prestretch_pairs: List[Tuple[str, str]] = []  # Pairs of cell.identifier e.g. [('A', 'B')]
+global_prestretch: float = 0.9998  # Background contractilty in all cells. Set to 1 if not wanted.
 # Junctional contractility
-cell_prestretch_pairs = [['A', 'B']]  # Pairs of cell.indentifier e.g. [['A', 'B']]
-prestretch = 1 - 0.04  # Prestretch in active juncs
-num_junc_prestretch_steps = 1  # In how many steps should we reach max prestretch
-conserve_initial_myosin = False  # Keep same amount of myosin, so density increases as shrinking
-max_junc_prestretch = 1 - 0.15  # Maximum density that can be held in a junction where it accumuates
-unipolar = False  # Apply prestrian to only one side of the apposed cortices?
-prestretch_type = 'min'  # how the magnitude of prestrain evaluated, base on neighbour ids.  'min' is neareast neighbour
+prestretch: float = 1 - 0.04  # Prestretch in active juncs
+num_junc_prestretch_steps: int = 1  # In how many steps should we reach max prestretch
+conserve_initial_myosin: bool = False  # Keep same amount of myosin, so density increases as shrinking
+max_junc_prestretch: float = 1 - 0.15  # Maximum density that can be held in a junction where it accumuates
+unipolar: bool = False  # Apply prestrian to only one side of the apposed cortices?
+prestretch_type: str = 'min'  # how the magnitude of prestrain evaluated, base on neighbour ids.  'min' is neareast neighbour
 
 # Whole-cortex contractility
-whole_prestretch_cells = []  # Cells to apply whole-cortex contractility
-whole_prestretch = 1 - 0.0  # Prestretch in active juncs
-num_whole_prestretch_steps = 1  # In how many steps should we reach max prestretch
+whole_prestretch_cells: List[str] = []  # Cells to apply whole-cortex contractility
+whole_prestretch: float = 1 - 0.0  # Prestretch in active juncs
+num_whole_prestretch_steps: int = 1  # In how many steps should we reach max prestretch
 
 ############
 
 # Active adhesion properties
 # junction-specific adhesion
-juncs_to_scale_omega = []  # List of junctions that will have an adhesion scaling
-new_junc_omega = 5e-2  # New omega for those junctions
-num_junc_adhesion_steps = 1  # How many steps to reach desired scaling
+juncs_to_scale_omega: List[Tuple[str, str]] = []  # List of junctions that will have an adhesion scaling
+new_junc_omega: float = 5e-2  # New omega for those junctions
+num_junc_adhesion_steps: int = 1  # How many steps to reach desired scaling
 
 # Whole-cortex adhesion
-cells_to_scale_omega = []  # List of cells that will have a new omega
-new_whole_omega = 5e-2  # New omega for whole cells
-num_whole_adhesion_steps = 1  # How many steps to reach desired scaling
+cells_to_scale_omega: List[str] = []  # List of cells that will have a new omega
+new_whole_omega: float = 5e-2  # New omega for whole cells
+num_whole_adhesion_steps: int = 1  # How many steps to reach desired scaling
 
 ############
 
 # Passive adhesion properties
-search_radius = 4  # radius to apply pre_stretch
-max_ad_len = 4  # Adhesions longer than this break
-max_num_adhesions = 5
-use_fast_adhesions = False
-use_sidekick_adhesions = False
-sidekick_removal_junc_len = 10  # Remove sdk from a junction when its length falls below
-use_slow_adhesions = True
-slow_ad_lifespan = 10
-slow_ad_shear_unbinding_factor = 0  # Increases probability of unbinding with shear angle
+search_radius: float = 4  # radius to apply pre_stretch
+max_ad_len: float = 4  # Adhesions longer than this break
+max_num_adhesions: int = 5  # Maximum num fast adhesions to use for calculation meanfield at each cortex node.
+use_fast_adhesions: bool = False  # Use a meanfield adhesion force
+use_sidekick_adhesions: bool = False  # Use adhesion that are fixed at vertices
+sidekick_removal_junc_len: float = 10  # Remove sdk from a junction when its length falls below
+use_slow_adhesions: bool = True  # Use adhesions that persist for multiple timesteps
+slow_ad_lifespan: int = 10  # Average max age of slow adhesions
+slow_ad_shear_unbinding_factor: float = 0  # Increases probability of unbinding with shear angle
 
 ############
 
-# Medial myosin properties N.B. Haven't implemented medial myosin in this file
-medial_on = False
-visc_timescale = 0  # Viscocity of cortex: 0 for junctional simulations.
-runaway_junctional = False  # Compound junctional over medial pulses.
-max_medial_pressure = 3e-4  # 2e-5 for viscous pulse
-positive_pressure_cells = []  # Cell refs to add positive pressure
-negative_pressure_cells = []  # Negative pressure
+# Timescales
+cortex_timescale: int = 0  # Viscosity of cortex: 0 for junctional simulations.
+
+############
+
+# Medial myosin properties
+max_medial_pressure: float = 4e-4
+medial_pulse_period: int = 20  # Duration of a medial pulse, from 0 - peak - 0
+positive_pressure_cells: List[str] = []  # Cell refs to add positive pressure
+negative_pressure_cells: List[str] = []  # Negative pressure
+negative_and_positive_cycle: bool = False  # Make cells go positive and negative.
 
 ############
 
 # Boundary conditions
-boundary_condition = 'fixed'  # = fixed, viscous, germband
-boundary_stiffness = 5e-2  # Stiffess of fixed wall.
-posterior_pull_shift = 0  # .1  # strength of pull on posterior side.
-boundary_strain = 0  # 0.005  # Move the whole boundary
+boundary_condition: str = 'fixed'  # = fixed, viscous, germband
+boundary_stiffness: float = 5e-2  # Stiffness of fixed wall.
+posterior_pull_shift: float = 0  # .1  # strength of pull on posterior side.
+boundary_strain: float = 0  # 0.005  # Move the whole boundary
 
 ############
 
 # Solving conditions
-adaptive = True
-max_relaxations = 100
-elastic_tol = 1e-2
+adaptive: bool = True  # Adaptively update the mesh
+max_relaxations: int = 100  # How many elastic relaxation steps to apply in each solving iteration
+elastic_tol: float = 1e-2  # Tolerance on much cells have moved to establish equilibrium.
 
 ##########################################################################
 ####################### Simulation code runs below #######################
@@ -123,7 +129,7 @@ with open(open_dir, 'rb') as s:
     eptm = dill.load(s)
 
 # Set conditions
-eptm.set_verbose(verbose)
+eptm.verbose = verbose
 eptm.set_prestrain_type(prestretch_type)
 eptm.activate_fast_adhesions(use_fast_adhesions)
 eptm.activate_sidekick_adhesions(use_sidekick_adhesions)
@@ -134,10 +140,9 @@ eptm.set_adhesion_type('fixed_radius')
 eptm.set_adhesion_search_radius(search_radius)
 eptm.update_all_max_adhesion_lengths(max_ad_len)
 eptm.set_max_num_adhesions_for_fast_force_calculation(max_num_adhesions)
-eptm.set_pressure_on_off(medial_on)
 eptm.max_elastic_relax_steps = max_relaxations
 eptm.elastic_relax_tol = elastic_tol
-eptm.viscous_timescale = visc_timescale
+eptm.set_cortical_timescale(cortex_timescale)
 eptm.boundary_stiffness_x = boundary_stiffness
 eptm.boundary_stiffness_y = boundary_stiffness
 eptm.posterior_pull_shift = posterior_pull_shift
@@ -145,9 +150,6 @@ eptm.boundary_bc = boundary_condition
 
 eptm.use_mesh_refinement = adaptive
 eptm.use_mesh_coarsening = adaptive
-
-eptm.update_all_missing_member_variables()
-eptm.remove_redundant_member_variables()
 
 #################
 # Storing the simulation details in the name
@@ -203,6 +205,18 @@ if len(whole_prestretch_cells) > 0:
     name = '_'.join([name, 'gamma', str(whole_prestretch)])
     if num_whole_prestretch_steps > 1:
         name = '_'.join([name, 'steps', str(num_whole_prestretch_steps)])
+if cortex_timescale != 0:
+    name = '_'.join([name, 'tau_c', str(cortex_timescale)])
+# Constant density?
+if conserve_initial_myosin:
+    name = '_'.join([name, 'conserve_myo'])
+    initial_length = eptm.get_length_of_shared_junction('A', 'B')
+
+# Medial myosin
+if len(positive_pressure_cells) > 0 or len(negative_pressure_cells) > 0:
+    medial_cells = "".join(positive_pressure_cells + ['_'] + negative_pressure_cells)
+    name = '_'.join([name, 'medial', medial_cells, str(max_medial_pressure)])
+    name = '_'.join([name, 'tau_m', str(medial_pulse_period)])
 
 # Global boundary stretch
 if boundary_condition != 'fixed':
@@ -211,10 +225,6 @@ if boundary_condition != 'fixed':
 # Postfix if adaptive
 if not adaptive:
     name = '_'.join([name, 'not_adaptive'])
-# Constant density?
-if conserve_initial_myosin:
-    name = '_'.join([name, 'conserve_myo'])
-    initial_length = eptm.get_length_of_shared_junction('A', 'B')
 
 # Save location
 SAVE_DIR = os.path.join(SAVE_DIR, name)
@@ -250,7 +260,7 @@ if conserve_initial_myosin:
 #################
 
 for sim_step in range(num_simulation_steps):
-    print('simulation step:', sim_step+1)
+    print('simulation step:', sim_step + 1)
     t = time.time()
 
     ########### Active contractility ###########
@@ -275,6 +285,18 @@ for sim_step in range(num_simulation_steps):
     # Apply whole-cortex prestretch
     if 0 < sim_step <= num_whole_prestretch_steps:
         eptm.apply_prestretch_to_whole_cells(whole_prestretch_list[sim_step], whole_prestretch_cells)
+
+    ########### Medial myosin ###########
+
+    if len(positive_pressure_cells) > 0 or len(negative_pressure_cells) > 0:
+        # Reset the pressures to zero
+        eptm.update_pressures(0)
+        # Get current magnitude of medial pressure
+        position_in_pulse = (sim_step % medial_pulse_period) / medial_pulse_period
+        current_medial_pressure = max_medial_pressure * 0.5 * (1 - np.cos(position_in_pulse * 2 * np.pi))
+        # Add to cells
+        eptm.update_pressures(current_medial_pressure, positive_pressure_cells)
+        eptm.update_pressures(-current_medial_pressure, negative_pressure_cells)
 
     ########### Active adhesion ###########
 
@@ -311,11 +333,3 @@ for sim_step in range(num_simulation_steps):
     with open(os.path.join(SAVE_DIR, "times.txt"), "a") as times_file:
         times_file.write('time to complete last step:' + str((time.time() - t) / 60.) + " " + current_time + "\n")
         times_file.write('which was' + str(eptm.last_num_internal_relaxes) + "relaxes\n")
-
-
-
-
-
-
-
-

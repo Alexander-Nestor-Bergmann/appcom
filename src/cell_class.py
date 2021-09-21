@@ -7,17 +7,18 @@
 """Implementation of a class to represent the cell cortex."""
 
 import colorsys
-import dill
 import itertools
+import warnings
+import os
+from collections import Counter
+from typing import List, Tuple
+
+import dill
 import matplotlib
 import numpy as np
-import os
 import shapely.geometry as geom
-
 from matplotlib import pyplot as plt
 from matplotlib.collections import LineCollection
-
-from collections import Counter
 from numpy.core.umath_tests import inner1d
 from scipy.integrate import solve_bvp as solve_bvp_scipy
 from scipy.interpolate import interp1d
@@ -44,7 +45,8 @@ class Cell(object):
     ``s`` = S_0.
     """
 
-    def __init__(self, initial_guesses, identifier='A', verbose=True, param_dict=None, **cell_kwargs):
+    def __init__(self, initial_guesses: dict, identifier: str = 'A', verbose: bool = True, param_dict: dict = None,
+                 **cell_kwargs):
         """
         Initialiser to set up the class properties.
 
@@ -63,133 +65,132 @@ class Cell(object):
         """
 
         # Give the cell its unique id
-        self.identifier = identifier
+        self.identifier: str = identifier
 
-        self.verbose = verbose
+        self.verbose: bool = verbose
         self.verboseprint("Creating cell %s" % identifier, object(), 1)
 
         ############ Paramter and cortex variable initialisation
 
         # If no params given, set some default ones
-        if param_dict == None:
-            kappa, delta, omega0 = .0001, 1, 0
-        # Else read.
-        else:
-            kappa = param_dict['kappa']
-            delta = param_dict['delta']
-            omega0 = param_dict['omega0']
-        # Store params:
-        self.kappa = kappa  # (is kappa^2 in manuscript)
-        self.delta = delta
-        self.omega0 = omega0
+        param_dict = {} if param_dict is None else param_dict
+        self.kappa: float = param_dict.get('kappa', 1e-4)  # (is kappa^2 in manuscript)
+        self.delta: float = param_dict.get('delta', 1)
+        self.omega0: float = param_dict.get('omega0', 0)
 
         # Initial guesses for cortex variables
-        self.D = initial_guesses['D']  # D = C'
-        self.C = initial_guesses['C']  # C = theta'
-        self.gamma = initial_guesses['gamma']
-        self.theta = initial_guesses['theta']
-        self.x = initial_guesses['x']
-        self.y = initial_guesses['y']
+        self.D: np.array = initial_guesses['D']  # D = C'
+        self.C: np.array = initial_guesses['C']  # C = theta'
+        self.gamma: np.array = initial_guesses['gamma']
+        self.theta: np.array = initial_guesses['theta']
+        self.x: np.array = initial_guesses['x']
+        self.y: np.array = initial_guesses['y']
 
         # Number of cortex nodes
-        self.n = self.x.size
+        self.n: int = self.x.size
         # If solving requires new nodes to be put in, set the maximum.
-        self.decimateAbove = self.n * 1.1
+        self.decimateAbove: int = int(self.n * 1.1)
         # Adaptive mesh parameters
-        self.max_mesh_coarsen_fraction = cell_kwargs.get('max_mesh_coarsen_fraction', 0.01)  # What proportion of mesh nodes can be removed in a timestep
+        self.max_mesh_coarsen_fraction: float = cell_kwargs.get('max_mesh_coarsen_fraction',
+                                                                0.01)  # What proportion of mesh nodes can be removed in a timestep
 
         ############ Geometry ##############
 
         # Cortex rest length set to initial length
-        self.rest_len = self.get_length()
+        self.rest_len: float = self.get_length()
         # Set the Lagrangian reference, S_0, domain from the current configuration and stretch/prestretch
-        self.domain = (0, self.rest_len)
+        self.domain: Tuple[float, float] = (0, self.rest_len)
 
         # Area term: \todo
-        self.area_stiffness = cell_kwargs.get('area_stiffness', 0)
-        self.pref_area = self.get_area()
+        self.area_stiffness: float = cell_kwargs.get('area_stiffness', 0)
+        self.pref_area: float = self.get_area()
 
         # S_0 (Lagrangian reference material coord in undeformed configuration)
-        self.s = np.linspace(0, self.rest_len, self.n)
+        self.s: np.array = np.linspace(0, self.rest_len, self.n)
         # Tracking of Lagrangian material points.  Each point is given an identifier, so we can find it when s changes.
-        self.lagrangian_point_ids = np.arange(self.s.size)
+        self.lagrangian_point_ids: np.array = np.arange(self.s.size)
 
         ############ Mechanics ##############
 
         # Consitutive model for cortex stress-strain relationship \todo can use only 'linear' atm.
-        self.possible_constitutive_models = ["linear", "hyperelastic"]
-        self.constitutive_model = cell_kwargs.get('constitutive_model', 'linear')
-        self.cortical_turnover_time = cell_kwargs.get('cortical_turnover_time', 0)
+        self.possible_constitutive_models: List[str] = ["linear", "hyperelastic"]
+        self.constitutive_model: str = cell_kwargs.get('constitutive_model', 'linear')
+        self.cortical_turnover_time: int = cell_kwargs.get('cortical_turnover_time', 0)
 
         # Prestretch applied via 'identity sensing' adhesions.  Specify rule for force calculation.
-        self.prestrain_type = cell_kwargs.get('prestrain_type', 'min')  # Can be "most_common", "average", "min", "nearest"
+        self.prestrain_type: str = cell_kwargs.get('prestrain_type',
+                                                   'min')  # Can be "most_common", "average", "min", "nearest"
         # Dictionary for prestretch (referred to as prestrain)
-        self.prestrain_dict = {'A': 1.0, 'B': 1.0, 'C': 1.0, 'D': 1.0, 'E': 1.0, 'F': 1.0, 'G': 1.0, 'H': 1.0,
-                               'I': 1.0, 'J': 1.0, 'K': 1.0, 'L': 1.0, 'M': 1.0, 'N': 1.0, 'boundary': 1, 'none': 1}
+        self.prestrain_dict: dict = {'A': 1.0, 'B': 1.0, 'C': 1.0, 'D': 1.0, 'E': 1.0, 'F': 1.0, 'G': 1.0, 'H': 1.0,
+                                     'I': 1.0, 'J': 1.0, 'K': 1.0, 'L': 1.0, 'M': 1.0, 'N': 1.0, 'boundary': 1,
+                                     'none': 1}
         # Initialse prestretches to 1
-        self.prestrains = np.ones_like(self.x)
-        self.prestrain_indices_list = []
+        self.prestrains: np.array = np.ones_like(self.x)
+        self.prestrain_indices_list: list = []
         # For identity sensing, how far can the adheions 'look' to find other cortices
-        self.adhesion_search_radius = self.domain[1] / 20
+        self.adhesion_search_radius: float = self.domain[1] / 20
 
         # Cell pressure forces from medial myosin
-        self.pressure = cell_kwargs.get('pressure', 0)
+        self.pressure: float = cell_kwargs.get('pressure', 0)
 
         # Protrusion forces
-        self.protrusion_target = cell_kwargs.get('protrusion_target', None)  # Would be the unique identifier for another cell
+        self.protrusion_target: str = cell_kwargs.get('protrusion_target',
+                                                      None)  # Would be the unique identifier for another cell
         # And the magnitude of the force
-        self.protrusion_force = cell_kwargs.get('protrusion_force', 0.)
+        self.protrusion_force: float = cell_kwargs.get('protrusion_force', 0.)
 
         # Tolerance for solving the BVP using Scipy
-        self.relax_tol = cell_kwargs.get('relax_tol', 1e0)
+        self.relax_tol: float = cell_kwargs.get('relax_tol', 1e0)
         # Store if solving was successful or not to see if we can trust configuration
-        self.last_solve_status = cell_kwargs.get('last_solve_status', 0)
+        self.last_solve_status: int = cell_kwargs.get('last_solve_status', 0)
+        # Constrain the centroid of the cell to [0, 0]
+        self.constrain_centroid: bool = False
 
         ############## Adhesion properties ##############
 
         ##### Fast adhesions
 
         # Default off
-        self.fast_adhesions_active = cell_kwargs.get('fast_adhesions_active', False)
+        self.fast_adhesions_active: bool = cell_kwargs.get('fast_adhesions_active', False)
 
         # Their constitutive properties
-        self.adhesion_force_law = cell_kwargs.get('adhesion_force_law', 'spring')  # Can be 'spring' only, for now.
+        self.adhesion_force_law: str = cell_kwargs.get('adhesion_force_law', 'spring')  # Can be 'spring' only, for now.
         # Set a maximum size for adhesions (force=0 for adhesions longer than this)
-        self.max_adhesion_length = self.domain[1] / 20
+        self.max_adhesion_length: float = self.domain[1] / 20
         # How is the force calculated for fast adhesions: can be in ["nearest", "meanfield", "fixed_radius"]
         # 'meanfield' is most appropriate for fast adhesions.
-        self.adhesion_type = cell_kwargs.get('adhesion_type', 'fixed_radius')
+        self.adhesion_type: str = cell_kwargs.get('adhesion_type', 'fixed_radius')
         # How many adhesions to use in the force calculation. Doesn't need to be more than 20, smaller is faster.
-        self.max_num_adhesions_for_force = cell_kwargs.get('max_num_adhesions_for_force', 20)
+        self.max_num_adhesions_for_force: int = cell_kwargs.get('max_num_adhesions_for_force', 20)
         # How forces are scaled based on length of adhesion molecule.
-        self.adhesion_beta_scale_factor = cell_kwargs.get('adhesion_beta_scale_factor', 50)
+        self.adhesion_beta_scale_factor: float = cell_kwargs.get('adhesion_beta_scale_factor', 50)
 
         # Scaling for omega to modulute adhesion density on certain junctions
-        self.adhesion_density_dict = {'A': 1.0, 'B': 1.0, 'C': 1.0, 'D': 1.0, 'E': 1.0, 'F': 1.0, 'G': 1.0, 'H': 1.0,
-                                      'I': 1.0, 'J': 1.0, 'K': 1.0, 'L': 1.0, 'M': 1.0, 'N': 1.0, 'boundary': 1,
-                                      'none': 1}
+        self.adhesion_density_dict: dict = {'A': 1.0, 'B': 1.0, 'C': 1.0, 'D': 1.0, 'E': 1.0, 'F': 1.0, 'G': 1.0,
+                                            'H': 1.0, 'I': 1.0, 'J': 1.0, 'K': 1.0, 'L': 1.0, 'M': 1.0, 'N': 1.0,
+                                            'boundary': 1, 'none': 1}
 
         # This is where information about nearby cortices (within adhesion_search_radius) is held, which is what fast
         # adhesions could possibly couple to.   The information is passed from the eptm class
-        self.adhesion_point_coords = []  # (x,y) coords of nearby neighbouring cells
-        self.adhesion_point_identifiers = []  # identifier of cell for the (x,y) coords above.
-        self.adhesion_point_spacings = []  # Cortex spacing (in current configuration) of neighbouring nodes
+        self.adhesion_point_coords: list = []  # (x,y) coords of nearby neighbouring cells
+        self.adhesion_point_identifiers: list = []  # identifier of cell for the (x,y) coords above.
+        self.adhesion_point_spacings: list = []  # Cortex spacing (in current configuration) of neighbouring nodes
 
         # Containers for the actual adhesion connections that are made. Each idx represents the data for the cortex
         # idx. So self.adhesion_distances[idx] gives the lengths of the adhesion bonds at self.s[idx]
         # We store this information so it doesn't need to be calculated on the fly
         # Total force from adhesion at every node
-        self.adhesion_forces = np.zeros(self.x.size)
+        self.adhesion_forces: np.array = np.zeros(self.x.size)
         # Lengths of adhesion connections that have been made.
-        self.adhesion_distances = []
+        self.adhesion_distances: list = []
         # The (x,y) coords of connections from self.adhesion_point_coords that are actually made.
-        self.adhesion_connections = []
+        self.adhesion_connections: list = []
         # The ids of the connections
-        self.adhesion_connections_identities = []
+        self.adhesion_connections_identities: list = []
         # A list of the cells that each node is connected to (the unique list of all connections)
-        self.adhesion_connections_identities_unique = []
+        self.adhesion_connections_identities_unique: list = []
         # Spacings of the connections that were made.
-        self.adhesion_connections_spacings = []
+        self.adhesion_connections_spacings: list = []
 
         ########### SDK and slow adhesions.
 
@@ -197,18 +198,35 @@ class Cell(object):
         # contain information about which cortex nodes are connected to where.
 
         # Sidekick (vertex-specific)
-        self.sidekick_adhesions = []
-        self.sdk_stiffness = cell_kwargs.get('sdk_stiffness', 100 * self.omega0)
-        self.sdk_restlen = cell_kwargs.get('sdk_restlen', 1)
+        self.sidekick_adhesions: list = []
+        self.sdk_stiffness: float = cell_kwargs.get('sdk_stiffness', 100 * self.omega0)
+        self.sdk_restlen: float = cell_kwargs.get('sdk_restlen', 1)
 
         # Slow adhesions (when tau_ad >= 1).  Need to keep a perma
-        self.slow_adhesions = []
+        self.slow_adhesions: list = []
 
         ############## Misc ##############
 
         # How close to plot prestrain next to cortex
-        self.prestrain_plot_offset = cell_kwargs.get('prestrain_plot_offset', 0.9)
+        self.prestrain_plot_offset: float = cell_kwargs.get('prestrain_plot_offset', 0.9)
 
+    def __getstate__(self):
+        return vars(self)
+
+    def __setstate__(self, state):
+        vars(self).update(state)
+
+    def __getattr__(self, name):
+        """
+        Incase an old eptm is being loaded and doesn't have an attribute. Warning, attribute type may be wrong.
+        :param name: the name of the attribute
+        :return:
+        """
+        if name.startswith('__') and name.endswith('__'):
+            raise AttributeError
+        else:
+            warnings.warn(f"{name} does not exist. Creating attribute with value None")
+            setattr(self, name, None)
 
     def verboseprint(self, *args):
         """Function to print out details as code runs
@@ -221,7 +239,6 @@ class Cell(object):
         except AttributeError:
             self.verbose = True
         print(args) if self.verbose else None
-
 
     def prune_adhesion_data(self):
         """ Remove all locally stored adhesion data.  This data is usually permanently held by the Epithelium class.
@@ -244,7 +261,6 @@ class Cell(object):
         self.adhesion_tree = None
         self.adhesion_polygon = None
 
-
     def update_reference_configuration(self):
         """Update the Lagrangian coordinate S_0 to the current configuration from the stretches and prestretches.
          If the cortex is purely viscous (cortical_turnover_time = 0):
@@ -263,7 +279,7 @@ class Cell(object):
         self.verboseprint(f'updating reference length for cell {self.identifier}', object(), 1)
 
         # No turnover in elastic cortex.
-        if self.cortical_turnover_time == np.inf:
+        if np.isfinite(self.cortical_turnover_time):
             return
 
         # Calculate the prestretches
@@ -279,7 +295,8 @@ class Cell(object):
         # If viscoelastic
         else:
             for idx in range(self.s.size - 1):
-                self.s[idx + 1] = ds[idx] * (1 + ((self.gamma[idx] * prestrains[idx] - 1) / self.cortical_turnover_time)) \
+                self.s[idx + 1] = ds[idx] * (
+                        1 + ((self.gamma[idx] * prestrains[idx] - 1) / self.cortical_turnover_time)) \
                                   + self.s[idx]
 
         # Reset the rest length and integration domain
@@ -288,7 +305,6 @@ class Cell(object):
 
         # self.get_mesh_spacing()
         self.update_deformed_mesh_spacing()
-
 
     def update_adhesion_points(self, points, ids, spacing):
         """Store points that fast adhesions can adhere to.
@@ -310,7 +326,6 @@ class Cell(object):
         # Store the spacings
         self.adhesion_point_spacings = spacing
 
-
     def clear_adhesion_points(self):
         """Remove all stored possible adhesion points.
         """
@@ -318,39 +333,12 @@ class Cell(object):
         self.adhesion_point_identifiers = []
         self.adhesion_point_spacings = []
 
-
     def get_neighbours(self):
         """Get the identities of neighbouring cells
         """
 
         neighbours = set(itertools.chain(*self.adhesion_connections_identities))
         return list(neighbours)
-
-
-    def get_intersection_indices(self, points):
-        """ Get at list of the idxs, from given points, that intersect adhesion boundaries. DEPRECIATED
-
-        :param points:  The coords of points to check
-        :type points: list
-        :return indices: The indices of the points that intersected the boundary.
-
-        """
-
-        # Build the boundary polygon, if it doesn't exist
-        if self.adhesion_polygon is None:
-            self.build_adhesion_tree()
-        try:
-            intersect_points = self.adhesion_polygon.intersection(geom.Polygon(points))
-            intersect_points_coords = np.dstack(intersect_points.exterior.coords.xy)[0]
-        except:
-
-            return [i for i in range(0, len(points)) if
-                    not self.adhesion_polygon.contains(geom.Point(points[i, 0], points[i, 1]))]
-
-        indices = [i for i in range(0, points.shape[0]) if not points[i] in intersect_points_coords]
-
-        return indices
-
 
     def check_if_cell_intersects_adhesion_boundary(self, x=None, y=None):
         """Check if any cortex node intersects the adhesion boundary
@@ -373,7 +361,6 @@ class Cell(object):
 
         # Build the polygon and check for intersections
         return not self.adhesion_polygon.contains(geom.Polygon(zip(x, y)))
-
 
     def move_cortex_nodes_to_equilibrium_dist(self, scaling=1, neighbours_moving=True):
         """Enforces that the cortex is no closer than delta to any neighbouring cortex
@@ -423,7 +410,7 @@ class Cell(object):
                 # Nodes not neighbouring boundary move only half each (because other cell will also move)
                 adhesion_distances_sliced = adhesion_distances[adhesion_nodes_connections != 'boundary']
                 shift_from_adhesions[adhesion_nodes_connections != 'boundary'] *= 0.5 * (
-                            adhesion_distances_sliced + self.delta)[..., np.newaxis]
+                        adhesion_distances_sliced + self.delta)[..., np.newaxis]
 
             self.x[too_close_indices] = adhesion_nodes[:, 0] + shift_from_adhesions[:, 0]
             self.y[too_close_indices] = adhesion_nodes[:, 1] + shift_from_adhesions[:, 1]
@@ -431,7 +418,6 @@ class Cell(object):
             return True
         else:
             return False
-
 
     def scale_whole_cell_to_fit_adhesion_to_delta(self, stretch_factor=1.01, delta_tol=1.05,
                                                   update_adhesion_lengths=True):
@@ -481,7 +467,6 @@ class Cell(object):
 
         self.update_reference_configuration()
 
-
     def activate_fast_adhesions(self, on_off):
         """(De)activates the forces coming from fast adhesions
 
@@ -490,7 +475,6 @@ class Cell(object):
 
         """
         self.fast_adhesions_active = on_off
-
 
     def build_adhesion_tree(self, build_polygon=False):
         """Builds a kdtree of the possible adhesion locations from self.adhesion_point_coords
@@ -540,7 +524,6 @@ class Cell(object):
 
         return
 
-
     def get_adhesion_nodes_connected_to_xy(self, nodes, sort_by_distance=True):
         """Calculate the adhesions that will be connected to given a list of (x,y) coordinates.
 
@@ -564,9 +547,8 @@ class Cell(object):
 
         return distances, indices
 
-
     def update_adhesion_distances_identifiers_and_indices(self, x=None, y=None, sort_by_distance=True,
-                                                      build_tree=False):
+                                                          build_tree=False):
         """Query the adhesion tree to build adhesion connections, storing the distance, id and index of the connection.
         The data is stored internally, with no output here.
 
@@ -591,7 +573,7 @@ class Cell(object):
         if build_tree or (not hasattr(self, 'adhesion_tree')) or self.adhesion_tree is None:
             self.build_adhesion_tree()
         adh_distances, indices = self.get_adhesion_nodes_connected_to_xy(cortex_nodes,
-                                                                               sort_by_distance=sort_by_distance)
+                                                                         sort_by_distance=sort_by_distance)
 
         # If in hex, just fit closest
         if self.adhesion_type == "nearest":
@@ -634,7 +616,6 @@ class Cell(object):
         self.adhesion_connections_identities = [[self.adhesion_point_identifiers[i] for i in ind] for ind in indices]
         # and their spacings
         self.adhesion_connections_spacings = [[self.adhesion_point_spacings[i] for i in ind] for ind in indices]
-
 
     def get_total_adhesion_force_from_adhesion_indices(self, coord, adhesion_index, is_intersection=False):
         """For fast adhesions.  Given (x,y) coord on this cortex and index (adhesion_idx) in adhesion list that it is connected to,
@@ -837,7 +818,7 @@ class Cell(object):
         x = self.x if x is None else x
         y = self.y if y is None else y
 
-        #Update mesh spacing for scaling
+        # Update mesh spacing for scaling
         self.update_deformed_mesh_spacing(x, y)
 
         force_vector = np.zeros((x.size, 2))
@@ -849,6 +830,12 @@ class Cell(object):
             # Using the collocation method, the size of x changes. If it's too big, just use end value
             local_idx = x.size - 1 if local_idx > x.size - 1 else local_idx
             x_local, y_local = x[local_idx], y[local_idx]
+
+            # If it's a single cell in a periodic tissue, we hold the centroid at (0,0)
+            if self.constrain_centroid:
+                x_local -= np.mean(self.x)
+                y_local -= np.mean(self.y)
+
             # Force and direction
             dx, dy = ad[1] - x_local, ad[2] - y_local
             direction = [dx, dy]
@@ -869,7 +856,6 @@ class Cell(object):
             force_vector[local_idx, 1] += force_acting[1] * other_mesh_spacing
 
         return force_vector
-
 
     def get_total_adhesion_force_across_cortex(self, x=None, y=None, s=None):
         """Get the total adhesion force, with fast, sdk and slow adhesions
@@ -966,13 +952,11 @@ class Cell(object):
 
         return force_list
 
-
     def update_prestrains(self):
         """Update the values of prestretches (called prestrain here based on the identity of (fast) adhesion connections    
         """
-        
-        self.prestrains = self.get_prestrains()
 
+        self.prestrains = self.get_prestrains()
 
     def get_prestrains(self, shape=None):
         """Returns an array of the calculated prestrethc (called prestrain) at every mesh point, using the
@@ -1038,7 +1022,6 @@ class Cell(object):
             prestrain[indices_to_change] *= values_to_change
 
         return prestrain
-
 
     def get_first_derivative_of_cortex_variables(self, x=None, y=None, theta=None, gamma=None, C=None, D=None, s=None):
         """ Get the first derivative of all cortex variables. (Note, return order differs to input order \todo)
@@ -1163,7 +1146,6 @@ class Cell(object):
 
         return np.vstack((dThetaDs, d_gamma_ds, dXds, dYds, dDds, dCds))
 
-
     def funcForScipyBVPSolver(self, s, U):
         """Function to pass to Scipy's BVP solver; returns the cortex equilibrium equations from the force balance.
         U = [theta, gamma, x, y, D, C]
@@ -1183,7 +1165,6 @@ class Cell(object):
 
         return cortex_eqns
 
-
     def bvp_bcs(self, ya, yb):
         """Check how close we are to periodic BCS for cortex variables.  Used for solving BVP
 
@@ -1200,14 +1181,13 @@ class Cell(object):
         # For theta  it needs to be mod(2pi)
         BCStateVector.append(ya[0] % (2 * np.pi) - yb[0] % (2 * np.pi))
         # Others are just continuity.
-        BCStateVector.append((ya[1] - yb[1]) / 1)
-        BCStateVector.append((ya[2] - yb[2]) / 1)
-        BCStateVector.append((ya[3] - yb[3]) / 1)
-        BCStateVector.append((ya[4] - yb[4]) / 1)
-        BCStateVector.append((ya[5] - yb[5]) / 1)
+        BCStateVector.append(ya[1] - yb[1])
+        BCStateVector.append(ya[2] - yb[2])
+        BCStateVector.append(ya[3] - yb[3])
+        BCStateVector.append(ya[4] - yb[4])
+        BCStateVector.append(ya[5] - yb[5])
 
         return np.array(BCStateVector)
-
 
     def solve_bvp(self):
         """Solve BVP for cortex variables using Scipy's BVP solver
@@ -1308,8 +1288,11 @@ class Cell(object):
         # store status of last solve
         self.last_solve_status = sol1.status
 
-        return sol1.status, [self.s, self.theta, self.gamma, self.x, self.y, self.D, self.C]
+        if self.constrain_centroid:
+            self.x -= np.mean(self.x)
+            self.y -= np.mean(self.y)
 
+        return sol1.status, [self.s, self.theta, self.gamma, self.x, self.y, self.D, self.C]
 
     def get_normal_and_tangential_components_of_cortex_forces(self):
         """Get normal and tangential components of force gradient exerted by cortex.
@@ -1358,7 +1341,6 @@ class Cell(object):
 
         return f_n, f_t
 
-
     def get_cortex_forces(self):
         """Get the total forces exerted by the cortex (against adhesion), summed of normal and tang dirs.
 
@@ -1383,7 +1365,6 @@ class Cell(object):
 
         return total_forces
 
-
     def get_stress_tensor(self):
         """Calculate cell stress tensor
 
@@ -1397,17 +1378,20 @@ class Cell(object):
         # Centroid
         centroid = self.get_centroid()
 
+        # # Spacing
+        # spacing = self.get_mesh_spacing()
+
         # Get the stress tensor
         stress = np.array([[0., 0.], [0., 0.]])
         for i in range(self.s.size):
             r_vector = np.array([self.x[i] - centroid[0], self.y[i] - centroid[1]])  # - centroid
+            # stress += (np.outer(r_vector, total_forces[i]) - np.outer(r_vector, total_forces[i-1])) * spacing[i]
             stress += np.outer(r_vector, total_forces[i])
 
         stress /= self.get_area()
         stress = 0.5 * (stress + stress.T)  # Enforce symmetric
 
         return stress
-
 
     def get_effective_pressure(self):
         """Isotropic part of cell-level stress
@@ -1418,6 +1402,46 @@ class Cell(object):
 
         return -0.5 * self.get_stress_tensor().trace()
 
+    def get_shear_stress(self):
+        """
+        Gets the shear component of the cell stress tensor.
+        :return:
+        """
+        stress_tensor = self.get_stress_tensor()
+        traceless = stress_tensor - 0.5 * self.get_stress_tensor().trace() * np.identity(2)
+        eigvals, eigvecs = np.linalg.eig(traceless)
+        shear = 0.5 * (eigvals[0] - eigvals[1])
+
+        return shear
+
+    def get_cortex_energy(self, configuration: str = 'undeformed'):
+        """
+        Evaluate total energy of cortex (bending + stretching)
+        :return:
+        """
+
+        assert configuration in ['reference', 'undeformed'], "only reference configuration energy supported"
+
+        if configuration == 'reference':
+            # Get the prestrains so we can convert the variables from undeformed to virtual configuration.
+            prestrains = self.get_prestrains()
+
+            bending = 0.5 * np.sqrt(self.kappa) * ((self.C / prestrains) ** 2)
+        elif configuration == 'undeformed':
+            bending = 0.5 * np.sqrt(self.kappa) * (self.C ** 2)
+
+        stretching = 0.5 * (self.gamma ** 2)
+
+        return bending + stretching  # * self.deformed_mesh_spacing * (1 / self.gamma))  #) / prestrains)
+
+    def integrate_cortex_energy(self):
+        """
+
+        :return:
+        """
+        from scipy.integrate import simps
+
+        return simps(self.get_cortex_energy(), x=self.s)
 
     def get_shape_tensor(self):
         """Get cell shape tensor
@@ -1439,7 +1463,6 @@ class Cell(object):
         shape = 0.5 * (shape + shape.T)
 
         return shape
-
 
     def double_mesh(self):
         """put new mesh points at mean locations of current"""
@@ -1470,8 +1493,7 @@ class Cell(object):
 
         self.update_reference_configuration()
 
-
-    def adaptive_mesh_update(self, coarsen=True, refine=True, nodes_to_keep=set()):
+    def adaptive_mesh_update(self, coarsen=True, refine=True, nodes_to_keep=None):
         """refine and coarsen mesh based on curvature
 
         :param coarsen:  (Default value = True) Whether to apply coarsening by removing nodes.
@@ -1484,6 +1506,9 @@ class Cell(object):
         """
 
         self.verboseprint("Adapting mesh", object(), 1)
+
+        nodes_to_keep = set() if nodes_to_keep is None else nodes_to_keep
+
         if refine:
             self.refine_mesh()
         if coarsen:
@@ -1491,7 +1516,6 @@ class Cell(object):
 
         # self.get_mesh_spacing()
         self.update_deformed_mesh_spacing()
-
 
     def refine_mesh(self, method='spacing'):
         """Refine the mesh by adding nodes in regions of high curvature or low spacing
@@ -1518,7 +1542,7 @@ class Cell(object):
 
             elif method == 'curvature':
                 # max_curvature = 1/50.
-                max_curvature = self.kappa * 2000  #\todo make this self.s.size
+                max_curvature = self.kappa * 2000  # \todo make this self.s.size
                 max_curv_density = max_curvature * 0.1329  # (.1329 = 2658 / 2000; original circle len / 2000)
 
                 # find the nodes with high curvature density
@@ -1563,8 +1587,7 @@ class Cell(object):
         # Decimate above
         self.decimateAbove = self.n * 1.1
 
-
-    def coarsen_mesh(self, method='spacing', nodes_to_keep=set()):
+    def coarsen_mesh(self, method='spacing', nodes_to_keep=None):
         """Removes nodes in the mesh that are no longer needed.
 
         :param method:  (Default value = 'spacing')  Method to determine which nodes are removed.  spacing or curvature
@@ -1575,6 +1598,8 @@ class Cell(object):
         """
 
         self.verboseprint("Coarsening mesh", object(), 1)
+
+        nodes_to_keep = set() if nodes_to_keep is None else nodes_to_keep
 
         keep_going = True
         while keep_going:
@@ -1611,6 +1636,7 @@ class Cell(object):
                                  val != 0 and val != self.s.size - 1]
 
             # Make sure don't remove too many at once
+            self.max_mesh_coarsen_fraction = 0.01 if self.max_mesh_coarsen_fraction is None else self.max_mesh_coarsen_fraction
             if len(indices_to_remove) > self.s.size * self.max_mesh_coarsen_fraction:
                 keep_going = False
                 number_of_ads_to_pick = int(self.s.size * self.max_mesh_coarsen_fraction)
@@ -1658,7 +1684,6 @@ class Cell(object):
 
             keep_going = False  # \TODO indices to remove change after initial pruning so can't loop atm.
 
-
     def get_mesh_spacing(self):
         """Get the spacing between nodes in the undeformed configuration
 
@@ -1674,7 +1699,6 @@ class Cell(object):
 
         return np.array(spacing)
 
-
     def update_deformed_mesh_spacing(self, x=None, y=None):
         """Get the spacing between mesh nodes in the deformed configuration
 
@@ -1687,10 +1711,10 @@ class Cell(object):
 
         self.verboseprint(f'Updating deformed mesh spacing on cell {self.identifier}', object(), 1)
 
-        self.deformed_mesh_spacing = self.get_xy_segment_lengths(x, y)
+        if self.identifier != 'periodic_boundary':
+            self.deformed_mesh_spacing = self.get_xy_segment_lengths(x, y)
 
         return self.deformed_mesh_spacing
-
 
     def get_xy_segment_lengths(self, x=None, y=None):
         """
@@ -1734,7 +1758,6 @@ class Cell(object):
                                      savgol_filter((self.y, self.s), window, poly_order)[0]
         self.C = np.gradient(self.theta, self.s, edge_order=2)
         self.D = np.gradient(self.C, self.s, edge_order=2)
-
 
     def interpolate_variable_onto_new_grid(self, variable, current_grid, new_grid):
         """Interpolates a given cortex variable from old_grid to new_grid
@@ -1795,7 +1818,6 @@ class Cell(object):
             self.C = self.C[::factor]
             self.n = self.s.size
 
-
     def upsample_all_variables_onto_new_grid(self, new_n):
         """Change the grid and interpolate all variables onto it
 
@@ -1813,12 +1835,10 @@ class Cell(object):
         self.C = resample(self.C, new_n)
         self.n = new_n
 
-
     def create_apposed_cortex(self):
         """Creates an additional cell cortex within this class."""
 
         return self.__class__()
-
 
     def get_length_of_adhesions(self, rerun_distance_calculation=True):
         """ Get the lengths of all connected adhesions.
@@ -1841,7 +1861,6 @@ class Cell(object):
         # Calculate distances
         return np.linalg.norm(chosen_nodes - points, axis=1)
 
-
     def get_length_of_longest_adhesion(self, rerun_distance_calculation=True):
         """ Length of the longest connected adhesion.
 
@@ -1852,7 +1871,6 @@ class Cell(object):
 
         """
         return np.nanmax(self.get_length_of_adhesions(rerun_distance_calculation=rerun_distance_calculation))
-
 
     def get_length_of_shortest_adhesion(self, rerun_distance_calculation=True):
         """
@@ -1865,7 +1883,6 @@ class Cell(object):
         """
         return np.nanmin(self.get_length_of_adhesions(rerun_distance_calculation=rerun_distance_calculation))
 
-
     def get_length(self):
         """Get total length cortex
 
@@ -1877,7 +1894,6 @@ class Cell(object):
             np.dstack((self.x, self.y))[0])
 
         return myLine.length
-
 
     def get_area(self, x=None, y=None):
         """Calculate the signed area of the cell
@@ -1898,7 +1914,6 @@ class Cell(object):
         cell_poly = geom.Polygon(np.dstack((x, y))[0])
 
         return cell_poly.area
-
 
     def get_centroid(self, x=None, y=None):
         """Get the perimeter-based centroid. This is important if the spacing becomes non-uniform then the
@@ -1925,7 +1940,6 @@ class Cell(object):
 
         return centroid
 
-
     def get_length_of_cortex_with_active_contractility(self):
         """Get the total length of the cortex that has active contractility
 
@@ -1939,7 +1953,6 @@ class Cell(object):
         segments = self.get_xy_segment_lengths()
 
         return np.sum(segments[prestrains < 1])
-
 
     def pickle_self(self, SAVE_DIR=None, name=None):
         """Pickles instance of this class
@@ -1967,7 +1980,6 @@ class Cell(object):
         # Pickle
         with open(saveloc, 'wb') as s:
             dill.dump(self, s)
-
 
     def plot_cortex_variables(self, ax=None, linestyle='-', plot_legend=True, plot_strain=False):
         """Function to plot the data on 3 plot_3panels
@@ -2002,7 +2014,7 @@ class Cell(object):
             ax.plot(self.s, self.D, linestyle, color='C3', label=r'$\tilde{c}^\prime$')
             ax.plot(self.s, self.C, linestyle, color='C0', label=labels[0])
             ax.plot(self.s, tau, linestyle, color='C1', label=r'$\tau$')
-            angles = np.degrees(self.theta % (2*np.pi))
+            angles = np.degrees(self.theta % (2 * np.pi))
             angles[angles > 180] -= 180
             angles[angles > 90] -= 90
             ax.plot(self.s, angles / 100, linestyle, color='C2', label=labels[2])
@@ -2033,7 +2045,6 @@ class Cell(object):
             ax[1].set_position([box.x0, box.y0, box.width * 0.8, box.height])
             # Put a legend to the right of the current axis
             ax[1].legend(loc='center left', bbox_to_anchor=(1, 0.5))
-
 
     def plot_self(self, ax=None, col='C0', equalAx=True, plotAdhesion=True, cortexwidth=2, plot_adhesion_forces=True,
                   plot_adhesion_at_specific_locations=False, lagrangian_tracking=False, plot_pressure=False,
@@ -2072,7 +2083,7 @@ class Cell(object):
             self.plot_medial_pressure(ax=ax)
         else:
             # col = 'C0'
-            face_alpha = 1 if col == "white" else .6
+            face_alpha = 0.2 if col == "k" else .6
             ax.fill(x, y, col, alpha=face_alpha)
 
         # cell outline:
@@ -2127,8 +2138,7 @@ class Cell(object):
         if equalAx:
             ax.set_aspect('equal', 'box')
 
-
-    def plot_cortex(self, ax=None, x=None, y=None, plot_tension=False, cortex_width=2, col='k', max_strain = .002):
+    def plot_cortex(self, ax=None, x=None, y=None, plot_tension=False, cortex_width=2, col='k', max_strain=.002):
         """Plot the cortex (outline) of the cell.
 
         :param ax:  (Default value = None)
@@ -2147,7 +2157,7 @@ class Cell(object):
         y = self.y if y is None else y
 
         # Get the edges
-        edges = [[(x[i], y[i]), (x[i + 1], y[i + 1])] for i in range(0, int(self.n) - 1)]
+        edges = [[(x[i], y[i]), (x[i + 1], y[i + 1])] for i in range(0, int(self.x.size) - 1)]
         if plot_tension:
 
             if self.adhesion_connections_identities is None:
@@ -2183,7 +2193,7 @@ class Cell(object):
                           (stretch * (x[i + 1] - c_x) + c_x, stretch * (y[i + 1] - c_y) + c_y)]
                          for i in range(0, int(self.s.size) - 1) if prestrains[i] < 0.9995]
 
-            myo_cbar_lims = 0.065 #  0.01  # 0.065 for gamma = 0.94 # 0.05 old
+            myo_cbar_lims = 0.065  # 0.01  # 0.065 for gamma = 0.94 # 0.05 old
             cNorm_myo = matplotlib.colors.Normalize(vmin=-myo_cbar_lims, vmax=myo_cbar_lims)
             scaled_cmap_myo = matplotlib.cm.ScalarMappable(norm=cNorm_myo, cmap=default_cmap)
             myo_cols = [scaled_cmap_myo.to_rgba(pre_s - 1) for pre_s in prestrains if pre_s < 0.9995]
@@ -2197,7 +2207,6 @@ class Cell(object):
 
         # Add the edges
         ax.add_collection(lc)
-
 
     def plot_adhesion_points(self, ax=None, plot_forces=True, plot_adhesion_at_specific_locations=False):
         """Plot the adhesions on the cortex
@@ -2377,7 +2386,7 @@ class Cell(object):
         # Make a heatmap
         if sim_type == 'single':
             max_pressure = 5e-4  # For singe junction (was 6)
-            p_axis_scale = 2.5e4  #  7.5e3  # 50000
+            p_axis_scale = 2.5e4  # 7.5e3  # 50000
         elif sim_type == 'cable':
             max_pressure = 1.2e-3 / 1  # For cables
             p_axis_scale = 7.5e3  # 20000
@@ -2438,7 +2447,6 @@ class Cell(object):
             #     plt.arrow(centroid[0] + evec1[0], centroid[1] + evec1[1], -evec1[0], -evec1[1],
             #               alpha=1, fc='k', ec='k', zorder=12, **opt)
 
-
     def plot_principal_axes_of_shape(self, ax=None):
         """Plot pricipal axes of shape
 
@@ -2468,7 +2476,6 @@ class Cell(object):
                 color='red', linewidth=2, alpha=1, zorder=12)
         ax.plot([centroid[0], centroid[0] - evec1[0]], [centroid[1], centroid[1] - evec1[1]],
                 color='red', linewidth=2, alpha=1, zorder=12)
-
 
     def plot_protrusion_force(self, ax=None, colour='C0'):
         """Plot the protrusion on the cortex

@@ -6,38 +6,42 @@
 # =============================================================================
 """Implementation of a class to represent the cell-cell adhesions."""
 
-import numpy as np
+from typing import List, Tuple
+
 import matplotlib.pyplot as plt
+import numpy as np
+
+from src.cell_class import Cell
 
 class Adhesion(object):
     """ A class to represent an adhesion agent in a tissue.  This is a useful object to keep track of which cells the
     adhesion is attached to and the coordinates and locations in the deformed and undeformed cortex configurations.
     """
 
-    def __init__(self, cells, s_coords, average_lifespan, adhesion_type='cadherin'):
-        self.cell_1 = cells[0]
-        self.cell_2 = cells[1]
-        self.cell_1_s = s_coords[0]
-        self.cell_2_s = s_coords[1]
+    def __init__(self, cells: List[Cell], s_coords: List[int], average_lifespan: int,
+                 adhesion_type: str = 'cadherin'):
+        self.cell_1: Cell = cells[0]
+        self.cell_2: Cell = cells[1]
+        self.cell_1_s: int = s_coords[0]
+        self.cell_2_s: int = s_coords[1]
 
         self.update_local_cell_indices_with_s()
 
-        self.adhesion_type = adhesion_type
+        self.adhesion_type: str = adhesion_type
 
         if adhesion_type == 'cadherin':
-            self.delta = min([self.cell_1.delta, self.cell_2.delta])
-            self.omega = min([self.cell_1.omega0, self.cell_2.omega0])
+            self.delta: float = min([self.cell_1.delta, self.cell_2.delta])
+            self.omega: float = min([self.cell_1.omega0, self.cell_2.omega0])
         elif adhesion_type == 'sidekick':
-            self.delta = min([self.cell_1.sdk_restlen, self.cell_2.sdk_restlen])
-            self.omega = min([self.cell_1.sdk_stiffness, self.cell_2.sdk_stiffness])
+            self.delta: float = min([self.cell_1.sdk_restlen, self.cell_2.sdk_restlen])
+            self.omega: float = min([self.cell_1.sdk_stiffness, self.cell_2.sdk_stiffness])
         else:
-            raise ValueError('"adhesion_type" must be cadherin or sidekick')
+            raise NotImplementedError('"adhesion_type" must be cadherin or sidekick')
 
-        self.max_bonding_length = min([self.cell_1.max_adhesion_length, self.cell_2.max_adhesion_length])
+        self.max_bonding_length: float = min([self.cell_1.max_adhesion_length, self.cell_2.max_adhesion_length])
 
-        self.age = 0
-        self.lifespan = np.random.exponential(average_lifespan)
-
+        self.age: int = 0
+        self.lifespan: int = np.random.exponential(average_lifespan)
 
     def update_local_cell_indices_with_s(self):
         """Updates the local cortex indices by the s values for the cells.
@@ -47,13 +51,11 @@ class Adhesion(object):
         self.cell_1_index = np.where(self.cell_1.s == self.cell_1_s)[0][0]
         self.cell_2_index = np.where(self.cell_2.s == self.cell_2_s)[0][0]
 
-
     def update_s_by_local_cell_indices(self):
         """Updates the local cortex indices by the s values for the cells.
         """
         self.cell_1_s = self.cell_1.s[self.cell_1_index]
         self.cell_2_s = self.cell_2.s[self.cell_2_index]
-
 
     def cell_index_by_id(self, id):
         """ Get the local index on a cortex that the adhesion is attached to.
@@ -84,7 +86,6 @@ class Adhesion(object):
         return [[self.cell_1.x[self.cell_1_index], self.cell_1.y[self.cell_1_index]],
                 [self.cell_2.x[self.cell_2_index], self.cell_2.y[self.cell_2_index]]]
 
-
     def get_spacing_at_other_end(self, this_cell_id):
         """Returns the spacing at the other side of the adhesion, given that we are in cell with ``this_cell_id``
 
@@ -100,7 +101,6 @@ class Adhesion(object):
             return self.cell_1.deformed_mesh_spacing[self.cell_1_index]
         else:
             raise ValueError('given cell does not belong to adhesion (should be cell id)')
-
 
     def get_cell_id_at_other_end(self, this_cell_id):
         """Returns the identity at the other side of the adhesion, given that we are in ``this_cell``
@@ -118,7 +118,6 @@ class Adhesion(object):
         else:
             raise ValueError('given cell does not belong to adhesion (should be cell id)')
 
-
     def get_xy_at_other_end(self, this_cell_id):
         """Returns the spacing at the other side of the adhesion, given that we are in this_cell
 
@@ -134,7 +133,6 @@ class Adhesion(object):
             return [self.cell_1.x[self.cell_1_index], self.cell_1.y[self.cell_1_index]]
         else:
             raise ValueError('given cell does not belong to adhesion (should be cell id)')
-
 
     def get_xy_at_this_end(self, this_cell_id):
         """Returns the discrete cortex spacing where the adhesion is attached to a given cell
@@ -152,7 +150,6 @@ class Adhesion(object):
         else:
             raise ValueError('given cell does not belong to adhesion (should be cell id)')
 
-
     def get_length(self, cell_id_for_new_xy='None', new_xy=(0, 0)):
         """Get the length of the adhesion. Can change the xy location of one of the cells.
 
@@ -165,16 +162,15 @@ class Adhesion(object):
 
         """
         if cell_id_for_new_xy == self.cell_1.identifier and new_xy != (0, 0):
-            length = np.sqrt((new_xy[0] - self.cell_2.x[self.cell_2_index])**2 +
-                             (new_xy[1] - self.cell_2.y[self.cell_2_index])**2)
+            length = np.sqrt((new_xy[0] - self.cell_2.x[self.cell_2_index]) ** 2 +
+                             (new_xy[1] - self.cell_2.y[self.cell_2_index]) ** 2)
         elif cell_id_for_new_xy == self.cell_2.identifier and new_xy != (0, 0):
-            length = np.sqrt((new_xy[0] - self.cell_1.x[self.cell_1_index])**2 +
-                             (new_xy[1] - self.cell_1.y[self.cell_1_index])**2)
+            length = np.sqrt((new_xy[0] - self.cell_1.x[self.cell_1_index]) ** 2 +
+                             (new_xy[1] - self.cell_1.y[self.cell_1_index]) ** 2)
         else:
-            length = np.sqrt((self.cell_1.x[self.cell_1_index] - self.cell_2.x[self.cell_2_index])**2 +
-                             (self.cell_1.y[self.cell_1_index] - self.cell_2.y[self.cell_2_index])**2)
+            length = np.sqrt((self.cell_1.x[self.cell_1_index] - self.cell_2.x[self.cell_2_index]) ** 2 +
+                             (self.cell_1.y[self.cell_1_index] - self.cell_2.y[self.cell_2_index]) ** 2)
         return length
-
 
     def get_force_magnitude(self, cell_id_for_new_xy='None', new_xy=(0, 0)):
         """Force acting on adhesion
@@ -200,7 +196,6 @@ class Adhesion(object):
         #     raise ValueError('given cell does not belong to adhesion (should be cell id)')
 
         return force
-
 
     def get_unit_direction(self, cell_id_for_new_xy='None', new_xy=(0, 0)):
         """Get a vector describing the direction of the adhesion
@@ -233,7 +228,7 @@ class Adhesion(object):
             from_x, from_y = new_xy[0], new_xy[1]
 
         direction = [cell_to.x[cell_to_id] - from_x, cell_to.y[cell_to_id] - from_y]
-        magnitude = np.sqrt(direction[0]**2 + direction[1]**2)
+        magnitude = np.sqrt(direction[0] ** 2 + direction[1] ** 2)
         direction[0] /= magnitude
         direction[1] /= magnitude
 
@@ -254,7 +249,8 @@ class Adhesion(object):
         direction = self.get_unit_direction(cell_id_for_new_xy=from_cell_id, new_xy=new_xy_for_from_cell)
 
         # Multiply spacing spacing on cortices
-        magnitude *= self.cell_2.deformed_mesh_spacing[self.cell_2_index] * self.cell_1.deformed_mesh_spacing[self.cell_1_index]
+        magnitude *= self.cell_2.deformed_mesh_spacing[self.cell_2_index] * self.cell_1.deformed_mesh_spacing[
+            self.cell_1_index]
         # if self.cell_1.identifier == from_cell_id:
         #     magnitude *= self.cell_1.deformed_mesh_spacing[self.cell_1_index] * self.cell_2.deformed_mesh_spacing[self.cell_2_index]
         # elif self.cell_2.identifier == from_cell_id:
@@ -280,22 +276,22 @@ class Adhesion(object):
         if self.cell_1.identifier != 'boundary':
             tangent_1 = [np.cos(self.cell_1.theta[self.cell_1_index]), np.sin(self.cell_1.theta[self.cell_1_index])]
         else:
-            positive_idx = self.cell_1_index+1 if self.cell_1_index < self.cell_1.x.size-1 else 0
-            tangent_1 = [self.cell_1.x[positive_idx] - self.cell_1.x[self.cell_1_index-1],
-                         self.cell_1.y[positive_idx] - self.cell_1.y[self.cell_1_index-1]]
+            positive_idx = self.cell_1_index + 1 if self.cell_1_index < self.cell_1.x.size - 1 else 0
+            tangent_1 = [self.cell_1.x[positive_idx] - self.cell_1.x[self.cell_1_index - 1],
+                         self.cell_1.y[positive_idx] - self.cell_1.y[self.cell_1_index - 1]]
         if self.cell_2.identifier != 'boundary':
             tangent_2 = [np.cos(self.cell_2.theta[self.cell_2_index]), np.sin(self.cell_2.theta[self.cell_2_index])]
         else:
             positive_idx = self.cell_2_index + 1 if self.cell_2_index < self.cell_2.x.size - 1 else 0
-            tangent_2 = [self.cell_2.x[positive_idx] - self.cell_2.x[self.cell_2_index-1],
-                         self.cell_2.y[positive_idx] - self.cell_2.y[self.cell_2_index-1]]
+            tangent_2 = [self.cell_2.x[positive_idx] - self.cell_2.x[self.cell_2_index - 1],
+                         self.cell_2.y[positive_idx] - self.cell_2.y[self.cell_2_index - 1]]
 
         # Angles
         angle_1 = np.arccos(ad_vector[0] * tangent_1[0] + ad_vector[1] * tangent_1[1])
         angle_2 = np.arccos(ad_vector[0] * tangent_2[0] + ad_vector[1] * tangent_2[1])
 
-        angle_1 = np.pi - angle_1 if angle_1 > np.pi/2 else angle_1
-        angle_2 = np.pi - angle_2 if angle_2 > np.pi/2 else angle_2
+        angle_1 = np.pi - angle_1 if angle_1 > np.pi / 2 else angle_1
+        angle_2 = np.pi - angle_2 if angle_2 > np.pi / 2 else angle_2
 
         return angle_1, angle_2
 
@@ -326,10 +322,3 @@ class Adhesion(object):
         coords = self.get_xy()
 
         ax.plot([coords[0][0], coords[1][0]], [coords[0][1], coords[1][1]], linestyle, c=colour, lw=lw)
-
-
-
-
-
-
-

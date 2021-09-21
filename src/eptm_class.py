@@ -7,30 +7,30 @@
 """Implementation of a class to represent an epithelial tissue comprised of cell cortices and adhesions."""
 
 import copy
-import dill
 import itertools
+import warnings
+import os
+from collections import Counter, deque
+from random import shuffle
+
+import dill
 import matplotlib
 import numpy as np
-import os
 import shapely.geometry as geom
-import warnings
-
-from collections import Counter, deque
 from joblib import Parallel, delayed
 from matplotlib import pyplot as plt
 from more_itertools import consecutive_groups
 from numpy.core.umath_tests import inner1d
-from random import shuffle
-from scipy.interpolate import splrep, splev
+from scipy.interpolate import splev, splrep
 from scipy.optimize import minimize
-from scipy.spatial import cKDTree, distance, ConvexHull
 from scipy.signal import decimate, savgol_filter
+from scipy.spatial import ConvexHull, cKDTree, distance
 from shapely.affinity import scale
 from sklearn.neighbors import NearestNeighbors
 
-from src.concave_hull import ConcaveHull
-from src.cell_class import Cell
 from src.adhesion_class import Adhesion
+from src.cell_class import Cell
+from src.concave_hull import ConcaveHull
 
 matplotlib.rcParams.update({'font.size': 22})
 plt.rc('font', family='serif', serif='Times')
@@ -47,8 +47,8 @@ class Epithelium(object):
     cell as a list, rather than adhesion itself, for memory.
     """
 
-    def __init__(self, radius=35, n=2000, param_dict={}, tissue_type='within_hexagon', verbose=False,
-                 disordered_tissue_params={}, cell_kwargs={}, **eptm_kwargs):
+    def __init__(self, radius: float = 35, n: int = 2000, param_dict: dict = None, tissue_type: str = 'within_hexagon',
+                 disordered_tissue_params: dict = None, cell_kwargs: dict = None, verbose: bool = False, **eptm_kwargs):
         """
         Initialiser which sets up the class properties.
 
@@ -62,78 +62,76 @@ class Epithelium(object):
         :param eptm_kwargs: Any other parameters for initialising the epithelium.
         """
 
-        self.verbose = verbose
+        self.verbose: bool = verbose
         self.verboseprint("Initialising epithelium", object(), 1)
 
         #######
 
         # Initial radius of circular cell
-        self.radius = radius
-        if 'delta' not in param_dict:
-            param_dict['delta'] = 1
-        if 'kappa' not in param_dict:
-            param_dict['kappa'] = 1e-4
-        if 'omega0' not in param_dict:
-            param_dict['omega0'] = 0
-        self.delta = param_dict['delta']
-        self.n = n
+        self.radius: float = radius
+        # Mechanical params for cell
+        param_dict: dict = {} if param_dict is None else param_dict
+        param_dict['delta'] = param_dict.get('delta', 1)
+        param_dict['kappa'] = param_dict.get('kappa', 1e-4)
+        param_dict['omega0'] = param_dict.get('omega0', 0)
+        self.delta: float = param_dict['delta']
+        self.n: int = n
+
+        self.boundary_adhesions = [[], []]
 
         if tissue_type == 'within_hexagon':
-            self.within_hexagons = True
+            self.within_hexagons: bool = True
+            cell_kwargs: dict = {} if cell_kwargs is None else cell_kwargs
             self._build_single_cell(radius=radius, n=n, param_dict=param_dict, verbose=verbose,
                                     identifier='A', cell_kwargs=cell_kwargs)
 
         elif tissue_type == 'disordered':
-            self.within_hexagons = False
+            self.within_hexagons: bool = False
+            disordered_tissue_params: dict = {} if disordered_tissue_params is None else disordered_tissue_params
             self.create_disordered_tissue_in_ellipse(param_dict=param_dict, **disordered_tissue_params)
         else:
             raise NotImplementedError('Can have only "within_hexagon" or "disordered" tissues')
 
         # Concave hull
-        self.concave_hull_tolerance = eptm_kwargs.get('concave_hull_tolerance', 4 * (radius / 1000))
+        self.concave_hull_tolerance: float = eptm_kwargs.get('concave_hull_tolerance', 4 * (radius / 1000))
         # if radius > 25:
         #     self.concave_hull_tolerance *= .1
 
         ############### Solving parameters
 
-        self.last_num_internal_relaxes = eptm_kwargs.get('last_num_internal_relaxes', 0)
-        self.total_elastic_relaxes = 0
-        self.relax_dist_threshold = eptm_kwargs.get('relax_dist_threshold', .1)
-        self.max_elastic_relax_steps = eptm_kwargs.get('max_elastic_relax_steps', 10)
-        self.elastic_relax_tol = eptm_kwargs.get('elastic_relax_tol', 2e-2)
-        self.in_equilibrium = False
-        self.bulk_turnover_time = eptm_kwargs.get('bulk_turnover_time', 0)
-        self.last_solve_success = True
+        self.last_num_internal_relaxes: int = eptm_kwargs.get('last_num_internal_relaxes', 0)
+        self.total_elastic_relaxes: int = 0
+        self.relax_dist_threshold: float = eptm_kwargs.get('relax_dist_threshold', .1)
+        self.max_elastic_relax_steps: int = eptm_kwargs.get('max_elastic_relax_steps', 10)
+        self.elastic_relax_tol: float = eptm_kwargs.get('elastic_relax_tol', 2e-2)
+        self.in_equilibrium: bool = False
+        self.bulk_turnover_time: int = eptm_kwargs.get('bulk_turnover_time', 0)
+        self.last_solve_success: bool = True
 
-        self.use_mesh_coarsening = eptm_kwargs.get('use_mesh_coarsening', False)
-        self.use_mesh_refinement = eptm_kwargs.get('use_mesh_refinement', False)
-
+        self.use_mesh_coarsening: bool = eptm_kwargs.get('use_mesh_coarsening', False)
+        self.use_mesh_refinement: bool = eptm_kwargs.get('use_mesh_refinement', False)
 
         ############## Adhesion properties
 
-        self.adhesion_timescale = eptm_kwargs.get('adhesion_timescale', 'slow')
-        assert self.adhesion_timescale in ["fast", "slow"], "Error, adhesion timescale %s not valid." % self.adhesion_timescale
-
-        fast_on = self.adhesion_timescale == "fast"
-        self.activate_fast_adhesions(fast_on)
+        self.adhesion_timescale: str = eptm_kwargs.get('adhesion_timescale', 'slow')
+        assert self.adhesion_timescale in ["fast",
+                                           "slow"], "Error, adhesion timescale %s not valid." % self.adhesion_timescale
 
         # Sidekick vertices
-        self.sidekick_active = eptm_kwargs.get('sidekick_active', False)
-        self.sidekick_adhesions = []
+        self.sidekick_active: bool = eptm_kwargs.get('sidekick_active', False)
+        self.sidekick_adhesions: list = []
 
         # Second population of adhesions with different rates of turnover
-        slow_on = self.adhesion_timescale == "slow"
-        self.activate_slow_adhesions(slow_on)
-        self.slow_adhesions = []
-        self.slow_adhesion_lifespan = eptm_kwargs.get('slow_adhesion_lifespan', 0)
+        self.slow_adhesions: list = []
+        self.slow_adhesion_lifespan: int = eptm_kwargs.get('slow_adhesion_lifespan', 0)
 
         ############### Initialise the boundary properties
 
-        self.reference_boundary_adhesions = []
-        self.boundary_bc = eptm_kwargs.get('boundary_bc', 'fixed')
-        self.boundary_stiffness_x = eptm_kwargs.get('boundary_stiffness_x', 2.5e-2)
-        self.boundary_stiffness_y = eptm_kwargs.get('boundary_stiffness_y', 2.5e-2)
-        self.posterior_pull_shift = eptm_kwargs.get('posterior_pull_shift', .1)  # Stretch from posterior midgut.
+        self.reference_boundary_adhesions: list = []
+        self.boundary_bc: str = eptm_kwargs.get('boundary_bc', 'fixed')
+        self.boundary_stiffness_x: float = eptm_kwargs.get('boundary_stiffness_x', 2.5e-2)
+        self.boundary_stiffness_y: float = eptm_kwargs.get('boundary_stiffness_y', 2.5e-2)
+        self.posterior_pull_shift: float = eptm_kwargs.get('posterior_pull_shift', .1)  # Stretch from posterior midgut.
 
         # Finish up
         if self.within_hexagons:
@@ -141,17 +139,73 @@ class Epithelium(object):
             self.update_adhesion_points_between_all_cortices()
             self.update_all_rest_lengths_and_areas()
 
+    def __getstate__(self):
+        return vars(self)
 
-    def set_verbose(self, verbose):
+    def __setstate__(self, state):
+        vars(self).update(state)
+
+    def __getattr__(self, name):
+        """
+        Incase an old eptm is being loaded and doesn't have an attribute. Warning, attribute type may be wrong.
+        :param name: the name of the attribute
+        :return:
+        """
+        if name.startswith('__') and name.endswith('__'):
+            raise AttributeError
+        else:
+            warnings.warn(f"{name} does not exist. Creating attribute with value None")
+            setattr(self, name, None)
+
+    ### Property decorators ###
+
+    @property
+    def verbose(self):
+        return self._verbose
+
+    @verbose.setter
+    def verbose(self, verbose):
         """Turn print statements on or off.
 
         :param verbose: Whether to print information to console.
         :type verbose:  bool
 
         """
-        self.verbose = verbose
         for cell in self.cells:
             cell.verbose = verbose
+        self._verbose = verbose
+
+    @property
+    def adhesion_timescale(self):
+        return self._adhesion_timescale
+
+    @adhesion_timescale.setter
+    def adhesion_timescale(self, adhesion_timescale):
+        self._adhesion_timescale = adhesion_timescale
+
+        if adhesion_timescale == 'fast':
+            self.activate_fast_adhesions(True)
+            self.activate_slow_adhesions(False)
+        elif adhesion_timescale == 'slow':
+            self.activate_fast_adhesions(False)
+            self.activate_slow_adhesions(True)
+
+    @property
+    def slow_adhesion_lifespan(self):
+        return self._slow_adhesion_lifespan
+
+    @slow_adhesion_lifespan.setter
+    def slow_adhesion_lifespan(self, slow_adhesion_lifespan):
+        self._slow_adhesion_lifespan = slow_adhesion_lifespan
+
+        if slow_adhesion_lifespan > 0:
+            self.activate_slow_adhesions(True)
+
+            if any([c.fast_adhesions_active for c in self.cells]):
+                warnings.warn("Using slow adhesion while fast adhesions are active. Maybe you want to set "
+                              "eptm.activate_fast_adhesions(False)")
+
+    ### Class methods ###
 
     def verboseprint(self, *args):
         """Function to print out details as code runs
@@ -164,7 +218,7 @@ class Epithelium(object):
         except AttributeError:
             self.verbose = True
         print(args) if self.verbose else None
-
+        # print if self.verbose else lambda *args, **k: None
 
     def set_mesh_coarsening_fraction(self, max_fraction_to_remove):
         """Specify what fraction of total nodes can be removed in coarsening
@@ -206,7 +260,11 @@ class Epithelium(object):
         for cell in self.cells:
             cell.adaptive_mesh_update(coarsen=coarsen, refine=refine, nodes_to_keep=indices_to_keep[cell.identifier])
 
-        # Get the local indices back from the curviliear coords.
+        # If we had periodic bcs, we need to re-do them if the active cell changed \todo hardcoded to have a cell B
+        if self.boundary_bc == 'periodic' and self.cells[0].s.size != self.cellDict['B'].s.size:
+            self._rebuild_periodic_boundary()
+
+        # Get the local indices back from the curvilinear coords.
         if self.sidekick_active:
             for ad in self.sidekick_adhesions:
                 ad.update_local_cell_indices_with_s()
@@ -226,7 +284,6 @@ class Epithelium(object):
 
             # self.update_slow_adhesions()
 
-
     def adjust_intersections(self):
         """Applies a hand-of-god correction to prevent intersections of cortices.
 
@@ -236,7 +293,6 @@ class Epithelium(object):
 
         for cell in self.cells:
             cell.apply_hand_of_god_hard_body_correction()
-
 
     def set_adhesion_to_fixed_line_bool(self, yes_no):
         """Define whether the elements are adhering to fixed line (a fixed boundary, rather than other cells).
@@ -251,7 +307,6 @@ class Epithelium(object):
         for cell in self.cells:
             cell.fixedAdhesion = yes_no
 
-
     def set_adhesion_beta_scale_factor(self, adhesion_beta_scale_factor):
         """ Set the scale factor to normalise fast adhesion forces in the meanfield.
 
@@ -265,7 +320,6 @@ class Epithelium(object):
         for cell in self.cells:
             cell.adhesion_beta_scale_factor = adhesion_beta_scale_factor
 
-
     def activate_fast_adhesions(self, on_off):
         """Turn forces from fast adhesions on or off.  Even when off, fast adhesions are used to calculate active contractility.
 
@@ -276,7 +330,6 @@ class Epithelium(object):
         for cell in self.cells:
             cell.fast_adhesions_active = on_off
 
-
     def activate_slow_adhesions(self, on_off):
         """Turn slow adhesion forces on or off
 
@@ -286,7 +339,6 @@ class Epithelium(object):
         """
         self.slow_adhesions_active = on_off
 
-
     def activate_sidekick_adhesions(self, on_off):
         """Turn sdk vertex forces on or off
 
@@ -295,7 +347,6 @@ class Epithelium(object):
 
         """
         self.sidekick_active = on_off
-
 
     def set_sdk_stiffness(self, stiffness):
         """Set the stiffness of an sdk bond
@@ -307,7 +358,6 @@ class Epithelium(object):
         for cell in self.cells:
             cell.sdk_stiffness = stiffness
 
-
     def set_sdk_restlen(self, rest_len):
         """Set the stiffness of an sdk bond
 
@@ -317,7 +367,6 @@ class Epithelium(object):
         """
         for cell in self.cells:
             cell.sdk_restlen = rest_len
-
 
     def update_all_rest_lengths_and_areas(self, apply_to='all'):
         """Update the rest lengths, S_0 <- s, and areas of specified cortices under viscous model
@@ -337,14 +386,13 @@ class Epithelium(object):
         # If we have slow or sidekick adhesions, the s coordinates need to be updated to their new values after
         # the viscous update.
         for ad in self.slow_adhesions:
-                ad.update_s_by_local_cell_indices()
-                ad.age += 1
+            ad.update_s_by_local_cell_indices()
+            ad.age += 1
         for ad in self.sidekick_adhesions:
-                ad.update_s_by_local_cell_indices()
+            ad.update_s_by_local_cell_indices()
 
         if self.use_mesh_coarsening or self.use_mesh_refinement:
             self.remesh_all_cortices(coarsen=self.use_mesh_coarsening, refine=self.use_mesh_refinement)
-
 
     def update_all_rest_lengths(self, apply_to='all'):
         """Update the rest lengths, S_0 <- s, of specified cortices under viscous model
@@ -361,7 +409,6 @@ class Epithelium(object):
         for cell_ref in apply_to:
             self.cellDict[cell_ref].update_reference_configuration()
 
-
     def update_pref_areas(self, area=None, apply_to='all'):
         """Update the preferred area of specified cells \todo make this a cell method.
 
@@ -375,13 +422,12 @@ class Epithelium(object):
 
         for ref in apply_to:
             cell = self.cellDict[ref]
-            if self.bulk_turnover_time != 0:
-                cell_area = cell.get_area()
-                cell.pref_area = cell.pref_area + (cell_area - cell.pref_area) / self.bulk_turnover_time
-            else:
+            if self.bulk_turnover_time is None or self.bulk_turnover_time == 0:
                 new_pref_area = area if area is not None else cell.get_area()
                 cell.pref_area = new_pref_area
-
+            else:
+                cell_area = cell.get_area()
+                cell.pref_area = cell.pref_area + (cell_area - cell.pref_area) / self.bulk_turnover_time
 
     def set_cortical_timescale(self, timescale):
         """Specify the turnover time of the actin cortex.
@@ -393,7 +439,6 @@ class Epithelium(object):
 
         for cell in self.cells:
             cell.cortical_turnover_time = timescale
-
 
     def update_pressures(self, pressure, apply_to='all'):
         """Update the pressure acting on the cortex, from the cell bulk.
@@ -409,7 +454,6 @@ class Epithelium(object):
         for ref in apply_to:
             cell = self.cellDict[ref]
             cell.pressure = pressure
-
 
     def update_all_max_adhesion_lengths(self, new_length, update_adhesion=False):
         """Update the maximum adhesion lengths.  This is the maximum length for force calculation, not prestretch
@@ -427,7 +471,6 @@ class Epithelium(object):
         if update_adhesion:
             self.update_adhesion_points_between_all_cortices()
 
-
     def set_adhesion_type(self, new_type):
         """Set how the force for fast adhesions is calculated
         "meanfield": update max search length to always find a neighbour, regarless of how far, and calulate the
@@ -444,7 +487,6 @@ class Epithelium(object):
         for cell in self.cells:
             cell.adhesion_type = new_type
 
-
     def set_fast_adhesion_force_law(self, new_type):
         """Constitutive properties of fast adhesions
 
@@ -457,7 +499,6 @@ class Epithelium(object):
         for cell in self.cells:
             cell.adhesion_force_law = new_type
 
-
     def set_max_num_adhesions_for_fast_force_calculation(self, num_ads):
         """Number of adhesions to use when calculating the force for fast adhesions.
 
@@ -468,7 +509,6 @@ class Epithelium(object):
 
         for cell in self.cells:
             cell.max_num_adhesions_for_force = num_ads
-
 
     def set_adhesion_search_radius(self, radius):
         """Sets the range within which to look for fast adhesion binding pairs. This is used for applying prestretch.
@@ -483,7 +523,6 @@ class Epithelium(object):
 
         for cell in self.cells:
             cell.adhesion_search_radius = radius
-
 
     def set_constitutive_model(self, model):
         """Updates the constitutive model on all the cortices
@@ -501,7 +540,6 @@ class Epithelium(object):
             cell.constitutive_model = model
             cell.possible_constitutive_models = ["linear"]
 
-
     def set_prestrain_type(self, prestrain_type):
         """Updates the way the prestretch is calculated for all cells.
 
@@ -511,11 +549,10 @@ class Epithelium(object):
         """
 
         assert prestrain_type in ["most_common", "average", "min", "nearest"], "Error self.prestrain_type " \
-                                                                "not in [most_common, average, min, nearest]."
+                                                                               "not in [most_common, average, min, nearest]."
 
         for cell in self.cells:
             cell.prestrain_type = prestrain_type
-
 
     def set_area_stiffness(self, stiffness):
         """Set area stiffness.
@@ -527,7 +564,6 @@ class Epithelium(object):
         for cell in self.cells:
             cell.area_stiffness = stiffness
 
-
     def set_relax_tolerance_for_cells(self, tol):
         """Tolerance for getting the tissue to elastic quilibrium
 
@@ -538,7 +574,6 @@ class Epithelium(object):
 
         for cell in self.cells:
             cell.relax_tol = tol
-
 
     def scale_cells_to_fit_adhesion_to_delta(self):
         """Scale all cells such that their adhesions are within delta apart
@@ -558,7 +593,6 @@ class Epithelium(object):
             if not self.within_hexagons:
                 self.update_adhesion_points_between_all_cortices()
 
-
     def hand_of_god_distances_to_delta(self, initial_adhesion_update=True):
         """Moves any cortices closer than delta away from each other
 
@@ -575,7 +609,6 @@ class Epithelium(object):
             moved_any = this_move if this_move else moved_any
         if moved_any:
             self.update_adhesion_points_between_all_cortices(build_trees=True)
-
 
     def set_omega_for_cells(self, new_omega, apply_to='all'):
         """ Updates the adhesion strength for specified cells.
@@ -604,7 +637,6 @@ class Epithelium(object):
             cell = self.cellDict[cell_ref]
             cell.prestrain_dict = dict.fromkeys(cell.prestrain_dict, prestretch)
 
-
     def apply_prestretch_to_cell_identity_pairs(self, prestretch, cell_pair, unipolar=False):
         """Add active contractility to cell_pairs that share adhesions.
 
@@ -620,7 +652,6 @@ class Epithelium(object):
         self.cellDict[cell_pair[0]].prestrain_dict[cell_pair[1]] = prestretch
         if not unipolar:
             self.cellDict[cell_pair[1]].prestrain_dict[cell_pair[0]] = prestretch
-
 
     def run_simulation_timestep(self, apply_to='all', viscous_cells='all'):
         """Run a full simulation timestep, including viscous length updates and solving to equilibrium.
@@ -638,8 +669,10 @@ class Epithelium(object):
         # Viscous update
         self.update_all_rest_lengths_and_areas(apply_to=viscous_cells)
         # Relax
-        self.solve_bvps_in_parallel(applyTo=apply_to)
-
+        if self.boundary_bc == 'periodic':
+            self.relax_periodic_tissue()
+        else:
+            self.solve_bvps_in_parallel(applyTo=apply_to)
 
     def solve_bvps_in_series(self, applyTo='all'):
         """Solve the bvp for each cell in series to reach elastic equilibrium. \todo haven't tested this functionality
@@ -667,14 +700,13 @@ class Epithelium(object):
 
             # Get the neighbour cells
             naboer = cell.get_neighbours()
-            naboer = [nabo for nabo in naboer if nabo != 'boundary']
+            naboer = [nabo for nabo in naboer if 'boundary' not in nabo]
             naboer.append(cell.identifier)
 
             # Update the adhesion points
             self.update_adhesion_points_between_all_cortices(build_trees=True, apply_to=naboer)
 
         self.total_elastic_relaxes += 1
-
 
     def solve_bvps_in_parallel(self, applyTo="all", smoothing=0, hand_of_god=True):
         """Use joblib to solve the bvp for all cortices and reach tissue elastic equilibrium
@@ -707,7 +739,7 @@ class Epithelium(object):
             old_ys = np.array([c.y[i] for c in cells_to_relax for i in range(c.y.size)])
 
             self.update_adhesion_points_between_all_cortices(only_fast=False, build_trees=True)
-            if self.boundary_bc != 'fixed':
+            if self.boundary_bc in ['elastic', 'viscous']:
                 boundary_success = self.relax_deformable_boundary(update_adhesions=False)
                 self.update_adhesion_points_between_all_cortices(only_fast=False, build_trees=True)
             else:
@@ -726,7 +758,9 @@ class Epithelium(object):
 
             # Check if we are moving too far.
             # Calculate the distances that the cortex has moved.
-            distances = np.linalg.norm([np.concatenate(results[:, 3]).ravel() - old_xs, np.concatenate(results[:, 4]).ravel() - old_ys], axis=0)
+            distances = np.linalg.norm(
+                [np.concatenate(results[:, 3]).ravel() - old_xs, np.concatenate(results[:, 4]).ravel() - old_ys],
+                axis=0)
             max_dist = np.max(distances)
             dist_norm = np.linalg.norm(distances) / len(self.cells)
             # If any part of the cortex moved too far, slow it down.
@@ -761,7 +795,8 @@ class Epithelium(object):
                         self.cells[cell_index].relax_tol *= 2
 
             # Or if we haven't reached elastic equilibrium (no more movement) relax again
-            elif (dist_norm > self.elastic_relax_tol or not boundary_success) and counter < self.max_elastic_relax_steps:
+            elif (
+                    dist_norm > self.elastic_relax_tol or not boundary_success) and counter < self.max_elastic_relax_steps:
                 done = False
                 # if self.verbose:
                 print('Not yet in equilibrium (d_norm = %s). Have relaxed %s times' % (dist_norm, counter))
@@ -801,7 +836,6 @@ class Epithelium(object):
         self.total_elastic_relaxes += 1
 
         return success
-
 
     def get_unbalanced_force_residual(self, norm='L2'):
         """Calculate the unbalanced force at centre of every bicellular junction.
@@ -862,7 +896,6 @@ class Epithelium(object):
 
         return total_residual
 
-
     def get_junction_cell_pairs(self):
         """Returns a set of the pairs of cells belonging to a junction, i.e. [(c1, c2),...], for all bicellular
         junctions in the tissue.
@@ -878,7 +911,8 @@ class Epithelium(object):
 
             # Get cell neighbours
             cell_junc_pairs = [frozenset([cell_ref, nabo])
-                               for nabo in set([item for sublist in cell.adhesion_connections_identities for item in sublist])
+                               for nabo in
+                               set([item for sublist in cell.adhesion_connections_identities for item in sublist])
                                if nabo in cell_ref_list]
 
             # Update the global list
@@ -888,7 +922,6 @@ class Epithelium(object):
         junc_pairs = [list(p) for p in junc_pairs]
 
         return junc_pairs
-
 
     def get_xy_segment_lengths(self, x, y):
         """Get the spacing between nodes on a curve specified by (array(x), array(y))
@@ -906,7 +939,6 @@ class Epithelium(object):
         spacing = np.roll(spacing, -1)
 
         return spacing
-
 
     def get_shortest_distance_between_two_cells(self, cell_1_ref, cell_2_ref):
         """Find the shortest distance between two cells. This is a proxy for the length of
@@ -932,7 +964,6 @@ class Epithelium(object):
 
         return min_dist
 
-
     def get_coordinates_of_nearest_points_between_cells(self, cell_1_ref, cell_2_ref):
         """Get the local idxs for the nearest points between two cell cortices
 
@@ -955,7 +986,6 @@ class Epithelium(object):
 
         # Return (idx of Cell1, idx of Cell2)
         return np.unravel_index(distances.argmin(), distances.shape)
-
 
     def get_bicellular_junctions_for_cell(self, cell_ref, smooth=True, d_threshold=0.015):
         """Get the local indices (i,j) for the coordinates of the endpoints of bicellular junctions in a cell
@@ -988,7 +1018,8 @@ class Epithelium(object):
         bicellular_ends = []
         for v_loc in vertex_locs:
             try:
-                v1, v2 = idxs_to_plot[np.argmax(idxs_to_plot > v_loc)], idxs_to_plot[np.argmax(idxs_to_plot > v_loc) - 1]
+                v1, v2 = idxs_to_plot[np.argmax(idxs_to_plot > v_loc)], idxs_to_plot[
+                    np.argmax(idxs_to_plot > v_loc) - 1]
                 if v1 not in bicellular_ends:
                     bicellular_ends.append(v1)
                 if v2 not in bicellular_ends:
@@ -1003,7 +1034,6 @@ class Epithelium(object):
         # bicellular_juncs = [(bicellular_ends[i], bicellular_ends[i+1]) for i in range(len(bicellular_ends))[::2]]
 
         return bicellular_juncs
-
 
     def check_if_cells_share_a_vertex(self, c1_ref, c2_ref, c3_ref):
         """True if each cell shares adehsions with both other cells.  Doesn't work for the tissue boundary
@@ -1024,7 +1054,6 @@ class Epithelium(object):
         return (c2_ref in list(itertools.chain.from_iterable(self.cellDict[c1_ref].adhesion_connections_identities)) and
                 c3_ref in list(itertools.chain.from_iterable(self.cellDict[c1_ref].adhesion_connections_identities)) and
                 c3_ref in list(itertools.chain.from_iterable(self.cellDict[c2_ref].adhesion_connections_identities)))
-
 
     def get_locations_of_cortex_adhesion_transition(self, cell_1_ref, vertex_neighbours):
         """Find where cell 1 (cell_1_ref) swaps from adhering to cell 2 to cell 3.
@@ -1054,7 +1083,7 @@ class Epithelium(object):
                                for ad_ids in cell_1.adhesion_connections_identities])
         changing_indices_1 = np.where(most_ads_1[:-1] != most_ads_1[1:])[0]
         changing_indices_23 = [idx for idx in changing_indices_1 if most_ads_1[idx] in [cell_2_ref, cell_3_ref]
-                              and most_ads_1[idx + 1] in [cell_2_ref, cell_3_ref]]
+                               and most_ads_1[idx + 1] in [cell_2_ref, cell_3_ref]]
 
         if len(changing_indices_23) != 1:
             print('error, vertex not well defined. Trying cortex with no adhesion')
@@ -1073,7 +1102,6 @@ class Epithelium(object):
             return midpoint
 
         return changing_indices_23[0]
-
 
     def get_all_vertices_for_cell(self, cell_ref):
         """  Get a list of identities of neighbours that a cell shares adhesions with.
@@ -1094,7 +1122,6 @@ class Epithelium(object):
         cell_vertices = [v for v in possible_verts if self.check_if_cells_share_a_vertex(*v)]
 
         return cell_vertices
-
 
     def get_all_tissue_vertices(self, apply_to='all'):
         """Get a set of all unique vertices (as lists of 3 cell identities) in the tissue
@@ -1128,12 +1155,14 @@ class Epithelium(object):
         :rtype: tuple
 
         """
-        coord1 = self.get_locations_of_cortex_adhesion_transition(cell_1_ref, vertex_neighbours=(cell_2_ref, cell_3_ref))
-        coord2 = self.get_locations_of_cortex_adhesion_transition(cell_2_ref, vertex_neighbours=(cell_1_ref, cell_3_ref))
-        coord3 = self.get_locations_of_cortex_adhesion_transition(cell_3_ref, vertex_neighbours=(cell_1_ref, cell_2_ref))
+        coord1 = self.get_locations_of_cortex_adhesion_transition(cell_1_ref,
+                                                                  vertex_neighbours=(cell_2_ref, cell_3_ref))
+        coord2 = self.get_locations_of_cortex_adhesion_transition(cell_2_ref,
+                                                                  vertex_neighbours=(cell_1_ref, cell_3_ref))
+        coord3 = self.get_locations_of_cortex_adhesion_transition(cell_3_ref,
+                                                                  vertex_neighbours=(cell_1_ref, cell_2_ref))
 
         return coord1, coord2, coord3
-
 
     def get_cartesian_coords_of_vertex_triangle(self, cell_1_ref, cell_2_ref, cell_3_ref):
         """Get cartesian coords of the vertex traingle from the local idxs
@@ -1155,7 +1184,6 @@ class Epithelium(object):
         c3 = self.cellDict[cell_3_ref]
 
         return (c1.x[coord1], c1.y[coord1]), (c2.x[coord2], c2.y[coord2]), (c3.x[coord3], c3.y[coord3])
-
 
     def get_vertex_circumcircle(self, cell_1_ref, cell_2_ref, cell_3_ref):
         """Get centroid and radius of circumcircle\insribed at vertices
@@ -1183,7 +1211,6 @@ class Epithelium(object):
         r = np.sqrt((x - x1) ** 2 + (y - y1) ** 2)
         return (x, y), r
 
-
     def get_length_of_shared_junction(self, cell_1_ref, cell_2_ref, alternative_junc_refs=None):
         """Find the length of the bijunction shared between two cells
 
@@ -1206,7 +1233,7 @@ class Epithelium(object):
             if not (alternative_junc_refs is None):
                 print("Now trying alternatives %s and %s" % (alternative_junc_refs[0], alternative_junc_refs[1]))
                 length = self.get_length_of_shared_junction(cell_1_ref=alternative_junc_refs[0],
-                                                   cell_2_ref=alternative_junc_refs[1])
+                                                            cell_2_ref=alternative_junc_refs[1])
                 return length
             else:
                 return 0
@@ -1228,7 +1255,6 @@ class Epithelium(object):
 
         return total_length
 
-
     def get_coordinates_of_junction_midpoint(self, cell_1_ref, cell_2_ref):
         """Find the local idx midpoint of the junction shared between two cells
 
@@ -1245,7 +1271,7 @@ class Epithelium(object):
 
         assert (cell_1_ref in list(itertools.chain.from_iterable(cell_2.adhesion_connections_identities)) or
                 cell_2_ref in list(itertools.chain.from_iterable(cell_1.adhesion_connections_identities))), \
-                "Error, cells %s and %s don't share a junction" % (cell_1_ref, cell_2_ref)
+            "Error, cells %s and %s don't share a junction" % (cell_1_ref, cell_2_ref)
 
         # Boolean where connected
         shared_junc_bool_1 = [1 if cell_2_ref in ad_list else 0 for ad_list in cell_1.adhesion_connections_identities]
@@ -1273,7 +1299,6 @@ class Epithelium(object):
 
         return mid_point_1, mid_point_2
 
-
     def get_cell_sum_stress_tensor(self):
         """The sum of all cell stress tensors.
 
@@ -1287,7 +1312,6 @@ class Epithelium(object):
 
         return stress
 
-
     def get_tissue_pressure(self):
         """  Isotropic part of tissue-level stress
 
@@ -1296,7 +1320,6 @@ class Epithelium(object):
 
         """
         return -0.5 * self.get_boundary_stress_tensor().trace()
-
 
     def get_stress_tensor_around_cell_cluster_depreciated(self):
         """Calculate stress tensor of all the internal cells."""
@@ -1352,7 +1375,6 @@ class Epithelium(object):
 
         return stress
 
-
     def get_boundary_stress_tensor(self):
         """Calculate stress tensor of the boundary stencil \todo needs to be upgraded with new adhesion class
         make sure factoring for spacing on both sides.
@@ -1373,7 +1395,6 @@ class Epithelium(object):
             self.cellDict['boundary'].update_deformed_mesh_spacing()
             for ad in self.slow_adhesions:
                 if 'boundary' in [ad.cell_1.identifier, ad.cell_2.identifier]:
-
                     r_vector = np.array(ad.get_xy_at_this_end(this_cell_id='boundary')) - centroid
                     force = ad.get_vector_force(from_cell_id='boundary')
                     stress += np.outer(r_vector, force)
@@ -1458,7 +1479,6 @@ class Epithelium(object):
 
         return stress
 
-
     def deform_elastic_boundary(self, stiffness_x=None, stiffness_y=None, update_ads=False):
         """Relax tissue with an elastic BC for the boundary
 
@@ -1505,7 +1525,6 @@ class Epithelium(object):
 
         return
 
-
     def get_tissue_width_and_height(self):
         """Top and bottom (delta x,delta y) of max/min of boundary stencil
 
@@ -1515,7 +1534,6 @@ class Epithelium(object):
         """
         return (np.max(self.boundary_adhesions[0]) - np.min(self.boundary_adhesions[0]),
                 np.max(self.boundary_adhesions[1]) - np.min(self.boundary_adhesions[1]))
-
 
     def relax_deformable_boundary(self, stiffness_x=None, stiffness_y=None, update_adhesions=True, pure_shear=False,
                                   max_shift=0.025, max_shift_tol=1e-4):
@@ -1629,7 +1647,6 @@ class Epithelium(object):
 
         return success
 
-
     def relax_eptm_with_boundary(self, stiffness_x=None, stiffness_y=None, max_solves=1):
         """Calculate the stress at the boundary and relax the boundary. N.B. stress and strain names
          are wrong way around below.
@@ -1648,7 +1665,6 @@ class Epithelium(object):
 
         self.update_adhesion_points_between_all_cortices(only_fast=False, build_trees=True)
         for solve_num in range(max_solves):
-
             # Get stress and move boundary
             stress = self.get_boundary_stress_tensor()
             self.relax_deformable_boundary()
@@ -1707,14 +1723,12 @@ class Epithelium(object):
 
         return
 
-
     def update_adhesion_distances_identifiers_and_indices_for_all_cortices(self):
         """Calculate the distances to all adhesions and the identies of the cortices.
 
         """
         for cell in self.cells:
             cell.update_adhesion_distances_identifiers_and_indices()
-
 
     def update_adhesions_for_hexagons(self):
         """For only 1 cell.  The cell is placed in a hexagonal wall and finds adhesions to the boundary.
@@ -1752,7 +1766,7 @@ class Epithelium(object):
             self.cells[0].update_adhesion_distances_identifiers_and_indices(build_tree=True)
 
             if 'boundary' not in self.cellDict.keys():
-            # if not hasattr(self, 'boundary_adhesions'):
+                # if not hasattr(self, 'boundary_adhesions'):
                 # Save
                 self.boundary_adhesions = [pointsX, pointsY]
                 # Make boundary cell
@@ -1766,7 +1780,6 @@ class Epithelium(object):
                 # self.boundary_cell.s_index_dict = {s: idx for (idx, s) in enumerate(self.boundary_cell.s)}
                 self.cellDict['boundary'].update_deformed_mesh_spacing()
 
-
     def prune_slow_adhesions_by_length(self, max_length):
         """Remove slow adhesions if they are longer than 'max_length'
 
@@ -1774,11 +1787,10 @@ class Epithelium(object):
         :type max_length: float
 
         """
-        
+
         self.verboseprint(f"Pruning slow adhesions longer than {max_length}", object(), 1)
 
         self.slow_adhesions = [ad for ad in self.slow_adhesions if ad.get_length() < max_length]
-
 
     def update_slow_adhesions(self, prune=False, apply_to='all'):
         """Update the slow adhesions in the tissue and then store in every cell
@@ -1817,7 +1829,10 @@ class Epithelium(object):
             surviving_ads = []
             for ad in self.slow_adhesions:
                 if prune:
-                    max_cortex_angle = np.max(ad.get_angle_relative_to_cortices()) / (0.5 * np.pi)
+                    if self.adhesion_shear_unbinding_factor > 0:
+                        max_cortex_angle = np.max(ad.get_angle_relative_to_cortices()) / (0.5 * np.pi)
+                    else:
+                        max_cortex_angle = np.pi
                     # beta = self.slow_adhesion_lifespan * max_cortex_angle
                     # keep_adhesion = self.slow_adhesion_lifespan >= np.random.exponential(beta)
                     keep_adhesion = ad.age <= ad.lifespan * (max_cortex_angle ** self.adhesion_shear_unbinding_factor)
@@ -1837,16 +1852,21 @@ class Epithelium(object):
             all_points = []
             all_identifiers = []
             local_index = []
-            for cell in self.cells:
-                all_points.extend(np.dstack((cell.x, cell.y))[0])
-                all_identifiers.extend([cell.identifier] * cell.x.size)
-                # local_index.extend([i for i in range(cell.x.size)])
-                local_index.extend([i for i in cell.s])
+            # for cell in self.cells:
+            for cell in self.cellDict.values():
+                if 'boundary' not in cell.identifier:
+                    all_points.extend(np.dstack((cell.x, cell.y))[0])
+                    all_identifiers.extend([cell.identifier] * cell.x.size)
+                    # local_index.extend([i for i in range(cell.x.size)])
+                    local_index.extend([i for i in cell.s])
+
             # Num nodes from cells
             num_cell_nodes = len(all_identifiers)
             # Add the wall
-            all_points.extend(np.dstack((self.boundary_adhesions[0], self.boundary_adhesions[1]))[0])
-            all_identifiers.extend(['boundary'] * len(self.boundary_adhesions[0]))
+            # all_points.extend(np.dstack((self.boundary_adhesions[0], self.boundary_adhesions[1]))[0])
+            # all_identifiers.extend(['boundary'] * len(self.boundary_adhesions[0]))
+            all_points.extend(np.dstack((self.boundary_cell.x, self.boundary_cell.y))[0])
+            all_identifiers.extend([self.boundary_cell.identifier] * self.boundary_cell.x.size)
             local_index.extend([i for i in self.boundary_cell.s])
 
             tissue_tree = NearestNeighbors(radius=self.cells[0].max_adhesion_length,
@@ -1866,11 +1886,16 @@ class Epithelium(object):
 
             # Store all data
             # Append the adhesions if connections don't already exist
+            active_cells = {c.identifier for c in self.cells}
             for coord in adhesion_pairs:
-                if (all_identifiers[coord[0]] != 'boundary' and
+                if (all_identifiers[coord[0]] in active_cells and
                     (all_identifiers[coord[0]], local_index[coord[0]]) not in connected_nodes) or \
-                   (all_identifiers[coord[1]] != 'boundary' and
-                    (all_identifiers[coord[1]], local_index[coord[1]]) not in connected_nodes):
+                        (all_identifiers[coord[1]] in active_cells and
+                         (all_identifiers[coord[1]], local_index[coord[1]]) not in connected_nodes):
+                    # if ('boundary' not in all_identifiers[coord[0]] and
+                    #     (all_identifiers[coord[0]], local_index[coord[0]]) not in connected_nodes) or \
+                    #    ('boundary' not in all_identifiers[coord[1]] and
+                    #     (all_identifiers[coord[1]], local_index[coord[1]]) not in connected_nodes):
 
                     self.slow_adhesions.append(Adhesion(cells=(self.cellDict[all_identifiers[coord[0]]],
                                                                self.cellDict[all_identifiers[coord[1]]]),
@@ -1896,7 +1921,6 @@ class Epithelium(object):
                     xy_nabo = ad.get_xy_at_other_end(ad.cell_2.identifier)
                     ad.cell_2.slow_adhesions.append([ad.cell_2_index, xy_nabo[0], xy_nabo[1],
                                                      ad_cell_1.deformed_mesh_spacing[ad.cell_1_index]])
-
 
     def update_sidekick_adhesions(self, fresh_sdk=True, apply_to='all'):
         """Update the sidekick vertices in the tissue and then add data to cells.
@@ -1952,7 +1976,6 @@ class Epithelium(object):
                 xy_nabo = ad.get_xy_at_other_end(ad.cell_2.identifier)
                 ad.cell_2.sidekick_adhesions.append([ad.cell_2_index, xy_nabo[0], xy_nabo[1]])
 
-
     def update_fast_adhesions(self, build_trees=True, apply_to='all'):
         """Updates the population of fast turnover adhesions, tau_ad < tau_cortex
         Adds the current positions of the cortices as the possible adhesion points for each cortex
@@ -1970,15 +1993,19 @@ class Epithelium(object):
         all_points = []
         all_spacings = []
         all_identifiers = []
-        for cell in self.cells:
+        # for cell in self.cells:
+        for cell in self.cellDict.values():
             all_points.extend(np.dstack((cell.x, cell.y))[0])
             all_spacings.extend(cell.get_xy_segment_lengths())
             all_identifiers.extend([cell.identifier] * cell.x.size)
 
         # Add the wall
-        all_points.extend(np.dstack((self.boundary_adhesions[0], self.boundary_adhesions[1]))[0])
-        all_spacings.extend(self.get_xy_segment_lengths(self.boundary_adhesions[0], self.boundary_adhesions[1]))
-        all_identifiers.extend(['boundary'] * len(self.boundary_adhesions[0]))
+        # # all_points.extend(np.dstack((self.boundary_adhesions[0], self.boundary_adhesions[1]))[0])
+        # # all_spacings.extend(self.get_xy_segment_lengths(self.boundary_adhesions[0], self.boundary_adhesions[1]))
+        # # all_identifiers.extend(['boundary'] * len(self.boundary_adhesions[0]))
+        # all_points.extend(np.dstack((self.boundary_cell.x, self.boundary_cell.y))[0])
+        # all_spacings.extend([i for i in self.boundary_cell.deformed_mesh_spacing])
+        # all_identifiers.extend(['boundary'] * self.boundary_cell.x.size)
 
         # Need arrays
         all_points = np.array(all_points)
@@ -2016,7 +2043,6 @@ class Epithelium(object):
             if build_trees:
                 # cell.build_adhesion_tree()
                 cell.update_adhesion_distances_identifiers_and_indices(build_tree=build_trees)
-
 
     def update_adhesion_points_between_all_cortices(self, only_fast=False, build_trees=True, apply_to='all',
                                                     fresh_sdk=False, prune_slow=False):
@@ -2074,7 +2100,6 @@ class Epithelium(object):
                 for cell in self.cells:
                     cell.sidekick_adhesions = []
 
-
     def remove_sdk_from_a_junction(self, junc):
         """Removes sdk from the vertices of a junction defined as junc = [cell_ref_1, cell_ref_2]
 
@@ -2104,8 +2129,7 @@ class Epithelium(object):
 
         # Now remove all sdk triangles where all cells are at these vertices
         self.sidekick_adhesions = [ad for ad in self.sidekick_adhesions if not
-                                   {ad.cell_1.identifier, ad.cell_2.identifier}.issubset(cells_at_junction_vertices)]
-
+        {ad.cell_1.identifier, ad.cell_2.identifier}.issubset(cells_at_junction_vertices)]
 
     def get_indices_of_points_within_distance(self, points1, points2, cutoff):
         """Function to return the indices of points 1 that are within 'cutoff' of points 2.
@@ -2128,7 +2152,6 @@ class Epithelium(object):
         indices = list(set(itertools.chain.from_iterable(groups)))
 
         return indices
-
 
     def smooth_all_variables_with_spline(self, apply_to='all', smoothing=1e-3):
         """Use a spline to smooth the variables.
@@ -2158,7 +2181,6 @@ class Epithelium(object):
             gamma_spline = splrep(cell.s, cell.gamma, k=3, s=smoothing)
             cell.gamma = splev(cell.s, gamma_spline)
 
-
     def decimate_all_cells_onto_new_grid(self, factor):
         """Changes 'n' for every cell by interpolating their variables onto a new grid.
 
@@ -2175,8 +2197,7 @@ class Epithelium(object):
         self.boundary_adhesions = np.array([decimate(self.boundary_adhesions[0], factor),
                                             decimate(self.boundary_adhesions[1], factor)])
 
-
-    def set_cables_in_eptm(self, prestretch, id1_cells=[], id2_cells=[], cable_type='bipolar'):
+    def set_cables_in_eptm(self, prestretch, id1_cells=None, id2_cells=None, cable_type='bipolar'):
         """Initialises PCP cables in the epithelium by assigning prestrain to mis-matched identities
 
         :param prestretch:  The magnitude of prestretch to apply to the cortices
@@ -2192,10 +2213,13 @@ class Epithelium(object):
 
         assert cable_type in ['unipolar', 'bipolar'], "Cable must be bipolar or unipolar"
 
+        id1_cells = [] if id1_cells is None else id1_cells
+        id2_cells = [] if id2_cells is None else id2_cells
+
         # Bestow identities
         if len(id1_cells) == 0:
-                id1_cells = ['E', 'G', 'A', 'K', 'M', 'H', 'J', 'L']
-                # id1_cells = ['I', 'E', 'G', 'A', 'K', 'M']
+            id1_cells = ['E', 'G', 'A', 'K', 'M', 'H', 'J', 'L']
+            # id1_cells = ['I', 'E', 'G', 'A', 'K', 'M']
         if len(id2_cells) == 0:
             id2_cells = [cell.identifier for cell in self.cells if cell.identifier not in id1_cells]
 
@@ -2208,7 +2232,6 @@ class Epithelium(object):
                 cells_to_add_prestrain = [] if cell.identifier in id2_cells else id2_cells
             # Update
             cell.prestrain_dict.update(cell.prestrain_dict.fromkeys(cells_to_add_prestrain, prestretch))
-
 
     def impose_pcp(self, prestretch):
         """Applies prestrain to all vertical junctions.  Works only in the 14-cell tissue.
@@ -2248,14 +2271,14 @@ class Epithelium(object):
             elif cell.identifier == 'N':
                 cell.prestrain_dict.update(cell.prestrain_dict.fromkeys(['M'], prestretch))
 
-
-    def duplicate_cell(self, cell_to_copy, x_shift, y_shift, roll=0, theta_shift=0, identifier='B'):
+    def duplicate_cell(self, cell_to_copy: Cell, x_shift: float, y_shift: float, roll: int = 0, theta_shift: int = 0,
+                       identifier: str = 'B'):
         """Duplicates a cell in the tissue, with a specified shift in x and y coords
 
         :param cell_to_copy:  Identity of cell that will be duplicated
-        :type cell_to_copy: string
+        :type cell_to_copy: Cell
         :param x_shift:   Translation in x-direction.
-        :type x_shift: flaot
+        :type x_shift: float
         :param y_shift:  Translation in y-direction.
         :type y_shift: float
         :param roll:  (Default value = 0)  Roll the cell variables to change position of starting index.
@@ -2298,9 +2321,8 @@ class Epithelium(object):
             new_cell.gamma = np.roll(new_cell.gamma, roll)
             new_cell.s = np.roll(new_cell.s, roll)
 
-
-    def _build_single_cell(self, radius=35, n=2000, param_dict={}, verbose=False,
-                           identifier='A', cell_kwargs={}):
+    def _build_single_cell(self, radius=35, n=2000, param_dict=None, verbose=False,
+                           identifier='A', cell_kwargs=None):
         """ Create a new, circular cell in the tissue.
 
         :param radius: (Default value = 35)  Radius of new cell.
@@ -2321,7 +2343,8 @@ class Epithelium(object):
         self.verboseprint("Creating 1 cell in hexagon", object(), 1)
         # Initialise circle A
         circle_radius = np.sqrt(3) * 0.5 * radius
-        delta = param_dict['delta']  # / 2
+        param_dict = {} if param_dict is None else param_dict
+        delta = param_dict.get('delta', 1)  # / 2
         anglesA = np.linspace(0, np.pi * 2, n, endpoint=False)
         anglesA = np.roll(anglesA, int(anglesA.size / 2))
         pointsXA = (circle_radius - delta) * np.cos(anglesA)
@@ -2346,6 +2369,7 @@ class Epithelium(object):
         # We just build the first cell and then create all other instances from this cell.
         initial_guessesA = {'D': d_guessA, 'C': c_guessA, 'gamma': gamma_guessA, 'theta': anglesA,
                             'x': pointsXA, 'y': pointsYA}
+        cell_kwargs = {} if cell_kwargs is None else cell_kwargs
         cellA = Cell(initial_guesses=initial_guessesA, verbose=verbose, param_dict=param_dict, identifier=identifier,
                      cell_kwargs=cell_kwargs)
 
@@ -2353,6 +2377,178 @@ class Epithelium(object):
         # Dictionary to point to cells
         self.cellDict = {'A': self.cells[0]}
 
+    def create_single_cell_periodic_tissue_from_fitted_single_cell(self):
+        """
+        Builds a periodic tissue from a single cell within a stencil.  The stencil is removed  and the cell adheres
+        to itself within a rhombus or parallelogram.
+        :return:
+        """
+        self.verboseprint("Creating a periodic eptm from cell A in hexagon", object(), 1)
+
+        self.within_hexagons = False
+
+        self.boundary_bc = 'periodic'
+
+        self.slow_adhesions = []
+
+        # Force centroid to (0,0)
+        centroid = (np.mean(self.cells[0].x), np.mean(self.cells[0].y))
+        self.cells[0].x -= centroid[0]
+        self.cells[0].y -= centroid[1]
+        self.cells[0].constrain_centroid = True
+
+        # Define the paralellogram control parameters: (v1, v2) where v1 and v2 are the vector projections of the two
+        # edges from the centroid.
+        max_x = self.radius * np.sin(2 * np.pi * 1 / 6)
+        max_y = self.radius * np.cos(2 * np.pi * 0 / 6)
+
+        self.parallelogram = np.array([[max_x - 0.5 * self.cells[0].delta,
+                                        -(1.5 * max_y - self.cells[0].delta * np.sin(np.pi / 3))],
+                                       [max_x - 0.5 * self.cells[0].delta,
+                                        1.5 * max_y - self.cells[0].delta * np.sin(np.pi / 3)]])
+
+        # Remove the boundary stencil
+        self.boundary_adhesions = np.array([[], []])
+        self.reference_boundary_adhesions = np.array([[], []])
+        self.boundary_cell.identifier = 'periodic_boundary'
+        self.boundary_cell.x = np.array([])
+        self.boundary_cell.y = np.array([])
+
+        # Add cells
+        for cell_id in ['B', 'C', 'D', 'E', 'F', 'G']:
+            self.duplicate_cell(self.cells[0], 0, 0, identifier=cell_id)
+
+        self._rebuild_periodic_boundary()
+
+        self.cells = [self.cells[0]]
+        # self.cellDict = {'A': self.cells[0], 'periodic_boundary': self.boundary_cell}
+
+    def _rebuild_periodic_boundary(self):
+        """
+        Surround the cell with copies of itself and make them the boundary cell.
+        :return:
+        """
+
+        # all_points, all_spacings = [], []
+
+        real_cell = self.cells[0]
+        real_cell.update_deformed_mesh_spacing()
+        for vec_combo in [(1, 1, 'B'), (0, 1, 'C'), (0, -1, 'F'), (-1, -1, 'E'), (-1, 0, 'D'), (1, 0, 'G')]:
+            x = real_cell.x + vec_combo[0] * self.parallelogram[0][0] + vec_combo[1] * self.parallelogram[1][0]
+            y = real_cell.y + vec_combo[0] * self.parallelogram[0][1] + vec_combo[1] * self.parallelogram[1][1]
+
+            self.cellDict[vec_combo[2]].x = x
+            self.cellDict[vec_combo[2]].y = y
+            self.cellDict[vec_combo[2]].s = self.cells[0].s
+            self.cellDict[vec_combo[2]].update_deformed_mesh_spacing()
+            # all_points.extend(np.dstack((x, y))[0])
+            # all_spacings.extend(real_cell.deformed_mesh_spacing)
+
+        # self.boundary_cell.x = np.array([i[0] for i in all_points])
+        # self.boundary_cell.y = np.array([i[1] for i in all_points])
+        # self.boundary_cell.prune_adhesion_data()
+        # self.boundary_cell.s = np.arange(self.boundary_cell.x.size)
+        # self.boundary_cell.deformed_mesh_spacing = np.array(all_spacings)
+        # self.cellDict['periodic_boundary'] = self.boundary_cell
+
+        # self.boundary_adhesions = [self.boundary_cell.x, self.boundary_cell.y]
+
+    def deform_periodic_boundary(self, strain_tensor):
+        """
+        Deform the periodic boundary around the cell.
+        :param strain_tensor: (2x2) matrix with strain components.
+        :return:
+        """
+        self.cells[0].x = self.cells[0].x * strain_tensor[0, 0] + self.cells[0].y * strain_tensor[0, 1]
+        self.cells[0].y = self.cells[0].x * strain_tensor[1, 0] + self.cells[0].y * strain_tensor[1, 1]
+
+        new_v1 = np.dot(strain_tensor, self.parallelogram[0])
+        new_v2 = np.dot(strain_tensor, self.parallelogram[1])
+
+        self.parallelogram = np.array([new_v1, new_v2])
+
+        self._rebuild_periodic_boundary()
+
+    def _apply_deformation_relax_cortex_and_get_energy(self, stretch_shear):
+        """
+        Filler
+        :param stretch_shear:
+        :return:
+        """
+
+        strain = self.build_strain_tensor(stretch=stretch_shear[0], shear=stretch_shear[1])
+        self.deform_periodic_boundary(strain)
+        self.solve_bvps_in_parallel()
+        energy = self.cells[0].integrate_cortex_energy()
+
+        return energy
+
+    def relax_periodic_tissue(self, upper_bound: float = 0.002, min_deformation: float = 1e-5, num_trials: int = 3,
+                              max_runs: int = 5, n_jobs: int = -1):
+        """Relaxes the parallelogram surrounding a tissue by minimising the energy.  Call a cortex relaxation
+        internally to get the energy."""
+
+        # Make sure we are in equillibrium before minimising (else all minimisation will have to do this)
+        self.solve_bvps_in_parallel()
+
+        # Get pressure and shear to predict if compression or tension is needed.
+        # Note minus for pressure (since p_eff = - 1/2 trace(stress))
+        cell_pressure = -self.cells[0].get_effective_pressure()
+        cell_shear = self.cells[0].get_shear_stress()
+
+        # From those, get bounds for deformation.
+        stretch_bound = min([2 * abs(cell_pressure), upper_bound])
+        shear_bound = min([2 * abs(cell_shear), upper_bound])
+        # Calculate stretches
+        stretches = np.linspace(0, np.sign(cell_pressure) * stretch_bound, num_trials)
+        stretches = [s for s in stretches if s < min_deformation]
+        shears = np.linspace(0, np.sign(cell_shear) * shear_bound, num_trials)
+        shears = [s for s in shears if s < min_deformation]
+        all_trails = list(itertools.product(stretches, shears))
+
+        # # We buckle under compression so reset the lower bound
+        # average_tension = (self.cells[0].gamma * self.cells[0].get_prestrains()).mean()
+        # lower_bound = max([lower_bound, average_tension - 1]) if average_tension < 1 else lower_bound
+        # bounds = (lower_bound, upper_bound)
+        #
+        # # Get the stretches and shears that we will try
+        # stretches = np.linspace(bounds[0], bounds[1], num_trials)
+        # shears = np.linspace(bounds[0], bounds[1], num_trials)
+        # all_trails = list(itertools.product(stretches, shears))
+
+        success = False
+        num_evals = 0
+        while not success:
+            # stretch_shear = np.array([0, 0])
+            # # max_minimisations: int = 1, max_nfev: int = 10
+            # # solution = minimize(self._apply_deformation_relax_cortex_and_get_energy, stretch_shear, args=(),
+            # #                     method='COBYLA', options={'rhobeg': 0.005, 'maxiter': max_nfev})
+            # solution = minimize(self._apply_deformation_relax_cortex_and_get_energy, stretch_shear, args=(),
+            #                     method='L-BFGS-B', bounds=((-0.01, 0.01), (-0.01, 0.01)),
+            #                     options={'maxfun': max_nfev})
+            # print(solution)
+            # stretch_shear = solution.x
+            #
+            # # Apply lots of deformations and see what minimises the energy
+            # energies = Parallel(n_jobs=n_jobs)(delayed(self._apply_deformation_relax_cortex_and_get_energy)(stretch_shear)
+            #                                    for stretch_shear in all_trails)
+            energies = []
+            for stretch_shear in all_trails:
+                energies.append(self._apply_deformation_relax_cortex_and_get_energy(stretch_shear))
+            min_energy_idx = np.argmin(energies)
+
+            # Apply the minimising deformation
+            best_stretch_shears = all_trails[min_energy_idx]
+            strain = self.build_strain_tensor(stretch=best_stretch_shears[0], shear=best_stretch_shears[1])
+            self.deform_periodic_boundary(strain)
+            self.solve_bvps_in_parallel()
+
+            num_evals += 1
+            # success = (best_stretch_shears[0] not in bounds and best_stretch_shears[1] not in bounds)
+            success = abs(best_stretch_shears[0]) < stretch_bound and abs(best_stretch_shears[1]) < shear_bound
+            print('in bounds?', success, best_stretch_shears)
+            success = num_evals >= max_runs if not success else success
+            print('done solving?', success)
 
     def create_3_cell_eptm_from_fitted_single_cell(self):
         """Tissue with 3 cells enclosed in a stencil.  Need to start with a single cell in a hexagon.
@@ -2479,7 +2675,6 @@ class Epithelium(object):
 
         self.update_adhesion_points_between_all_cortices()
         self.reference_boundary_adhesions = []
-
 
     def create_14_cell_eptm_from_fitted_single_cell(self):
         """ Build a 14-cell tissue, symmetric in x and y, from a tissue made up of a single cell in a hexagon.
@@ -2628,7 +2823,6 @@ class Epithelium(object):
 
         self.update_adhesion_points_between_all_cortices()
         self.reference_boundary_adhesions = []
-
 
     def create_17_cell_eptm_from_fitted_single_cell(self):
         """Create a tissue with 17 cells and two axes of symmetry from a tissue with a single cell in a hexagon.
@@ -2789,13 +2983,12 @@ class Epithelium(object):
             cell.prestrain_dict = p_dict.copy()
             cell.adhesion_density_dict = p_dict.copy()
 
-
         ###### Update the boundary #######
         all_points = np.dstack((bounding_points_x, bounding_points_y))[0]
         # This keeps on the hexagon boundaries
         hull = ConcaveHull()
         hull.loadpoints(all_points)
-        hull.calculatehull(tol=self.concave_hull_tolerance*1)
+        hull.calculatehull(tol=self.concave_hull_tolerance * 1)
         # Scale it
         scaled_boundary = scale(hull.boundary.exterior, xfact=1, yfact=1, zfact=1, origin='centroid')
         x, y = scaled_boundary.xy
@@ -2811,7 +3004,6 @@ class Epithelium(object):
 
         self.update_adhesion_points_between_all_cortices()
         self.reference_boundary_adhesions = []
-
 
     def create_19_cell_eptm_from_fitted_single_cell(self):
         """Build a tissue with 19 cells from a tissue with a single cell enclosed in a hexagon.
@@ -2970,13 +3162,12 @@ class Epithelium(object):
             cell.prestrain_dict = p_dict.copy()
             cell.adhesion_density_dict = p_dict.copy()
 
-
         ###### Update the boundary #######
         all_points = np.dstack((bounding_points_x, bounding_points_y))[0]
         # This keeps on the hexagon boundaries
         hull = ConcaveHull()
         hull.loadpoints(all_points)
-        hull.calculatehull(tol=self.concave_hull_tolerance*1)
+        hull.calculatehull(tol=self.concave_hull_tolerance * 1)
         # Scale it
         scaled_boundary = scale(hull.boundary.exterior, xfact=1, yfact=1, zfact=1, origin='centroid')
         x, y = scaled_boundary.xy
@@ -2986,7 +3177,6 @@ class Epithelium(object):
 
         self.update_adhesion_points_between_all_cortices()
         self.reference_boundary_adhesions = []
-
 
     def _get_convex_hull_area_of_centroids_with_radii(self, centroids, radii):
         """Helper method for initialising a disordered tissue. Calculates the convex area of a cluster of round cells,
@@ -3039,7 +3229,6 @@ class Epithelium(object):
 
         return total_area
 
-
     def _get_distances_between_centroids_with_radii(self, centroids, radii):
         """Helper method for initialising a disordered tissue. Calculates the distances between cell centroids,
         which is used to make sure they are tightly packed.
@@ -3082,8 +3271,7 @@ class Epithelium(object):
 
         return cumulative_distances
 
-
-    def _pack_centroids_together(self, centroids, radii=[]):
+    def _pack_centroids_together(self, centroids, radii=None):
         """Given a list of centroids, define radii based on their relative distances and pack together more densely via minimisation
 
         :param centroids:  List of cell centroid (xy) coords.
@@ -3097,10 +3285,11 @@ class Epithelium(object):
 
         self.verboseprint("Packing the centroids together", object(), 1)
 
+        radii = [] if radii is None else radii
+
         boundary_coords = np.dstack((self.boundary_adhesions[0], self.boundary_adhesions[1]))[0]
 
         # centroids = [[59.19914007469464, -26.433803996836982], [-1.534100787501092, 59.078695551287375], [-52.06592950911108, -10.362478064085945], [32.84152340879301, -93.37408338671601], [73.25750764601091, 43.442251003972224], [-37.463652031344864, -79.68420967046461], [-72.33201585627047, 55.24755184974827], [45.010659331709796, 95.68920399831025], [6.435527624855871, -0.19363773362153852], [-39.89568913568516, 101.37354092790487], [-83.37871347024672, -51.64724193213894], [4.52062124513836, -50.83679363376616]]
-
 
         # Get the radii of the nearest cells
         if len(radii) != len(centroids):
@@ -3125,7 +3314,6 @@ class Epithelium(object):
         centroids = np.dstack((centroids[::2], centroids[1::2]))[0]
 
         return centroids
-
 
     def create_disordered_tissue_in_ellipse(self, param_dict=None, **kwargs):
         """Creates a disordered tissue using a matern point process.
@@ -3243,7 +3431,6 @@ class Epithelium(object):
         self.boundary_cell.prune_adhesion_data()
         self.cellDict['boundary'] = self.boundary_cell
 
-
     def pickle_self(self, SAVE_DIR=None, name=None, prune_adhesions=True):
         """Pickles and saves an instance of this class in its current state.
 
@@ -3265,7 +3452,7 @@ class Epithelium(object):
                 self.reference_boundary_adhesions = []
 
         if SAVE_DIR == None:
-            SAVE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'initial_conditions'))
+            SAVE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'pickled_tissues'))
         # Make sure the directory exists
         if not os.path.exists(SAVE_DIR):
             os.makedirs(SAVE_DIR)
@@ -3279,7 +3466,6 @@ class Epithelium(object):
         # Pickle
         with open(saveloc, 'wb') as s:
             dill.dump(self, s)
-
 
     def plot_bijunction_tension_arrows(self, cell_list, ax=None, num_extra_indices=2, arrow_col='k',
                                        arrow_scale=.015, arrow_width=0.004):
@@ -3313,11 +3499,12 @@ class Epithelium(object):
                     theta = theta - np.pi if j_end == bi_junc[1] else theta
                     force = np.mean(forces_t[j_end - num_extra_indices:j_end + num_extra_indices]) \
                             * np.array([np.cos(theta), np.sin(theta)])
-                    ax.quiver(x, y, force[0], force[1], width=arrow_width, scale=arrow_scale, color=arrow_col, zorder=10)
+                    ax.quiver(x, y, force[0], force[1], width=arrow_width, scale=arrow_scale, color=arrow_col,
+                              zorder=10)
 
     def plot_self(self, ax=None, axEqual=True, plotAdhesion=True, plot_stress=False, plot_shape=False,
-                  plot_adhesion_forces=True, plot_boundary=True, cell_ids=[], lagrangian_tracking=False,
-                  plot_tension=False, plot_boundary_movement=True, plot_cbar=True, sim_type='auto', cell_kwargs={}):
+                  plot_adhesion_forces=True, plot_boundary=True, cell_ids=None, lagrangian_tracking=False,
+                  plot_tension=False, plot_boundary_movement=True, plot_cbar=True, sim_type='auto', cell_kwargs=None):
         """Plot the tissue and the boundary.
 
         :param ax: (Default value = None)  Axis object to plot on.
@@ -3353,17 +3540,19 @@ class Epithelium(object):
 
         self.verboseprint("Plotting full T1", object(), 1)
 
+        cell_ids = [] if cell_ids is None else cell_ids
+        cell_kwargs = {} if cell_kwargs is None else cell_kwargs
+
         # Figure out what type of simulation we did
         if sim_type == 'auto':
             max_prestrain_refs = max([len([pval for pval in c.prestrain_dict.values() if pval < 0.9995])
-                                          for c in self.cells])
+                                      for c in self.cells])
             if max_prestrain_refs < 2:
                 sim_type = 'single'
             elif max_prestrain_refs < len(self.cells):
                 sim_type = 'cable'
             else:
                 sim_type = 'whole'
-
 
         if len(cell_ids) == 0:
             cell_ids = [c.identifier for c in self.cells]
@@ -3380,9 +3569,11 @@ class Epithelium(object):
             if sim_type == 'single':
                 max_pressure = 6e-4  # For singe junction
             elif sim_type == 'cable':
-                max_pressure = 1.2e-3/1  # For cables
+                max_pressure = 1.2e-3 / 1  # For cables
             elif sim_type == 'whole':
                 max_pressure = 4e-3  # For whole cells
+            else:
+                raise NotImplementedError
 
             # Truncate the colourmap to use lighter colours
             # lower, upper = 5e-4, -5e-4
@@ -3415,7 +3606,8 @@ class Epithelium(object):
             norm = matplotlib.colors.Normalize(lower, upper)
             # Create scaled cmap
             scaled_cmap = matplotlib.cm.ScalarMappable(norm=norm, cmap=truncated_map)
-            cbar2 = plt.colorbar(scaled_cmap, ax=[ax], format=self.OOMFormatter(-3, mathText=False), location='left', shrink=.5, pad=.02)
+            cbar2 = plt.colorbar(scaled_cmap, ax=[ax], format=self.OOMFormatter(-3, mathText=False), location='left',
+                                 shrink=.5, pad=.02)
             # cbar2 = plt.colorbar(scaled_cmap, orientation="vertical")
             cbar2.set_label(r'$\varepsilon$', labelpad=-7)
             cbar2.ax.tick_params(labelsize=26)
@@ -3427,24 +3619,31 @@ class Epithelium(object):
 
         for cell_ref in cell_ids:
             # Specify cell label
-            cell_label = r'$%s$' % int(list(self.cellDict.keys()).index(cell_ref)+1)
+            cell_label = r'$%s$' % int(list(self.cellDict.keys()).index(cell_ref) + 1)
             # plot the cell
             self.cellDict[cell_ref].plot_self(ax=ax, equalAx=axEqual, plotAdhesion=plotAdhesion,
-                                                           plot_shape=plot_shape,
-                                                           plot_adhesion_forces=plot_adhesion_forces,
-                                                           plot_pressure=plot_pressure,
-                                                           plot_tension=plot_tension,
-                                                           lagrangian_tracking=lagrangian_tracking,
-                                                           label=cell_label,
-                                                           plot_stress=plot_stress,
-                                                           sim_type=sim_type,
-                                                           **cell_kwargs)
+                                              plot_shape=plot_shape,
+                                              plot_adhesion_forces=plot_adhesion_forces,
+                                              plot_pressure=plot_pressure,
+                                              plot_tension=plot_tension,
+                                              lagrangian_tracking=lagrangian_tracking,
+                                              label=cell_label,
+                                              plot_stress=plot_stress,
+                                              sim_type=sim_type,
+                                              **cell_kwargs)
 
         if self.within_hexagons:
             for cell in self.cells:
                 ax.plot(cell.adhesion_point_coords[:, 0], cell.adhesion_point_coords[:, 1], '-', ms=1, c='k')
         elif plot_boundary:
             ax.plot(self.boundary_adhesions[0], self.boundary_adhesions[1], '-', c='k')
+            if self.boundary_bc == 'periodic':
+                for c in self.cellDict.values():
+                    if 'boundary' not in c.identifier and c.identifier != 'A':
+                        c.plot_self(ax=ax, equalAx=axEqual, plotAdhesion=0, plot_shape=0,
+                                    plot_adhesion_forces=0, plot_pressure=0, plot_tension=0,
+                                    lagrangian_tracking=0, label=c.identifier, plot_stress=0,
+                                    col='k')
 
         if axEqual:
             if len(self.cells) == 14:
@@ -3462,8 +3661,7 @@ class Epithelium(object):
                 ax.set_ylim([-45, 95])
             ax.set_aspect('equal', 'box')
 
-
-        if plot_boundary_movement and self.boundary_bc != 'fixed':
+        if plot_boundary_movement and self.boundary_bc not in ['fixed', 'periodic']:
             # a 4x4 box (counterclockwise)
             if len(self.reference_boundary_adhesions) == 0:
                 initial_box_x = [-89.96192087, -89.96192087, 149.61295261, 149.61295261, -89.96192087]
@@ -3490,7 +3688,6 @@ class Epithelium(object):
             plt.plot(current_box_x, current_box_y, '-', color='k')
             plt.plot(initial_box_x, initial_box_y, '--', color='gray')
 
-
     class OOMFormatter(matplotlib.ticker.ScalarFormatter):
         """ """
 
@@ -3514,7 +3711,6 @@ class Epithelium(object):
             if self._useMathText:
                 self.format = r'$\mathdefault{%s}$' % self.format
 
-
     @staticmethod
     def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=1000):
         """Truncate a colourmap between 2 values
@@ -3535,7 +3731,6 @@ class Epithelium(object):
             'trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
             cmap(np.linspace(minval, maxval, n)))
         return new_cmap
-
 
     @staticmethod
     def rotate_curve_about_line(x, y, m, c=None):
@@ -3562,7 +3757,6 @@ class Epithelium(object):
 
         return (x_, y_)
 
-
     @staticmethod
     def get_indices_to_order_anticlockwise(points, centroid=None):
         """Order a given set of points anticlockwise, centroid calculated from points if not given
@@ -3583,7 +3777,20 @@ class Epithelium(object):
 
         return index_list
 
+    @staticmethod
+    def build_strain_tensor(stretch: float = 0, shear: float = 1):
 
+        strain = np.array([[1, 0], [0, 1]])
+
+        # isotropic
+        strain = strain + np.array([[stretch, 0], [0, stretch]])
+
+        # Shear
+        strain = strain + np.array([[0, 0.5 * shear], [0.5 * shear, 0]])
+        # strain = strain + np.array([[0, shear], [0, 0]])
+        # strain = strain + np.array([[0, 0], [shear, 0]])
+
+        return strain
 
 #
 #
