@@ -261,50 +261,59 @@ class Cell(object):
         self.adhesion_tree = None
         self.adhesion_polygon = None
 
-    def update_reference_configuration(self):
-        """Update the Lagrangian coordinate S_0 to the current configuration from the stretches and prestretches.
+    def update_reference_configuration(self, dt: float = None):
+        """
+        Update the Lagrangian coordinate S_0 to the current configuration from the stretches and prestretches.
          If the cortex is purely viscous (cortical_turnover_time = 0):
          S_0 <- s = S_0 * stretch * prestretch
 
          If the cortex is viscoelastic (cortical_turnover_time > 0), we have the rule
          \dot{dS_0) = (ds - dS_0) / cortical_turnover_time
-                    = (stretch * prestretch * dS_0 - dS_0) / cortical_turnover_time
+                    = (dt / cortical_turnover_time) * dS_0 * (stretch * prestretch - 1)
 
          such that
 
-         S0_i^t+1 = ((S0_i+1^t - S0_i^t) * ( 1 + (( stretch * prestretch - 1)) / cortical_turnover_time) + S0_i^t
+         S0_i^t+1 = ((S0_i+1^t - S0_i^t) * ( 1 + (( stretch * prestretch - 1))) * (dt / cortical_turnover_time) + S0_i^t
+
+        :param dt:  (Default value = None)  length of time to step forward, dt, if viscoelastic cortex
+                    (active when cortical_timescale > 0)
+        :type dt: float
 
         """
 
         self.verboseprint(f'updating reference length for cell {self.identifier}', object(), 1)
 
-        # No turnover in elastic cortex.
+        # No turnover in elastic cortex (infinite turnover time)
         if np.isfinite(self.cortical_turnover_time):
-            return
 
-        # Calculate the prestretches
-        prestrains = self.get_prestrains()
-        # Current undeformed segment lengths
-        ds = np.diff(self.s)
+            # Calculate the prestretches
+            prestrains = self.get_prestrains()
+            # Current undeformed segment lengths
+            ds = np.diff(self.s)
 
-        # Update S_0
-        # If purely viscous
-        if self.cortical_turnover_time == 0:
-            for idx in range(self.s.size - 1):
-                self.s[idx + 1] = self.gamma[idx] * prestrains[idx] * ds[idx] + self.s[idx]
-        # If viscoelastic
-        else:
-            for idx in range(self.s.size - 1):
-                self.s[idx + 1] = ds[idx] * (
-                        1 + ((self.gamma[idx] * prestrains[idx] - 1) / self.cortical_turnover_time)) \
-                                  + self.s[idx]
+            # Update S_0
+            # If purely viscous
+            if self.cortical_turnover_time == 0:
+                for idx in range(self.s.size - 1):
+                    self.s[idx + 1] = self.gamma[idx] * prestrains[idx] * ds[idx] + self.s[idx]
+            # If viscoelastic
+            else:
+                # Confirm that a timestep was set
+                if dt is None:
+                    warnings.warn("timestep, dt, in cortex relaxation is None. Setting to cortical_turnover_time")
+                    dt = self.cortical_turnover_time
 
-        # Reset the rest length and integration domain
-        self.rest_len = self.s[-1] - self.s[0]
-        self.domain = (self.s[0], self.s[-1])
+                for idx in range(self.s.size - 1):
+                    self.s[idx + 1] = ds[idx] * (
+                            1 + ((self.gamma[idx] * prestrains[idx] - 1) * (dt / self.cortical_turnover_time))) \
+                                      + self.s[idx]
 
-        # self.get_mesh_spacing()
-        self.update_deformed_mesh_spacing()
+            # Reset the rest length and integration domain
+            self.rest_len = self.s[-1] - self.s[0]
+            self.domain = (self.s[0], self.s[-1])
+
+            # self.get_mesh_spacing()
+            self.update_deformed_mesh_spacing()
 
     def update_adhesion_points(self, points, ids, spacing):
         """Store points that fast adhesions can adhere to.
@@ -795,8 +804,9 @@ class Cell(object):
             e = length - self.sdk_restlen if length < self.max_adhesion_length else 0
             force = self.sdk_stiffness * e
 
-            force_acting = [direction[0] * force * self.deformed_mesh_spacing[local_idx],
-                            direction[1] * force * self.deformed_mesh_spacing[local_idx]]
+            spacing_at_other_end = ad[3]
+            force_acting = [direction[0] * force * self.deformed_mesh_spacing[local_idx] * spacing_at_other_end,
+                            direction[1] * force * self.deformed_mesh_spacing[local_idx] * spacing_at_other_end]
 
             force_vector[local_idx, 0] += force_acting[0]  # * self.mesh_spacing[local_idx]
             force_vector[local_idx, 1] += force_acting[1]  # * self.mesh_spacing[local_idx]
@@ -2393,6 +2403,11 @@ class Cell(object):
         elif sim_type == 'whole':
             max_pressure = 4e-3  # For whole cells
             p_axis_scale = 1e1  # 2000
+        elif sim_type == 'medial':
+            max_pressure = 2e-3
+            p_axis_scale = 6e3
+        else:
+            raise NotImplementedError
         default_cmap = plt.get_cmap('RdBu')
         #
         # Truncate the colourmap to use lighter colours

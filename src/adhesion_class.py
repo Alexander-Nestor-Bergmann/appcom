@@ -57,19 +57,19 @@ class Adhesion(object):
         self.cell_1_s = self.cell_1.s[self.cell_1_index]
         self.cell_2_s = self.cell_2.s[self.cell_2_index]
 
-    def cell_index_by_id(self, id):
+    def cell_index_by_id(self, cell_id):
         """ Get the local index on a cortex that the adhesion is attached to.
 
-        :param id: The identity of the cell to look on.
-        :type id: string
+        :param cell_id: The identity of the cell to look on.
+        :type cell_id: string
         :return: The local index that the adhesion is connected to for the given cell.
         :rtype: string
 
         """
-        if id == self.cell_1.identifier:
+        if cell_id == self.cell_1.identifier:
             # return self.cell_1.s_index_dict[self.cell_1_s]
             return self.cell_1_index
-        elif id == self.cell_2.identifier:
+        elif cell_id == self.cell_2.identifier:
             # return self.cell_2.s_index_dict[self.cell_2_s]
             return self.cell_2_index
         else:

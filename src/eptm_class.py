@@ -99,6 +99,8 @@ class Epithelium(object):
 
         ############### Solving parameters
 
+        self.age: float = 0
+
         self.last_num_internal_relaxes: int = eptm_kwargs.get('last_num_internal_relaxes', 0)
         self.total_elastic_relaxes: int = 0
         self.relax_dist_threshold: float = eptm_kwargs.get('relax_dist_threshold', .1)
@@ -137,7 +139,7 @@ class Epithelium(object):
         if self.within_hexagons:
             self.set_adhesion_to_fixed_line_bool(True)
             self.update_adhesion_points_between_all_cortices()
-            self.update_all_rest_lengths_and_areas()
+            self.update_all_rest_lengths_and_areas(dt=0)
 
     def __getstate__(self):
         return vars(self)
@@ -171,9 +173,11 @@ class Epithelium(object):
         :type verbose:  bool
 
         """
-        for cell in self.cells:
-            cell.verbose = verbose
-        self._verbose = verbose
+        if hasattr(self, 'cells'):
+            if self.cells is not None:
+                for cell in self.cells:
+                    cell.verbose = verbose
+                self._verbose = verbose
 
     @property
     def adhesion_timescale(self):
@@ -368,11 +372,13 @@ class Epithelium(object):
         for cell in self.cells:
             cell.sdk_restlen = rest_len
 
-    def update_all_rest_lengths_and_areas(self, apply_to='all'):
+    def update_all_rest_lengths_and_areas(self, apply_to: str = 'all', dt: float = None):
         """Update the rest lengths, S_0 <- s, and areas of specified cortices under viscous model
 
         :param apply_to:  (Default value = 'all')  If not ``'all'``, a list of cell identifiers that the function will be applied to.
         :type apply_to: list
+        :param dt:  (Default value = cortex_timestep)  Discretised time to move forward.
+        :type dt: float
 
         """
 
@@ -380,25 +386,27 @@ class Epithelium(object):
 
         apply_to = [c.identifier for c in self.cells] if apply_to == "all" else apply_to
 
-        self.update_all_rest_lengths(apply_to=apply_to)
+        self.update_all_rest_lengths(apply_to=apply_to, dt=dt)
         self.update_pref_areas(apply_to=apply_to)
 
         # If we have slow or sidekick adhesions, the s coordinates need to be updated to their new values after
         # the viscous update.
         for ad in self.slow_adhesions:
             ad.update_s_by_local_cell_indices()
-            ad.age += 1
+            ad.age += dt
         for ad in self.sidekick_adhesions:
             ad.update_s_by_local_cell_indices()
 
         if self.use_mesh_coarsening or self.use_mesh_refinement:
             self.remesh_all_cortices(coarsen=self.use_mesh_coarsening, refine=self.use_mesh_refinement)
 
-    def update_all_rest_lengths(self, apply_to='all'):
+    def update_all_rest_lengths(self, apply_to: str = 'all', dt: float = None):
         """Update the rest lengths, S_0 <- s, of specified cortices under viscous model
 
         :param apply_to:  (Default value = 'all')  If not ``'all'``, a list of cell identifiers that the function will be applied to.
         :type apply_to: list
+        :param dt:  (Default value = cortex_timestep)  Discretised time to move forward.
+        :type dt: float
 
         """
         self.verboseprint("Updating all rest lengths", object(), 1)
@@ -407,7 +415,7 @@ class Epithelium(object):
 
         # Reset lengths
         for cell_ref in apply_to:
-            self.cellDict[cell_ref].update_reference_configuration()
+            self.cellDict[cell_ref].update_reference_configuration(dt=dt)
 
     def update_pref_areas(self, area=None, apply_to='all'):
         """Update the preferred area of specified cells \todo make this a cell method.
@@ -653,26 +661,34 @@ class Epithelium(object):
         if not unipolar:
             self.cellDict[cell_pair[1]].prestrain_dict[cell_pair[0]] = prestretch
 
-    def run_simulation_timestep(self, apply_to='all', viscous_cells='all'):
+    def run_simulation_timestep(self, apply_to: list = None, viscous_cells: list = None, dt: float = None):
         """Run a full simulation timestep, including viscous length updates and solving to equilibrium.
 
         :param apply_to:  (Default value = 'all')  List of cells to apply function to.
         :type apply_to: list
         :param viscous_cells:  (Default value = 'all')  List of cells that will have length and area updates.
-        :type apply_to: list
+        :type viscous_cells: list
+        :param dt:  (Default value = None)  length of time to step forward, if viscoelastic cortex
+                    (active when cortical_timescale > 0)
+        :type dt: float
 
         """
+        apply_to = 'all' if apply_to is None else apply_to
+        viscous_cells = 'all' if viscous_cells is None else viscous_cells
+
         # Update adhesions
         self.update_adhesion_points_between_all_cortices(apply_to=apply_to)
         # Update slow adhesions
         self.update_slow_adhesions(prune=True)
         # Viscous update
-        self.update_all_rest_lengths_and_areas(apply_to=viscous_cells)
+        self.update_all_rest_lengths_and_areas(apply_to=viscous_cells, dt=dt)
         # Relax
         if self.boundary_bc == 'periodic':
             self.relax_periodic_tissue()
         else:
             self.solve_bvps_in_parallel(applyTo=apply_to)
+
+        self.age = self.age + dt if (hasattr(self, 'age') and self.age is not None) else dt
 
     def solve_bvps_in_series(self, applyTo='all'):
         """Solve the bvp for each cell in series to reach elastic equilibrium. \todo haven't tested this functionality
@@ -1792,6 +1808,20 @@ class Epithelium(object):
 
         self.slow_adhesions = [ad for ad in self.slow_adhesions if ad.get_length() < max_length]
 
+    def update_adhesion_stiffness_for_cells(self, new_omega: float, apply_to: list = None):
+        """
+        Sets adhesion stiffness for the list of given cell id's
+
+        :param new_omega: The new stiffness.
+        :type apply_to: float
+        :param apply_to: (Default value = 'all')  If given, a list of cell identifiers that the function will be applied to.
+        :type apply_to: list
+        :return: None
+        """
+        apply_to = [c.identifier for c in self.cells] if apply_to is None else apply_to
+        for c_id in apply_to:
+            self.cellDict[c_id].omega0 = new_omega
+
     def update_slow_adhesions(self, prune=False, apply_to='all'):
         """Update the slow adhesions in the tissue and then store in every cell
         To save memory, slow adhesions are stored in Cell class as:
@@ -1962,6 +1992,11 @@ class Epithelium(object):
                                                         average_lifespan=np.inf,
                                                         adhesion_type='sidekick'))
 
+            # Reset rest lengths
+            average_len = np.median([ad.get_length() for ad in self.sidekick_adhesions])
+            for cell in self.cells:
+                cell.sdk_restlen = average_len
+
         for cell in self.cells:
             cell.sidekick_adhesions = []
         # Add the adhesions to cells.
@@ -1970,11 +2005,13 @@ class Epithelium(object):
             if ad.cell_1.identifier in apply_to:
                 # ad.cell_1.sidekick_adhesions.append(ad)
                 xy_nabo = ad.get_xy_at_other_end(ad.cell_1.identifier)
-                ad.cell_1.sidekick_adhesions.append([ad.cell_1_index, xy_nabo[0], xy_nabo[1]])
+                ad.cell_1.sidekick_adhesions.append([ad.cell_1_index, xy_nabo[0], xy_nabo[1],
+                                                     ad.get_spacing_at_other_end(ad.cell_1.identifier)])
             if ad.cell_2.identifier in apply_to:
                 # ad.cell_2.sidekick_adhesions.append(ad)
                 xy_nabo = ad.get_xy_at_other_end(ad.cell_2.identifier)
-                ad.cell_2.sidekick_adhesions.append([ad.cell_2_index, xy_nabo[0], xy_nabo[1]])
+                ad.cell_2.sidekick_adhesions.append([ad.cell_2_index, xy_nabo[0], xy_nabo[1],
+                                                     ad.get_spacing_at_other_end(ad.cell_2.identifier)])
 
     def update_fast_adhesions(self, build_trees=True, apply_to='all'):
         """Updates the population of fast turnover adhesions, tau_ad < tau_cortex
@@ -3545,14 +3582,18 @@ class Epithelium(object):
 
         # Figure out what type of simulation we did
         if sim_type == 'auto':
-            max_prestrain_refs = max([len([pval for pval in c.prestrain_dict.values() if pval < 0.9995])
-                                      for c in self.cells])
-            if max_prestrain_refs < 2:
-                sim_type = 'single'
-            elif max_prestrain_refs < len(self.cells):
-                sim_type = 'cable'
+            nonzero_pressures = [c.pressure != 0 for c in self.cells]
+            if any(nonzero_pressures):
+                sim_type = 'medial'
             else:
-                sim_type = 'whole'
+                max_prestrain_refs = max([len([pval for pval in c.prestrain_dict.values() if pval < 0.9995])
+                                          for c in self.cells])
+                if max_prestrain_refs < 2:
+                    sim_type = 'single'
+                elif max_prestrain_refs < len(self.cells):
+                    sim_type = 'cable'
+                else:
+                    sim_type = 'whole'
 
         if len(cell_ids) == 0:
             cell_ids = [c.identifier for c in self.cells]
@@ -3572,6 +3613,8 @@ class Epithelium(object):
                 max_pressure = 1.2e-3 / 1  # For cables
             elif sim_type == 'whole':
                 max_pressure = 4e-3  # For whole cells
+            elif sim_type == 'medial':
+                max_pressure = 2e-3
             else:
                 raise NotImplementedError
 
