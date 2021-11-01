@@ -1,4 +1,4 @@
-# AppCoM: an **App**osed-**Co**rtex **M**odel of an epithelial tissue.
+# ACAM: an **A**pposed-**C**ortex **A**dhesion **M**odel of an epithelial tissue.
 
 ![AppCoM](docs/Figures/simulation.gif)
 
@@ -14,7 +14,7 @@ The `AppCoM` library is an implementation of a mechanical model of an active epi
 
 #### How is the cell cortex represented?
 
-Each cell cortex in the **App**osed-**Co**rtex **M**odel is represented as an active, continuum morphoelastic rod with resistance to bending and extension.  By explicitly considering both cortices along bicellular junctions, the model is able to replicate important cell behaviours that are not captured in many existing models e.g. cell-cell shearing and material flow around cell vertices.
+Each cell cortex in ACAM is represented as an active, continuum morphoelastic rod with resistance to bending and extension.  By explicitly considering both cortices along bicellular junctions, the model is able to replicate important cell behaviours that are not captured in many existing models e.g. cell-cell shearing and material flow around cell vertices.
 
 #### How are adhesions represented?
 
