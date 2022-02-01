@@ -393,7 +393,6 @@ class Epithelium(object):
         # the viscous update.
         for ad in self.slow_adhesions:
             ad.update_s_by_local_cell_indices()
-            ad.age += dt
         for ad in self.sidekick_adhesions:
             ad.update_s_by_local_cell_indices()
 
@@ -688,7 +687,11 @@ class Epithelium(object):
         else:
             self.solve_bvps_in_parallel(applyTo=apply_to)
 
+        # Increase tissue age
         self.age = self.age + dt if (hasattr(self, 'age') and self.age is not None) else dt
+        # And age of adhesions
+        for ad in self.slow_adhesions:
+            ad.age += dt
 
     def solve_bvps_in_series(self, applyTo='all'):
         """Solve the bvp for each cell in series to reach elastic equilibrium. \todo haven't tested this functionality
