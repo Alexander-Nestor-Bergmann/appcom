@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Author  : Alexander Nestor-Bergmann
+# Author  : Alexander Nestor-Bergmann  Modifié
 # Released: 08/03/2021
 # =============================================================================
 """Implementation of a class to represent an epithelial tissue comprised of cell cortices and adhesions."""
@@ -99,8 +99,6 @@ class Epithelium(object):
 
         ############### Solving parameters
 
-        self.age: float = 0
-
         self.last_num_internal_relaxes: int = eptm_kwargs.get('last_num_internal_relaxes', 0)
         self.total_elastic_relaxes: int = 0
         self.relax_dist_threshold: float = eptm_kwargs.get('relax_dist_threshold', .1)
@@ -112,6 +110,17 @@ class Epithelium(object):
 
         self.use_mesh_coarsening: bool = eptm_kwargs.get('use_mesh_coarsening', False)
         self.use_mesh_refinement: bool = eptm_kwargs.get('use_mesh_refinement', False)
+
+        ############### Specific parameters for periodic case
+        self.m1: float = eptm_kwargs.get('m1', 1.0)
+        self.m2: float = eptm_kwargs.get('m2', 1.0)
+        self.maximum_number_of_steps: int = eptm_kwargs.get('maximum_number_of_steps', 1)
+        self.ratio: float = eptm_kwargs.get('ratio', 0.5)
+        self.trans: tuple = eptm_kwargs.get('trans', [0, 0])
+        self.tile_type: str = eptm_kwargs.get('Parallelogram')  # Parallelogram or Rohmbus
+        self.phi: float = eptm_kwargs.get('phi in degrees', 30.0)
+        self.name: str = eptm_kwargs.get('name of file', 'sim_4_1')
+        # self.initial_parallelogram:tuple=eptm_kwargs.get('intial parallelogram', (1,2))
 
         ############## Adhesion properties
 
@@ -139,7 +148,7 @@ class Epithelium(object):
         if self.within_hexagons:
             self.set_adhesion_to_fixed_line_bool(True)
             self.update_adhesion_points_between_all_cortices()
-            self.update_all_rest_lengths_and_areas(dt=0)
+            self.update_all_rest_lengths_and_areas()
 
     def __getstate__(self):
         return vars(self)
@@ -173,11 +182,9 @@ class Epithelium(object):
         :type verbose:  bool
 
         """
-        if hasattr(self, 'cells'):
-            if self.cells is not None:
-                for cell in self.cells:
-                    cell.verbose = verbose
-                self._verbose = verbose
+        for cell in self.cells:
+            cell.verbose = verbose
+        self._verbose = verbose
 
     @property
     def adhesion_timescale(self):
@@ -372,13 +379,11 @@ class Epithelium(object):
         for cell in self.cells:
             cell.sdk_restlen = rest_len
 
-    def update_all_rest_lengths_and_areas(self, apply_to: str = 'all', dt: float = None):
+    def update_all_rest_lengths_and_areas(self, apply_to='all'):
         """Update the rest lengths, S_0 <- s, and areas of specified cortices under viscous model
 
         :param apply_to:  (Default value = 'all')  If not ``'all'``, a list of cell identifiers that the function will be applied to.
         :type apply_to: list
-        :param dt:  (Default value = cortex_timestep)  Discretised time to move forward.
-        :type dt: float
 
         """
 
@@ -386,27 +391,25 @@ class Epithelium(object):
 
         apply_to = [c.identifier for c in self.cells] if apply_to == "all" else apply_to
 
-        self.update_all_rest_lengths(apply_to=apply_to, dt=dt)
+        self.update_all_rest_lengths(apply_to=apply_to)
         self.update_pref_areas(apply_to=apply_to)
 
         # If we have slow or sidekick adhesions, the s coordinates need to be updated to their new values after
         # the viscous update.
         for ad in self.slow_adhesions:
             ad.update_s_by_local_cell_indices()
-            ad.age += dt
+            ad.age += 1
         for ad in self.sidekick_adhesions:
             ad.update_s_by_local_cell_indices()
 
         if self.use_mesh_coarsening or self.use_mesh_refinement:
             self.remesh_all_cortices(coarsen=self.use_mesh_coarsening, refine=self.use_mesh_refinement)
 
-    def update_all_rest_lengths(self, apply_to: str = 'all', dt: float = None):
+    def update_all_rest_lengths(self, apply_to='all'):
         """Update the rest lengths, S_0 <- s, of specified cortices under viscous model
 
         :param apply_to:  (Default value = 'all')  If not ``'all'``, a list of cell identifiers that the function will be applied to.
         :type apply_to: list
-        :param dt:  (Default value = cortex_timestep)  Discretised time to move forward.
-        :type dt: float
 
         """
         self.verboseprint("Updating all rest lengths", object(), 1)
@@ -415,7 +418,8 @@ class Epithelium(object):
 
         # Reset lengths
         for cell_ref in apply_to:
-            self.cellDict[cell_ref].update_reference_configuration(dt=dt)
+            if self.cellDict[cell_ref].cortical_turnover_time != np.inf:
+                self.cellDict[cell_ref].update_reference_configuration()
 
     def update_pref_areas(self, area=None, apply_to='all'):
         """Update the preferred area of specified cells \todo make this a cell method.
@@ -661,34 +665,68 @@ class Epithelium(object):
         if not unipolar:
             self.cellDict[cell_pair[1]].prestrain_dict[cell_pair[0]] = prestretch
 
-    def run_simulation_timestep(self, apply_to: list = None, viscous_cells: list = None, dt: float = None):
+    def run_simulation_timestep(self, step_num: int = 0, apply_to='all', viscous_cells='all'):
         """Run a full simulation timestep, including viscous length updates and solving to equilibrium.
 
         :param apply_to:  (Default value = 'all')  List of cells to apply function to.
         :type apply_to: list
         :param viscous_cells:  (Default value = 'all')  List of cells that will have length and area updates.
-        :type viscous_cells: list
-        :param dt:  (Default value = None)  length of time to step forward, if viscoelastic cortex
-                    (active when cortical_timescale > 0)
-        :type dt: float
+        :type apply_to: list
+        :param step_num:  current number of simulation step.
+        :type step_num: int
 
         """
-        apply_to = 'all' if apply_to is None else apply_to
-        viscous_cells = 'all' if viscous_cells is None else viscous_cells
+        SAVE_DIR = os.getcwd()
+        SAVE_DIR = '/'.join([SAVE_DIR, self.name])
+
+        Adhesion_Energy_before = []
+        for ad in self.slow_adhesions:
+            x1 = self.cells[0].x
+            y1 = self.cells[0].y
+            f = ad.get_energy_magnitude(cell_id_for_new_xy='1', new_xy=(x1, y1))
+            # print(f"This ad {ad} has this energy {f}")
+            Adhesion_Energy_before.append(f)
 
         # Update adhesions
         self.update_adhesion_points_between_all_cortices(apply_to=apply_to)
         # Update slow adhesions
         self.update_slow_adhesions(prune=True)
         # Viscous update
-        self.update_all_rest_lengths_and_areas(apply_to=viscous_cells, dt=dt)
+        self.update_all_rest_lengths_and_areas(apply_to=viscous_cells)
         # Relax
+        Adhesion_Energy_after = []
+        for ad in self.slow_adhesions:
+            x1 = self.cells[0].x
+            y1 = self.cells[0].y
+            f = ad.get_energy_magnitude(cell_id_for_new_xy='1', new_xy=(x1, y1))
+            # print(f"This ad {ad} has this energy after {f}")
+            Adhesion_Energy_after.append(f)
+        with open(os.path.join(SAVE_DIR, f'Pointeur_adhesion_{self.name}_avant_relaxation'), "a") as result_file:
+            result_file.write(f"########################## Step {step_num}#########################" + "\n")
+            for i in range(len(Adhesion_Energy_after)):
+                if Adhesion_Energy_after[i] > Adhesion_Energy_before[i]:
+                    print(f"Warnings this ad {i} had bigger energy")
+                    result_file.write(f"Warnings this ad {i} had bigger energy" + "\n")
+            result_file.write(f"########################## Step {step_num}#########################" + "\n")
+
         if self.boundary_bc == 'periodic':
-            self.relax_periodic_tissue()
+            T = self.relax_periodic_tissue(step_num=step_num)
         else:
             self.solve_bvps_in_parallel(applyTo=apply_to)
+        return T
 
-        self.age = self.age + dt if (hasattr(self, 'age') and self.age is not None) else dt
+    def time_travel(self):
+        """For some reason the solveur didn't converge we want to time travel 5 steps before the problematic step and begins from this point
+
+        :param applyTo:  (Default value = 'all')  Which cells to apply the function to.
+        :type applyTo: list
+
+        """
+
+    def Do_a_white_relaxation(self):
+        # build a white strain tensor
+        white_strain = np.array([[1, 0], [0, 1]])
+        deform_periodic_boundary(white_strain)
 
     def solve_bvps_in_series(self, applyTo='all'):
         """Solve the bvp for each cell in series to reach elastic equilibrium. \todo haven't tested this functionality
@@ -724,7 +762,7 @@ class Epithelium(object):
 
         self.total_elastic_relaxes += 1
 
-    def solve_bvps_in_parallel(self, applyTo="all", smoothing=0, hand_of_god=True):
+    def solve_bvps_in_parallel(self, applyTo="all", smoothing=0, hand_of_god=True, apply_to='all', viscous_cells='all'):
         """Use joblib to solve the bvp for all cortices and reach tissue elastic equilibrium
 
         :param applyTo:  (Default value = "all")  Which cells to apply the function to.
@@ -746,20 +784,45 @@ class Epithelium(object):
 
         done = False  # This will only pass when the number of nodes has stayed constant.
         success = True  # Returns this bools as a check of whether we were successful within max_relaxes
+        self.dist_normList = []
+        E = [1, 1, 1, 1]
+        T = []
+        if self.step != 0:
+            E = self.cells[0].integrate_all_energies()
+        SAVE_DIR = os.getcwd()
+        SAVE_DIR = '/'.join([SAVE_DIR, self.name])
+
+        for e in E:
+            T.append(e)
+        with open(os.path.join(SAVE_DIR, f'Energie_{self.name}_avant_relaxation'), "a") as result_file:
+            result_file.write(str(T[0]) + ";" + str(T[1]) + ";" + str(T[2]) + ";" + str(T[3]) + "\n")
 
         counter = 0
         while not done:
 
             # Get old positions before we do anything
-            old_xs = np.array([c.x[i] for c in cells_to_relax for i in range(c.x.size)])
-            old_ys = np.array([c.y[i] for c in cells_to_relax for i in range(c.y.size)])
+            self.old_xs = np.array([c.x[i] for c in cells_to_relax for i in range(c.x.size)])
+            self.old_ys = np.array([c.y[i] for c in cells_to_relax for i in range(c.y.size)])
 
             self.update_adhesion_points_between_all_cortices(only_fast=False, build_trees=True)
             if self.boundary_bc in ['elastic', 'viscous']:
                 boundary_success = self.relax_deformable_boundary(update_adhesions=False)
                 self.update_adhesion_points_between_all_cortices(only_fast=False, build_trees=True)
+            elif self.boundary_bc == 'periodic':
+                self.update_slow_adhesions(prune=False)
+                boundary_success = True
             else:
                 boundary_success = True
+
+            # ER = [1, 1, 1, 1]
+            # TR = []
+            # if self.step != 0:
+            #     ER = self.cells[0].integrate_all_energies()
+            # SAVE_DIR = os.getcwd()
+            # for e in ER:
+            #     TR.append(e)
+            # with open(os.path.join(SAVE_DIR, 'ratio_sqrt(2)ad_len_12_0_ad_0_c_apres_relaxation'), "a") as result_file:
+            #     result_file.write(str(TR[0]) + ";" + str(TR[1]) + ";" + str(TR[2]) + ";" + str(TR[3]) + "\n")
 
             # Fix min distances to delta
             if hand_of_god:
@@ -775,10 +838,14 @@ class Epithelium(object):
             # Check if we are moving too far.
             # Calculate the distances that the cortex has moved.
             distances = np.linalg.norm(
-                [np.concatenate(results[:, 3]).ravel() - old_xs, np.concatenate(results[:, 4]).ravel() - old_ys],
+                [np.concatenate(results[:, 3]).ravel() - self.old_xs,
+                 np.concatenate(results[:, 4]).ravel() - self.old_ys],
                 axis=0)
             max_dist = np.max(distances)
             dist_norm = np.linalg.norm(distances) / len(self.cells)
+            self.dist_normList.append(dist_norm)
+            self.final_dist_norm = dist_norm
+
             # If any part of the cortex moved too far, slow it down.
             cutoff = self.delta * self.relax_dist_threshold
 
@@ -817,10 +884,12 @@ class Epithelium(object):
                 # if self.verbose:
                 print('Not yet in equilibrium (d_norm = %s). Have relaxed %s times' % (dist_norm, counter))
 
+
             # Or, if passed all checks, we are done.
             else:
                 done = True if not sols_fail_check else False
                 self.in_equilibrium = 1
+
             # If we have relaxed too many times, break out
             if counter > self.max_elastic_relax_steps:
                 done = True
@@ -1808,20 +1877,6 @@ class Epithelium(object):
 
         self.slow_adhesions = [ad for ad in self.slow_adhesions if ad.get_length() < max_length]
 
-    def update_adhesion_stiffness_for_cells(self, new_omega: float, apply_to: list = None):
-        """
-        Sets adhesion stiffness for the list of given cell id's
-
-        :param new_omega: The new stiffness.
-        :type apply_to: float
-        :param apply_to: (Default value = 'all')  If given, a list of cell identifiers that the function will be applied to.
-        :type apply_to: list
-        :return: None
-        """
-        apply_to = [c.identifier for c in self.cells] if apply_to is None else apply_to
-        for c_id in apply_to:
-            self.cellDict[c_id].omega0 = new_omega
-
     def update_slow_adhesions(self, prune=False, apply_to='all'):
         """Update the slow adhesions in the tissue and then store in every cell
         To save memory, slow adhesions are stored in Cell class as:
@@ -1899,7 +1954,7 @@ class Epithelium(object):
             all_identifiers.extend([self.boundary_cell.identifier] * self.boundary_cell.x.size)
             local_index.extend([i for i in self.boundary_cell.s])
 
-            tissue_tree = NearestNeighbors(radius=self.cells[0].max_adhesion_length,
+            tissue_tree = NearestNeighbors(radius=self.cells[0].max_adhesion_length * self.ratio,
                                            algorithm='auto', n_jobs=-1).fit(all_points)
             dists, indices = tissue_tree.radius_neighbors(all_points[:num_cell_nodes], sort_results=True)
 
@@ -1992,11 +2047,6 @@ class Epithelium(object):
                                                         average_lifespan=np.inf,
                                                         adhesion_type='sidekick'))
 
-            # Reset rest lengths
-            average_len = np.median([ad.get_length() for ad in self.sidekick_adhesions])
-            for cell in self.cells:
-                cell.sdk_restlen = average_len
-
         for cell in self.cells:
             cell.sidekick_adhesions = []
         # Add the adhesions to cells.
@@ -2005,13 +2055,11 @@ class Epithelium(object):
             if ad.cell_1.identifier in apply_to:
                 # ad.cell_1.sidekick_adhesions.append(ad)
                 xy_nabo = ad.get_xy_at_other_end(ad.cell_1.identifier)
-                ad.cell_1.sidekick_adhesions.append([ad.cell_1_index, xy_nabo[0], xy_nabo[1],
-                                                     ad.get_spacing_at_other_end(ad.cell_1.identifier)])
+                ad.cell_1.sidekick_adhesions.append([ad.cell_1_index, xy_nabo[0], xy_nabo[1]])
             if ad.cell_2.identifier in apply_to:
                 # ad.cell_2.sidekick_adhesions.append(ad)
                 xy_nabo = ad.get_xy_at_other_end(ad.cell_2.identifier)
-                ad.cell_2.sidekick_adhesions.append([ad.cell_2_index, xy_nabo[0], xy_nabo[1],
-                                                     ad.get_spacing_at_other_end(ad.cell_2.identifier)])
+                ad.cell_2.sidekick_adhesions.append([ad.cell_2_index, xy_nabo[0], xy_nabo[1]])
 
     def update_fast_adhesions(self, build_trees=True, apply_to='all'):
         """Updates the population of fast turnover adhesions, tau_ad < tau_cortex
@@ -2417,7 +2465,7 @@ class Epithelium(object):
     def create_single_cell_periodic_tissue_from_fitted_single_cell(self):
         """
         Builds a periodic tissue from a single cell within a stencil.  The stencil is removed  and the cell adheres
-        to itself within a rhombus or parallelogram.
+        to itself within tile, tile_type can be a Rhombus or Parallelogram.
         :return:
         """
         self.verboseprint("Creating a periodic eptm from cell A in hexagon", object(), 1)
@@ -2433,16 +2481,29 @@ class Epithelium(object):
         self.cells[0].x -= centroid[0]
         self.cells[0].y -= centroid[1]
         self.cells[0].constrain_centroid = True
-
         # Define the paralellogram control parameters: (v1, v2) where v1 and v2 are the vector projections of the two
         # edges from the centroid.
         max_x = self.radius * np.sin(2 * np.pi * 1 / 6)
         max_y = self.radius * np.cos(2 * np.pi * 0 / 6)
 
-        self.parallelogram = np.array([[max_x - 0.5 * self.cells[0].delta,
+        # self.tile = self.parallelogram
+
+        if self.tile_type == 'Parallelogram':
+            self.parallelogram = np.array([[max_x - 0.5 * self.cells[0].delta,
+                                            -(1.5 * max_y - self.cells[0].delta * np.sin(np.pi / 3))],
+                                           [max_x - 0.5 * self.cells[0].delta,
+                                            1.5 * max_y - self.cells[0].delta * np.sin(np.pi / 3)]])
+        if self.tile_type == 'Rhombus':
+            self.parallelogram = np.array([[0,
+                                            (1.5 * max_y - self.cells[0].delta * np.sin(np.pi / 3))],
+                                           [max_x - 0.5 * self.cells[0].delta,
+                                            0]])
+        """
+        self.parallelogram= np.array([[max_x - 0.5 * self.cells[0].delta,
                                         -(1.5 * max_y - self.cells[0].delta * np.sin(np.pi / 3))],
                                        [max_x - 0.5 * self.cells[0].delta,
-                                        1.5 * max_y - self.cells[0].delta * np.sin(np.pi / 3)]])
+                                        1.5 * max_y - self.cells[0].delta * np.sin(np.pi / 3)]])                              
+        """
 
         # Remove the boundary stencil
         self.boundary_adhesions = np.array([[], []])
@@ -2470,6 +2531,14 @@ class Epithelium(object):
 
         real_cell = self.cells[0]
         real_cell.update_deformed_mesh_spacing()
+
+        if self.tile_type == 'Parallelogram':
+            vec_combinisations = [(1, 1, 'B'), (0, 1, 'C'), (0, -1, 'F'), (-1, -1, 'E'), (-1, 0, 'D'), (1, 0, 'G')]
+            """
+        if self.tile_type == 'Rhombus':
+            vec_combinisations=[(0, 2, 'B'), (1, 1, 'C'), (-1, -1, 'F'), (0, -2, 'E'), (1, -1, 'D'), (-1, 1, 'G')]
+            """
+
         for vec_combo in [(1, 1, 'B'), (0, 1, 'C'), (0, -1, 'F'), (-1, -1, 'E'), (-1, 0, 'D'), (1, 0, 'G')]:
             x = real_cell.x + vec_combo[0] * self.parallelogram[0][0] + vec_combo[1] * self.parallelogram[1][0]
             y = real_cell.y + vec_combo[0] * self.parallelogram[0][1] + vec_combo[1] * self.parallelogram[1][1]
@@ -2494,17 +2563,43 @@ class Epithelium(object):
         """
         Deform the periodic boundary around the cell.
         :param strain_tensor: (2x2) matrix with strain components.
-        :return:
+        :return:Area of the new tile A and the corresponding Energy
         """
+        # max_x = self.radius * np.sin(2 * np.pi * 1 / 6)
+        # max_y = self.radius * np.cos(2 * np.pi * 0 / 6)
+        if self.tile_type == 'Rhombus':
+            self.parallelogram = np.array([[0,
+                                            self.parallelogram[1][1]],
+                                           [self.parallelogram[0][0],
+                                            0]])
         self.cells[0].x = self.cells[0].x * strain_tensor[0, 0] + self.cells[0].y * strain_tensor[0, 1]
         self.cells[0].y = self.cells[0].x * strain_tensor[1, 0] + self.cells[0].y * strain_tensor[1, 1]
 
-        new_v1 = np.dot(strain_tensor, self.parallelogram[0])
-        new_v2 = np.dot(strain_tensor, self.parallelogram[1])
+        new_v1 = np.dot(strain_tensor, self.initial_parallelogram[0])
+        new_v2 = np.dot(strain_tensor, self.initial_parallelogram[1])
+
+        A = np.linalg.norm(np.cross(new_v1, new_v2))
 
         self.parallelogram = np.array([new_v1, new_v2])
+        para = self.parallelogram
 
         self._rebuild_periodic_boundary()
+        # energy = self.cells[0].integrate_cortex_energy()
+
+        return A, para
+
+    def get_initial_area_and_energy(self):
+        """
+        Return the initial area and energy of cell.
+
+        :return: Area and Energy
+        """
+        new_a1 = self.parallelogram[0]
+        new_a2 = self.parallelogram[1]
+        A = np.linalg.norm(np.cross(new_a1, new_a2))
+        E = self.cells[0].integrate_all_energies()
+        total_energy_initial = E[4]
+        return A, total_energy_initial
 
     def _apply_deformation_relax_cortex_and_get_energy(self, stretch_shear):
         """
@@ -2512,6 +2607,7 @@ class Epithelium(object):
         :param stretch_shear:
         :return:
         """
+        # Not used anymore
 
         strain = self.build_strain_tensor(stretch=stretch_shear[0], shear=stretch_shear[1])
         self.deform_periodic_boundary(strain)
@@ -2520,72 +2616,86 @@ class Epithelium(object):
 
         return energy
 
-    def relax_periodic_tissue(self, upper_bound: float = 0.002, min_deformation: float = 1e-5, num_trials: int = 3,
-                              max_runs: int = 5, n_jobs: int = -1):
-        """Relaxes the parallelogram surrounding a tissue by minimising the energy.  Call a cortex relaxation
-        internally to get the energy."""
+    def get_angle_of_transformation(self):
+        return self.phi
 
-        # Make sure we are in equillibrium before minimising (else all minimisation will have to do this)
-        self.solve_bvps_in_parallel()
+    def get_initial_parallelogram(self):
+        self.initial_parallelogram = self.parallelogram
+        return self.initial_parallelogram
 
-        # Get pressure and shear to predict if compression or tension is needed.
-        # Note minus for pressure (since p_eff = - 1/2 trace(stress))
+    def set_a_first_transformation(self):
+        """
+        Get a uniform plan by step for the transformation
+        :param m1: lambda 1 multiplicator of the the stretch
+        :param m2: lambda 2 multiplicator of the the strain
+        :return:a vector with the Transformation steps
+        """
+
         cell_pressure = -self.cells[0].get_effective_pressure()
         cell_shear = self.cells[0].get_shear_stress()
+        trans = [self.m1 * abs(cell_pressure), self.m2 * abs(cell_shear)]
 
-        # From those, get bounds for deformation.
-        stretch_bound = min([2 * abs(cell_pressure), upper_bound])
-        shear_bound = min([2 * abs(cell_shear), upper_bound])
-        # Calculate stretches
-        stretches = np.linspace(0, np.sign(cell_pressure) * stretch_bound, num_trials)
-        stretches = [s for s in stretches if s < min_deformation]
-        shears = np.linspace(0, np.sign(cell_shear) * shear_bound, num_trials)
-        shears = [s for s in shears if s < min_deformation]
-        all_trails = list(itertools.product(stretches, shears))
+        return trans
 
-        # # We buckle under compression so reset the lower bound
-        # average_tension = (self.cells[0].gamma * self.cells[0].get_prestrains()).mean()
-        # lower_bound = max([lower_bound, average_tension - 1]) if average_tension < 1 else lower_bound
-        # bounds = (lower_bound, upper_bound)
-        #
-        # # Get the stretches and shears that we will try
-        # stretches = np.linspace(bounds[0], bounds[1], num_trials)
-        # shears = np.linspace(bounds[0], bounds[1], num_trials)
-        # all_trails = list(itertools.product(stretches, shears))
+    def get_transformation_for_this_step(self, sim_step: int = -1):
+        """
+        :param tans: trans from transformation plan initial value of Stretch and Shear
+        :param sim_step: number of simulation step
+        :param num_step: maximum number of simulation step
+        :param ratio: A ratio of m1>1 & m1<1
+        :return:In case of tile a transformation Stretch and Shear for this step
+                In case of Rhombus just return a Stretch for this step
+        """
+        stretch_step = 5e-4
+        shear_step = 1.5e-5
+        stretch = stretch_step * self.m1 * sim_step
+        shear = shear_step * self.m2 * sim_step
 
-        success = False
-        num_evals = 0
-        while not success:
-            # stretch_shear = np.array([0, 0])
-            # # max_minimisations: int = 1, max_nfev: int = 10
-            # # solution = minimize(self._apply_deformation_relax_cortex_and_get_energy, stretch_shear, args=(),
-            # #                     method='COBYLA', options={'rhobeg': 0.005, 'maxiter': max_nfev})
-            # solution = minimize(self._apply_deformation_relax_cortex_and_get_energy, stretch_shear, args=(),
-            #                     method='L-BFGS-B', bounds=((-0.01, 0.01), (-0.01, 0.01)),
-            #                     options={'maxfun': max_nfev})
-            # print(solution)
-            # stretch_shear = solution.x
-            #
-            # # Apply lots of deformations and see what minimises the energy
-            # energies = Parallel(n_jobs=n_jobs)(delayed(self._apply_deformation_relax_cortex_and_get_energy)(stretch_shear)
-            #                                    for stretch_shear in all_trails)
-            energies = []
-            for stretch_shear in all_trails:
-                energies.append(self._apply_deformation_relax_cortex_and_get_energy(stretch_shear))
-            min_energy_idx = np.argmin(energies)
+        new_strain_tensor, Rotation = self.build_strain_tensor(stretch, shear)
 
-            # Apply the minimising deformation
-            best_stretch_shears = all_trails[min_energy_idx]
-            strain = self.build_strain_tensor(stretch=best_stretch_shears[0], shear=best_stretch_shears[1])
-            self.deform_periodic_boundary(strain)
-            self.solve_bvps_in_parallel()
+        return stretch, shear, new_strain_tensor, Rotation
 
-            num_evals += 1
-            # success = (best_stretch_shears[0] not in bounds and best_stretch_shears[1] not in bounds)
-            success = abs(best_stretch_shears[0]) < stretch_bound and abs(best_stretch_shears[1]) < shear_bound
-            print('in bounds?', success, best_stretch_shears)
-            success = num_evals >= max_runs if not success else success
-            print('done solving?', success)
+    def relax_periodic_tissue(self, step_num: int = 0, upper_bound: float = 0.002, min_deformation: float = 1e-5,
+                              num_trials: int = 3, max_runs: int = 3, n_jobs: int = -1):
+        """Relaxes the tile surrounding a tissue by minimising the energy.  Call a cortex relaxation
+        internally to get the energy."""
+
+        self.step = step_num
+        if step_num == 0:
+            self.initial_parallelogram = self.parallelogram
+        # print(str(self.initial_parallelogram))
+        print('\nRami the angle in degrees  = : ' + str(self.phi))
+        R = []
+        new_energy = self.get_transformation_for_this_step(step_num)
+        new_strain_tensor = new_energy[2]
+        T, para = self.deform_periodic_boundary(new_strain_tensor)
+        R.append(T)
+        print('\nParallelogram' + ' :')
+        for i in para:
+            for j in i:
+                print(j, end=" ")
+            print()
+        print('\n Rami the strain Tensor is' + ' :')
+        for i in new_strain_tensor:
+            for j in i:
+                print(j, end=" ")
+            print()
+        print('\n initial Parallelogram' + ' :')
+        for i in self.initial_parallelogram:
+            for j in i:
+                print(j, end=" ")
+            print()
+        print('\n ############  Rami The Solve Begins after cloning  ############# ')
+        self.solve_bvps_in_parallel()
+        E = self.cells[0].integrate_all_energies()
+        for e in E:
+            R.append(e)
+        print('here R equals = :' + str(R))
+        print('New area' + ' :' + str(R[0]) + ' ' + 'and correspondant total Energy' + ' :' + str(R[4]))
+        R.append(self.m1)
+        R.append(self.m2)
+
+        return R
 
     def create_3_cell_eptm_from_fitted_single_cell(self):
         """Tissue with 3 cells enclosed in a stencil.  Need to start with a single cell in a hexagon.
@@ -3541,7 +3651,8 @@ class Epithelium(object):
 
     def plot_self(self, ax=None, axEqual=True, plotAdhesion=True, plot_stress=False, plot_shape=False,
                   plot_adhesion_forces=True, plot_boundary=True, cell_ids=None, lagrangian_tracking=False,
-                  plot_tension=False, plot_boundary_movement=True, plot_cbar=True, sim_type='auto', cell_kwargs=None):
+                  plot_tension=False, plot_boundary_movement=True, plot_cbar=True, plot_parallelogram=True,
+                  sim_type='auto', cell_kwargs=None):
         """Plot the tissue and the boundary.
 
         :param ax: (Default value = None)  Axis object to plot on.
@@ -3582,18 +3693,14 @@ class Epithelium(object):
 
         # Figure out what type of simulation we did
         if sim_type == 'auto':
-            nonzero_pressures = [c.pressure != 0 for c in self.cells]
-            if any(nonzero_pressures):
-                sim_type = 'medial'
+            max_prestrain_refs = max([len([pval for pval in c.prestrain_dict.values() if pval < 0.9995])
+                                      for c in self.cells])
+            if max_prestrain_refs < 2:
+                sim_type = 'single'
+            elif max_prestrain_refs < len(self.cells):
+                sim_type = 'cable'
             else:
-                max_prestrain_refs = max([len([pval for pval in c.prestrain_dict.values() if pval < 0.9995])
-                                          for c in self.cells])
-                if max_prestrain_refs < 2:
-                    sim_type = 'single'
-                elif max_prestrain_refs < len(self.cells):
-                    sim_type = 'cable'
-                else:
-                    sim_type = 'whole'
+                sim_type = 'whole'
 
         if len(cell_ids) == 0:
             cell_ids = [c.identifier for c in self.cells]
@@ -3613,8 +3720,6 @@ class Epithelium(object):
                 max_pressure = 1.2e-3 / 1  # For cables
             elif sim_type == 'whole':
                 max_pressure = 4e-3  # For whole cells
-            elif sim_type == 'medial':
-                max_pressure = 2e-3
             else:
                 raise NotImplementedError
 
@@ -3730,6 +3835,11 @@ class Epithelium(object):
 
             plt.plot(current_box_x, current_box_y, '-', color='k')
             plt.plot(initial_box_x, initial_box_y, '--', color='gray')
+        if plot_parallelogram and self.boundary_bc == 'periodic':
+            # plot the parallelogram control of the periodic boundary conditions
+            v1, v2 = self.parallelogram[0], self.parallelogram[1]
+            ax.quiver(0, 0, v1[0], v1[1], scale=1, scale_units='xy', zorder=10)
+            ax.quiver(0, 0, v2[0], v2[1], scale=1, scale_units='xy', zorder=10)
 
     class OOMFormatter(matplotlib.ticker.ScalarFormatter):
         """ """
@@ -3820,20 +3930,20 @@ class Epithelium(object):
 
         return index_list
 
-    @staticmethod
-    def build_strain_tensor(stretch: float = 0, shear: float = 1):
+    # @staticmethod
+    def build_strain_tensor(self, stretch: float = 0, shear: float = 1):
+        # transform the angle from degrees to radians
+        angle = self.phi * np.pi / 180
+        # print('Rami the angle in radians is : '+str(angle))
 
-        strain = np.array([[1, 0], [0, 1]])
-
-        # isotropic
-        strain = strain + np.array([[stretch, 0], [0, stretch]])
-
-        # Shear
-        strain = strain + np.array([[0, 0.5 * shear], [0.5 * shear, 0]])
-        # strain = strain + np.array([[0, shear], [0, 0]])
-        # strain = strain + np.array([[0, 0], [shear, 0]])
-
-        return strain
+        # strain = np.array([[0, 0], [0, 0]])#identity matrix
+        # isotropic Area
+        strain = np.array([[((1 + shear) * (1 + stretch)), 0], [0, ((1 + stretch) / (1 + shear))]])
+        # Shear with angle phi of transformation
+        # strain = strain + np.array([[0.5*shear*np.cos(2 * angle), 0.5*shear*np.sin(2 * angle)], [0.5*shear*np.sin(2 * angle), -0.5*shear*np.cos(2 * angle)]])
+        Rotation = np.array([[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]])
+        strain = np.linalg.inv(Rotation) * strain * Rotation
+        return strain, Rotation
 
 #
 #
