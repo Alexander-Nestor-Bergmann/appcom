@@ -57,19 +57,19 @@ class Adhesion(object):
         self.cell_1_s = self.cell_1.s[self.cell_1_index]
         self.cell_2_s = self.cell_2.s[self.cell_2_index]
 
-    def cell_index_by_id(self, cell_id):
+    def cell_index_by_id(self, id):
         """ Get the local index on a cortex that the adhesion is attached to.
 
-        :param cell_id: The identity of the cell to look on.
-        :type cell_id: string
+        :param id: The identity of the cell to look on.
+        :type id: string
         :return: The local index that the adhesion is connected to for the given cell.
         :rtype: string
 
         """
-        if cell_id == self.cell_1.identifier:
+        if id == self.cell_1.identifier:
             # return self.cell_1.s_index_dict[self.cell_1_s]
             return self.cell_1_index
-        elif cell_id == self.cell_2.identifier:
+        elif id == self.cell_2.identifier:
             # return self.cell_2.s_index_dict[self.cell_2_s]
             return self.cell_2_index
         else:
@@ -196,6 +196,24 @@ class Adhesion(object):
         #     raise ValueError('given cell does not belong to adhesion (should be cell id)')
 
         return force
+    def get_energy_magnitude(self, cell_id_for_new_xy='None', new_xy=(0, 0)):
+        """Force acting on adhesion
+
+        :param cell_id_for_new_xy:  (Default value = 'None')  Optional identifier for cell that we want to change the position of.
+        :type cell_id_for_new_xy: string
+        :param new_xy:  (Default value = (0, 0)  The new (x,y) position of the given cell.
+        :type new_xy: tuple
+        :return: The magnitude of (spring) force in the adhesion.
+        :rtype: float
+
+        """
+        # Get length first
+        length = self.get_length(cell_id_for_new_xy=cell_id_for_new_xy, new_xy=new_xy)
+
+        e = length - self.delta if length < self.max_bonding_length else 0
+        energy = self.omega * e**2
+
+        return energy
 
     def get_unit_direction(self, cell_id_for_new_xy='None', new_xy=(0, 0)):
         """Get a vector describing the direction of the adhesion
