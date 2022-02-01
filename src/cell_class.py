@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # =============================================================================
 # Author  : Alexander Nestor-Bergmann
@@ -261,59 +262,50 @@ class Cell(object):
         self.adhesion_tree = None
         self.adhesion_polygon = None
 
-    def update_reference_configuration(self, dt: float = None):
-        """
-        Update the Lagrangian coordinate S_0 to the current configuration from the stretches and prestretches.
+    def update_reference_configuration(self):
+        """Update the Lagrangian coordinate S_0 to the current configuration from the stretches and prestretches.
          If the cortex is purely viscous (cortical_turnover_time = 0):
          S_0 <- s = S_0 * stretch * prestretch
 
          If the cortex is viscoelastic (cortical_turnover_time > 0), we have the rule
          \dot{dS_0) = (ds - dS_0) / cortical_turnover_time
-                    = (dt / cortical_turnover_time) * dS_0 * (stretch * prestretch - 1)
+                    = (stretch * prestretch * dS_0 - dS_0) / cortical_turnover_time
 
          such that
 
-         S0_i^t+1 = ((S0_i+1^t - S0_i^t) * ( 1 + (( stretch * prestretch - 1))) * (dt / cortical_turnover_time) + S0_i^t
-
-        :param dt:  (Default value = None)  length of time to step forward, dt, if viscoelastic cortex
-                    (active when cortical_timescale > 0)
-        :type dt: float
+         S0_i^t+1 = ((S0_i+1^t - S0_i^t) * ( 1 + (( stretch * prestretch - 1)) / cortical_turnover_time) + S0_i^t
 
         """
 
         self.verboseprint(f'updating reference length for cell {self.identifier}', object(), 1)
 
-        # No turnover in elastic cortex (infinite turnover time)
+        # No turnover in elastic cortex.
         if np.isfinite(self.cortical_turnover_time):
+            return
 
-            # Calculate the prestretches
-            prestrains = self.get_prestrains()
-            # Current undeformed segment lengths
-            ds = np.diff(self.s)
+        # Calculate the prestretches
+        prestrains = self.get_prestrains()
+        # Current undeformed segment lengths
+        ds = np.diff(self.s)
 
-            # Update S_0
-            # If purely viscous
-            if self.cortical_turnover_time == 0:
-                for idx in range(self.s.size - 1):
-                    self.s[idx + 1] = self.gamma[idx] * prestrains[idx] * ds[idx] + self.s[idx]
-            # If viscoelastic
-            else:
-                # Confirm that a timestep was set
-                if dt is None:
-                    warnings.warn("timestep, dt, in cortex relaxation is None. Setting to cortical_turnover_time")
-                    dt = self.cortical_turnover_time
+        # Update S_0
+        # If purely viscous
+        if self.cortical_turnover_time == 0:
+            for idx in range(self.s.size - 1):
+                self.s[idx + 1] = self.gamma[idx] * prestrains[idx] * ds[idx] + self.s[idx]
+        # If viscoelastic
+        else:
+            for idx in range(self.s.size - 1):
+                self.s[idx + 1] = ds[idx] * (
+                        1 + ((self.gamma[idx] * prestrains[idx] - 1) / self.cortical_turnover_time)) \
+                                  + self.s[idx]
 
-                for idx in range(self.s.size - 1):
-                    self.s[idx + 1] = ds[idx] * (
-                            1 + ((self.gamma[idx] * prestrains[idx] - 1) * (dt / self.cortical_turnover_time))) \
-                                      + self.s[idx]
+        # Reset the rest length and integration domain
+        self.rest_len = self.s[-1] - self.s[0]
+        self.domain = (self.s[0], self.s[-1])
 
-            # Reset the rest length and integration domain
-            self.rest_len = self.s[-1] - self.s[0]
-            self.domain = (self.s[0], self.s[-1])
-
-            # self.get_mesh_spacing()
-            self.update_deformed_mesh_spacing()
+        # self.get_mesh_spacing()
+        self.update_deformed_mesh_spacing()
 
     def update_adhesion_points(self, points, ids, spacing):
         """Store points that fast adhesions can adhere to.
@@ -636,7 +628,7 @@ class Cell(object):
         :type is_intersection:  bool
         :return: The ``distances`` that the nodes have to the adhesion boundary, and the ``indices`` matching the output distances to the input nodes.
         :rtype: (list, list)
-        
+
         """
 
         # Get the lengths of the connections that were made.
@@ -724,7 +716,7 @@ class Cell(object):
         :type sort_by_distance:  bool
         :return: A list of the adhesion forces acting across the cortex.
         :rtype: np.array
-        
+
         """
 
         if x is None or y is None:
@@ -804,9 +796,8 @@ class Cell(object):
             e = length - self.sdk_restlen if length < self.max_adhesion_length else 0
             force = self.sdk_stiffness * e
 
-            spacing_at_other_end = ad[3]
-            force_acting = [direction[0] * force * self.deformed_mesh_spacing[local_idx] * spacing_at_other_end,
-                            direction[1] * force * self.deformed_mesh_spacing[local_idx] * spacing_at_other_end]
+            force_acting = [direction[0] * force * self.deformed_mesh_spacing[local_idx],
+                            direction[1] * force * self.deformed_mesh_spacing[local_idx]]
 
             force_vector[local_idx, 0] += force_acting[0]  # * self.mesh_spacing[local_idx]
             force_vector[local_idx, 1] += force_acting[1]  # * self.mesh_spacing[local_idx]
@@ -867,6 +858,67 @@ class Cell(object):
 
         return force_vector
 
+    # def get_integrand_of_adhesion(self):
+    #     local_idx = ad[0]
+    #     # Using the collocation method, the size of x changes. If it's too big, just use end value
+    #     local_idx = x.size - 1 if local_idx > x.size - 1 else local_idx
+    #     x_local, y_local = x[local_idx], y[local_idx]
+    #     # If it's a single cell in a periodic tissue, we hold the centroid at (0,0)
+    #     if self.constrain_centroid:
+    #         x_local -= np.mean(self.x)
+    #         y_local -= np.mean(self.y)
+    #     # Force and direction
+    #     dx, dy = ad[1] - x_local, ad[2] - y_local
+    #     direction = [dx, dy]
+    #     magnitude = np.sqrt(direction[0] ** 2 + direction[1] ** 2)
+    #     direction[0] /= magnitude
+    #     direction[1] /= magnitude
+    #     other_mesh_spacing = ad[3]
+    #
+    #     length = np.sqrt(dx * dx + dy * dy)
+
+    def get_adhesion_energy_list(self, x=None, y=None):
+        Ad_Energy_per_element_of_mesh_list = []
+        Ad_Energy_spacing_list = []
+        x = self.x if x is None else x
+        y = self.y if y is None else y
+        # Update mesh spacing for scaling
+        self.update_deformed_mesh_spacing(x, y)
+        for ad in self.slow_adhesions:
+            # Slow adhesion data format = (local_cell_index, other_cell_x, other_cell_y, other_cell_spacing)
+            local_idx = ad[0]
+            # Using the collocation method, the size of x changes. If it's too big, just use end value
+            local_idx = x.size - 1 if local_idx > x.size - 1 else local_idx
+            x_local, y_local = x[local_idx], y[local_idx]
+            # If it's a single cell in a periodic tissue, we hold the centroid at (0,0)
+            if self.constrain_centroid:
+                x_local -= np.mean(self.x)
+                y_local -= np.mean(self.y)
+            # Force and direction
+            dx, dy = ad[1] - x_local, ad[2] - y_local
+            direction = [dx, dy]
+            magnitude = np.sqrt(direction[0] ** 2 + direction[1] ** 2)
+            direction[0] /= magnitude
+            direction[1] /= magnitude
+            other_mesh_spacing = ad[3]
+
+            length = np.sqrt(dx * dx + dy * dy)
+            Ad_Energy_per_element_of_mesh = 0.5 * self.omega0 * (
+                (length - self.delta) if length < self.max_adhesion_length else (
+                            self.max_adhesion_length - self.delta)) ** 2
+            Ad_Energy_spacing = Ad_Energy_per_element_of_mesh * other_mesh_spacing
+            Ad_Energy_spacing_list.append(Ad_Energy_spacing)
+        num_lost_adhesion = 3999 - len(Ad_Energy_spacing_list)
+        print(f"Adhesion list length before is {len(Ad_Energy_spacing_list)}")
+        print(f" The number of lost adhesions is {num_lost_adhesion}")
+        if num_lost_adhesion >= 1:
+            print(f" \n We have lost some adhesion bonds fill the list with zero")
+            for i in range(num_lost_adhesion):
+                zero = 0.0
+                Ad_Energy_spacing_list.append(zero)
+
+        return Ad_Energy_spacing_list
+
     def get_total_adhesion_force_across_cortex(self, x=None, y=None, s=None):
         """Get the total adhesion force, with fast, sdk and slow adhesions
 
@@ -899,6 +951,7 @@ class Cell(object):
         # Slow adhesions
         if len(self.slow_adhesions) > 0:
             slow_adh_forces = self.get_slow_adhesion_forces_across_cortex(x, y)
+            # print('/n Slow adhesion is up')
             # add the forces to the adhesions
             np.add(ad_forces, slow_adh_forces, casting='unsafe', out=ad_forces)
 
@@ -963,7 +1016,7 @@ class Cell(object):
         return force_list
 
     def update_prestrains(self):
-        """Update the values of prestretches (called prestrain here based on the identity of (fast) adhesion connections    
+        """Update the values of prestretches (called prestrain here based on the identity of (fast) adhesion connections
         """
 
         self.prestrains = self.get_prestrains()
@@ -1453,6 +1506,55 @@ class Cell(object):
 
         return simps(self.get_cortex_energy(), x=self.s)
 
+    def get_all_energies(self, configuration: str = 'undeformed', x=None, y=None):
+        """
+        Get all types of  energy adhesion, bending , stretching
+        :return:
+        """
+        x = self.x if x is None else x
+        y = self.y if y is None else y
+        ad_spacing_E = self.get_adhesion_energy_list(x, y)
+
+        assert configuration in ['reference', 'undeformed'], "only reference configuration energy supported"
+
+        if configuration == 'undeformed':
+            # Get the prestrains so we can convert the variables from undeformed to virtual configuration.
+            prestrains = self.get_prestrains()
+
+            bending_E = 0.5 * np.sqrt(self.kappa) * ((self.C / prestrains) ** 2)
+        elif configuration == 'reference':
+            bending_E = 0.5 * np.sqrt(self.kappa) * (self.C ** 2)
+
+        stretching_E = 0.5 * (self.gamma - 1) ** 2
+        # print('here the stretching is :' +str(bending_E))
+
+        return ad_spacing_E, bending_E, stretching_E
+
+    def integrate_all_energies(self):
+        """
+        Evaluate all types of energy and their sum
+        :return:
+        """
+        Ead_Eb_Est = self.get_all_energies()
+
+        ad_spacing_E = Ead_Eb_Est[0]
+        bending_E = Ead_Eb_Est[1]
+        stretching_E = Ead_Eb_Est[2]
+
+        from scipy.integrate import simps
+        # Integrate
+        print(f"the length of adhesion is {len(ad_spacing_E)}")
+        print(f"the length of self.s is {len(self.s)}")
+
+        ad_spacing_E = 0.5 * simps(ad_spacing_E, x=self.s)
+        bending_E = simps(bending_E, x=self.s)
+        stretching_E = simps(stretching_E, x=self.s)
+
+        # Total energy is their sum
+        total_E_spacing = ad_spacing_E + bending_E + stretching_E
+
+        return ad_spacing_E, bending_E, stretching_E, total_E_spacing
+
     def get_shape_tensor(self):
         """Get cell shape tensor
 
@@ -1719,7 +1821,7 @@ class Cell(object):
 
         """
 
-        self.verboseprint(f'Updating deformed mesh spacing on cell {self.identifier}', object(), 1)
+        # self.verboseprint(f'Updating deformed mesh spacing on cell {self.identifier}', object(), 1)
 
         if self.identifier != 'periodic_boundary':
             self.deformed_mesh_spacing = self.get_xy_segment_lengths(x, y)
@@ -2403,11 +2505,6 @@ class Cell(object):
         elif sim_type == 'whole':
             max_pressure = 4e-3  # For whole cells
             p_axis_scale = 1e1  # 2000
-        elif sim_type == 'medial':
-            max_pressure = 2e-3
-            p_axis_scale = 6e3
-        else:
-            raise NotImplementedError
         default_cmap = plt.get_cmap('RdBu')
         #
         # Truncate the colourmap to use lighter colours
