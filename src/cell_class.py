@@ -20,6 +20,7 @@ import shapely.geometry as geom
 from matplotlib import pyplot as plt
 from matplotlib.collections import LineCollection
 from numpy.core.umath_tests import inner1d
+from scipy.integrate import simps
 from scipy.integrate import solve_bvp as solve_bvp_scipy
 from scipy.interpolate import interp1d
 from scipy.signal import decimate, resample, savgol_filter
@@ -155,8 +156,12 @@ class Cell(object):
 
         # Their constitutive properties
         self.adhesion_force_law: str = cell_kwargs.get('adhesion_force_law', 'spring')  # Can be 'spring' only, for now.
+        # Make sure adhesion act only normally
+        self.enforce_normal_adhesion_force: bool = cell_kwargs.get('enforce_normal_adhesion_force', False)
         # Set a maximum size for adhesions (force=0 for adhesions longer than this)
         self.max_adhesion_length: float = self.domain[1] / 20
+        # Set a maximum size for adhesions forces to saturate at
+        self.adhesion_length_saturation: float = np.inf
         # How is the force calculated for fast adhesions: can be in ["nearest", "meanfield", "fixed_radius"]
         # 'meanfield' is most appropriate for fast adhesions.
         self.adhesion_type: str = cell_kwargs.get('adhesion_type', 'fixed_radius')
@@ -428,6 +433,21 @@ class Cell(object):
         else:
             return False
 
+    def scale_self(self, scale_factor: float):
+        """
+
+        """
+        # centroids
+        C_x = np.mean(self.x)
+        C_y = np.mean(self.y)
+        # temp locations
+        xs = self.x - C_x
+        ys = self.y - C_y
+        # scale
+        self.x = xs * scale_factor + C_x
+        self.y = ys * scale_factor + C_y
+        self.update_reference_configuration()
+
     def scale_whole_cell_to_fit_adhesion_to_delta(self, stretch_factor=1.01, delta_tol=1.05,
                                                   update_adhesion_lengths=True):
         """Applies a homogenous isotropic stretch/compression to the cell such that the shortest
@@ -441,38 +461,77 @@ class Cell(object):
         :type update_adhesion_lengths:  bool
 
         """
+        from shapely.affinity import scale, translate
 
-        # Get the current shortest adhesion
-        min_adh = self.get_length_of_shortest_adhesion(rerun_distance_calculation=update_adhesion_lengths)
-        # If it's longer, stretch the cell until it fits
-        while min_adh > self.delta * delta_tol:
-            # centroids
-            C_x = np.mean(self.x)
-            C_y = np.mean(self.y)
-            # temp locations
-            xs = self.x - C_x
-            ys = self.y - C_y
-            # scale
-            self.x = xs * stretch_factor + C_x
-            self.y = ys * stretch_factor + C_y
-            self.update_reference_configuration()
-            # now see how small it is
-            min_adh = self.get_length_of_shortest_adhesion(rerun_distance_calculation=update_adhesion_lengths)
+        adhesion_coords = np.array([[ad[1], ad[2]] for ad in self.slow_adhesions])
+        centroid = (np.mean(adhesion_coords[:, 0]), np.mean(adhesion_coords[:, 1]))
+        # Order the points anticlockwise
+        angles = np.arctan2(centroid[0] - adhesion_coords[:, 0], centroid[1] - adhesion_coords[:, 1])
+        index_list = np.argsort(-angles)
+        adhesion_coords = adhesion_coords[index_list]
 
-        # Otherwise, if the cell is too big, compress it.
-        while min_adh < self.delta * (2 - delta_tol):
-            # centroids
-            C_x = np.mean(self.x)
-            C_y = np.mean(self.y)
-            # temp locations
-            xs = self.x - C_x
-            ys = self.y - C_y
-            # scale
-            self.x = xs * (2 - stretch_factor) + C_x
-            self.y = ys * (2 - stretch_factor) + C_y
-            self.update_reference_configuration()
+        adhesion_poly = geom.Polygon(adhesion_coords)
+        cell_poly = geom.Polygon(np.dstack((self.x, self.y))[0])
 
-            min_adh = self.get_length_of_shortest_adhesion(rerun_distance_calculation=update_adhesion_lengths)
+        # x, y = cell_poly.exterior.xy
+        # f,ax = plt.subplots()
+        # ax.plot(*adhesion_poly.exterior.xy, '-k')
+        # ax.plot(*cell_poly.exterior.xy, '-b')
+        # plt.show()
+
+        while adhesion_poly.exterior.intersects(cell_poly):
+            cell_centroid = np.array(cell_poly.centroid.xy)
+            boundary_centroid = np.array(adhesion_poly.centroid.xy)
+            cell_poly = translate(cell_poly, xoff=boundary_centroid[0] - cell_centroid[0],
+                                  yoff=boundary_centroid[1] - cell_centroid[1])
+
+            cell_poly = scale(cell_poly, xfact=0.99, yfact=0.99, origin='centroid')
+            # f,ax = plt.subplots()
+            # ax.plot(*adhesion_poly.exterior.xy, '-k')
+            # ax.plot(*cell_poly.exterior.xy, '-b')
+            # plt.show()
+
+        while adhesion_poly.exterior.distance(cell_poly) < 1:
+            cell_poly = scale(cell_poly, xfact=0.99, yfact=0.99, origin='centroid')
+            # f,ax = plt.subplots()
+            # ax.plot(*adhesion_poly.exterior.xy, '-k')
+            # ax.plot(*cell_poly.exterior.xy, '-b')
+            # plt.show()
+
+        self.x = np.array(cell_poly.exterior.xy[0])
+        self.y = np.array(cell_poly.exterior.xy[1])
+
+        # # Get the current shortest adhesion
+        # min_adh = self.get_length_of_shortest_adhesion(rerun_distance_calculation=update_adhesion_lengths)
+        # # If it's longer, stretch the cell until it fits
+        # while min_adh > self.delta * delta_tol:
+        #     # centroids
+        #     C_x = np.mean(self.x)
+        #     C_y = np.mean(self.y)
+        #     # temp locations
+        #     xs = self.x - C_x
+        #     ys = self.y - C_y
+        #     # scale
+        #     self.x = xs * stretch_factor + C_x
+        #     self.y = ys * stretch_factor + C_y
+        #     self.update_reference_configuration()
+        #     # now see how small it is
+        #     min_adh = self.get_length_of_shortest_adhesion(rerun_distance_calculation=update_adhesion_lengths)
+        #
+        # # Otherwise, if the cell is too big, compress it.
+        # while min_adh < self.delta * (2 - delta_tol):
+        #     # centroids
+        #     C_x = np.mean(self.x)
+        #     C_y = np.mean(self.y)
+        #     # temp locations
+        #     xs = self.x - C_x
+        #     ys = self.y - C_y
+        #     # scale
+        #     self.x = xs * (2 - stretch_factor) + C_x
+        #     self.y = ys * (2 - stretch_factor) + C_y
+        #     self.update_reference_configuration()
+        #
+        #     min_adh = self.get_length_of_shortest_adhesion(rerun_distance_calculation=update_adhesion_lengths)
 
         self.update_reference_configuration()
 
@@ -493,7 +552,7 @@ class Cell(object):
 
         """
 
-        #  Extract the adhesion points
+        # Extract the adhesion points
         adhesionNodes = self.adhesion_point_coords
 
         if not hasattr(self, 'adhesion_type'):
@@ -636,7 +695,7 @@ class Cell(object):
         :type is_intersection:  bool
         :return: The ``distances`` that the nodes have to the adhesion boundary, and the ``indices`` matching the output distances to the input nodes.
         :rtype: (list, list)
-        
+
         """
 
         # Get the lengths of the connections that were made.
@@ -700,6 +759,10 @@ class Cell(object):
         dirs = np.array(dirs)
         dirs = np.divide(dirs, np.sqrt(inner1d(dirs, dirs))[:, np.newaxis])
 
+        # Option to override the direction to be normal (useful for fitting in stencils)
+        if self.enforce_normal_adhesion_force:
+            dirs = np.dstack([np.sin(self.theta), -np.cos(self.theta)])[0]
+
         # If we haven't intersected the other cell, multiply by the direction
         if not is_intersection:
             # Mulitply normals by magnitude of force to get force vectors
@@ -724,7 +787,7 @@ class Cell(object):
         :type sort_by_distance:  bool
         :return: A list of the adhesion forces acting across the cortex.
         :rtype: np.array
-        
+
         """
 
         if x is None or y is None:
@@ -814,12 +877,12 @@ class Cell(object):
         return force_vector
 
     def get_slow_adhesion_forces_across_cortex(self, x=None, y=None):
-        """Calculate a vector len(self.s) giving the total force at every cortexz node coming from the population of
+        """Calculate a vector len(self.s) giving the total force at every cortex node coming from the population of
         slow adhesions.
 
-        :param x:  (Default value = None)  x-coordintes to use.  Defaults to stored cortex x variable.
+        :param x:  (Default value = None)  x-coordinates to use.  Defaults to stored cortex x variable.
         :type x:  np.array
-        :param y:  (Default value = None) y-coordintes to use.  Defaults to stored cortex y variable.
+        :param y:  (Default value = None) y-coordinates to use.  Defaults to stored cortex y variable.
         :type y:  np.array
         :return: A list of the slow adhesion forces acting across the cortex.
         :rtype: np.array
@@ -833,6 +896,7 @@ class Cell(object):
 
         force_vector = np.zeros((x.size, 2))
 
+        # f, ax = plt.subplots()
         for ad in self.slow_adhesions:
             # Slow adhesion data format = (local_cell_index, other_cell_x, other_cell_y, other_cell_spacing)
 
@@ -848,22 +912,42 @@ class Cell(object):
 
             # Force and direction
             dx, dy = ad[1] - x_local, ad[2] - y_local
-            direction = [dx, dy]
+            # Option to override the direction to be normal (useful for fitting in stencils)
+            if self.enforce_normal_adhesion_force:
+                # direction = np.array([np.sin(self.theta[local_idx]), -np.cos(self.theta[local_idx])])
+                upper_idx = local_idx + 1 if local_idx < x.size - 1 else local_idx
+                direction = [-(y[upper_idx] - y[local_idx - 1]), x[upper_idx] - x[local_idx - 1]]
+                # Make sure outward
+                tangent = [x[upper_idx] - x[local_idx - 1], (y[upper_idx] - y[local_idx - 1])]
+                cross_prod = np.cross(tangent, direction)
+                if cross_prod > 0:
+                    direction[0] *= -1
+                    direction[1] *= -1
+            else:
+                direction = [dx, dy]
             magnitude = np.sqrt(direction[0] ** 2 + direction[1] ** 2)
             direction[0] /= magnitude
             direction[1] /= magnitude
 
             length = np.sqrt(dx * dx + dy * dy)
+            length = self.adhesion_length_saturation if length > self.adhesion_length_saturation else length
             e = length - self.delta if length < self.max_adhesion_length else 0
             force = self.omega0 * e
 
             force_acting = [direction[0] * force * self.deformed_mesh_spacing[local_idx],
                             direction[1] * force * self.deformed_mesh_spacing[local_idx]]
 
-            # Multiple by mesh spacing on the other cotrex.
+            # Multiple by mesh spacing on the other cortex.
             other_mesh_spacing = ad[3]
             force_vector[local_idx, 0] += force_acting[0] * other_mesh_spacing
             force_vector[local_idx, 1] += force_acting[1] * other_mesh_spacing
+
+        # # Plotting
+        #     ax.arrow(x_local, y_local, 1e8*force_acting[0] * other_mesh_spacing,
+        #              1e8*force_acting[1] * other_mesh_spacing, width=.010)
+        #     ax.plot(ad[1], ad[2], 'ko')
+        # ax.set_aspect('equal')
+        # plt.show()
 
         return force_vector
 
@@ -963,7 +1047,7 @@ class Cell(object):
         return force_list
 
     def update_prestrains(self):
-        """Update the values of prestretches (called prestrain here based on the identity of (fast) adhesion connections    
+        """Update the values of prestretches (called prestrain here based on the identity of (fast) adhesion connections
         """
 
         self.prestrains = self.get_prestrains()
@@ -978,7 +1062,10 @@ class Cell(object):
         :rtype: np.array
 
         """
-        assert len(self.adhesion_connections_identities) > 0, 'Error, need to update adhesions'
+        # assert len(self.adhesion_connections_identities) > 0, 'Error, need to update adhesions'
+        if len(self.adhesion_connections_identities) == 0:
+            warnings.warn("Careful, calculating prestrain before adhesions are updated, but need adhesions to localise"
+                          " prestrain")
 
         shape = self.x.size if shape is None else shape
 
@@ -1050,8 +1137,8 @@ class Cell(object):
         :type D:  np.array
         :param s:  (Default value = None) S_0-coordintes to use.  Defaults to stored cortex S_0 variable.
         :type s:  np.array
-        :return: A list of arrays, where each array is the first deriv of a cortex variable.
-        :rtype: list
+        :return: A np.array of arrays: [theta', gamma', x', y', D', C'].
+        :rtype: np.array
 
         """
 
@@ -1143,6 +1230,8 @@ class Cell(object):
 
         elif self.constitutive_model == 'hyperelastic':
             raise NotImplementedError('Hyperelastic model not implemented')
+        else:
+            raise NotImplementedError('Constitutive model not implemented')
 
         # Theta
         dThetaDs = C
@@ -1215,7 +1304,7 @@ class Cell(object):
         thetaTemp, xTemp, yTemp = self.theta + 0., self.x + 0., self.y + 0.
         DTemp, CTemp = self.D + 0., self.C + 0.
         sTemp = self.s + 0.
-        #  Make a vector of the variables
+        # Make a vector of the variables
         U1 = np.array([thetaTemp, gammaTemp, xTemp, yTemp, DTemp, CTemp])
 
         # Tell the solver not to add nodes
@@ -1439,6 +1528,8 @@ class Cell(object):
             bending = 0.5 * np.sqrt(self.kappa) * ((self.C / prestrains) ** 2)
         elif configuration == 'undeformed':
             bending = 0.5 * np.sqrt(self.kappa) * (self.C ** 2)
+        else:
+            raise NotImplementedError
 
         stretching = 0.5 * (self.gamma ** 2)
 
@@ -1449,7 +1540,6 @@ class Cell(object):
 
         :return:
         """
-        from scipy.integrate import simps
 
         return simps(self.get_cortex_energy(), x=self.s)
 
@@ -1634,6 +1724,8 @@ class Cell(object):
                 # find the nodes with low curvature density (note threshold is different to above)
                 # Only include nodes that have sufficiently dense spacing
                 indices_to_remove = np.where((self.C * spacing < min_curv_density) & (spacing < 3 * max_spacing))[0]
+            else:
+                raise NotImplementedError
 
             # Kepp specified indices
             indices_to_remove = [idx for idx in indices_to_remove if idx not in nodes_to_keep]
@@ -2024,6 +2116,7 @@ class Cell(object):
             ax.plot(self.s, self.D, linestyle, color='C3', label=r'$\tilde{c}^\prime$')
             ax.plot(self.s, self.C, linestyle, color='C0', label=labels[0])
             ax.plot(self.s, tau, linestyle, color='C1', label=r'$\tau$')
+            # ax.plot(self.s, self.gamma, linestyle, color='C1', label=r'$\tau$')
             angles = np.degrees(self.theta % (2 * np.pi))
             angles[angles > 180] -= 180
             angles[angles > 90] -= 90
@@ -2275,7 +2368,7 @@ class Cell(object):
         else:
             if plot_forces:
                 total_force = -self.get_cortex_forces()
-                ax.quiver(points[:, 0], points[:, 1], total_force[:, 0], total_force[:, 1], width=0.0025, scale=.0050,
+                ax.quiver(points[:, 0], points[:, 1], total_force[:, 0], total_force[:, 1], width=0.0025, scale=.50,
                           color='k', zorder=10)
 
             if self.fast_adhesions_active:
