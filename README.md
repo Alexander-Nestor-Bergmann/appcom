@@ -6,7 +6,7 @@
 
 [![Doc Status](https://readthedocs.org/projects/appcom/badge/?version=latest)](https://appcom.readthedocs.io/en/latest/)
 
-The `AppCoM` library is an implementation of a mechanical model of an active epithelial tissue.  
+The `ACAM` library is an implementation of a mechanical model of an active epithelial tissue.  
 
 ## Overview
 
