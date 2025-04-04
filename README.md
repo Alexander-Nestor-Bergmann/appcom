@@ -1,5 +1,9 @@
 # ACAM: an **A**pposed-**C**ortex **A**dhesion **M**odel of an epithelial tissue.
 
+**⚠️ Notice:** This repository is no longer maintained.  
+🚀 Active development — with **new features, updates, and improvements** — is now happening at:  
+👉 [https://gricad-gitlab.univ-grenoble-alpes.fr/etiennej/acam](https://gricad-gitlab.univ-grenoble-alpes.fr/etiennej/acam)
+
 ![AppCoM](docs/Figures/simulation.gif)
 
 <hr/>
